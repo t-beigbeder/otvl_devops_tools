@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-proxy-cmap
+data:
+  "static-config.yml": |
+    log:
+      level: INFO
+    accessLog: {}
+    providers:
+      file:
+        filename: /traefik/dynamic-conf.yml
+        watch: true
+    entryPoints:
+      web:
+        address: ':8080'
+  "dynamic-conf.yml": |
+    http:
+      routers:
+
+        to-api-private:
+          rule: "Path(`/api/v2/content/private{n:.*}`,`/api/v2/content/prive{n:.*}`,`/api/v2/html/private{n:.*}`,`/api/v2/html/prive{n:.*}`)"
+          middlewares:
+            - private-basic-auth
+          service: api
+
+        to-api-sitemap:
+          rule: "Path(`/sitemap.xml`)"
+          middlewares:
+            - add-api
+          service: api
+
+        to-api:
+          rule: "PathPrefix(`/api/`)"
+          service: api
+
+        to-nobot:
+          rule: "(PathPrefix(`/assets/`) || Path(`/favicon.ico`,`/robots.txt`))"
+          priority: 5
+          service: app
+
+        to-api-html-private:
+          rule: "Path(`/private{n:.*}`,`/prive{n:.*}`) && HeadersRegexp(`User-Agent`, `(otvl_begin|nomoreGooglebot|Bingbot|bingbot|BingPreview|YandexWebmaster|YandexBot|LinkedInBot|PocketParser|Slurp|Baiduspider|Sogou|Exabot|facebot|facebookexternalhit|ia_archiver|DuckDuckBot|WhatsApp|Twitterbot|Applebot|AhrefsBot|PaperLiBot|otvl_end)`)"
+          priority: 4
+          middlewares:
+            - "private-basic-auth"
+            - "add-api-html"
+          service: api
+
+        to-api-html:
+          rule: "HeadersRegexp(`User-Agent`, `(otvl_begin|nomoreGooglebot|Bingbot|bingbot|BingPreview|YandexWebmaster|YandexBot|LinkedInBot|PocketParser|Slurp|Baiduspider|Sogou|Exabot|facebot|facebookexternalhit|ia_archiver|DuckDuckBot|WhatsApp|Twitterbot|Applebot|AhrefsBot|PaperLiBot|otvl_end)`)"
+          priority: 3
+          middlewares:
+            - "add-api-html"
+          service: api
+
+        to-private:
+          rule: "Path(`/private{n:.*}`,`/prive{n:.*}`)"
+          priority: 2
+          middlewares:
+            - "private-basic-auth"
+          service: app
+
+        to-app:
+          rule: "PathPrefix(`/`)"
+          priority: 1
+          service: app
+
+      middlewares:
+        "add-api":
+          addPrefix:
+            prefix: "/api/v2"
+
+        "add-api-html":
+          addPrefix:
+            prefix: "/api/v2/html"
+
+        "private-basic-auth":
+          basicAuth:
+            users:
+              {{- include "auth-users-from-credentials" . | trim | nindent 14 }}
+
+      services:
+        "app":
+          loadBalancer:
+            servers:
+              - url: {{ printf "http://%s-app" .Release.Name }}
+
+        "api":
+          loadBalancer:
+            servers:
+              - url: {{ printf "http://%s-api:9090" .Release.Name }}

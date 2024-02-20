@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-reg
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}-reg
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: {{ .Release.Name }}-reg
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}-reg
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.uid }}
+        runAsGroup: {{ .Values.uid }}
+        fsGroup: {{ .Values.fs_group }}
+      containers:
+        - name: ctr-reg
+          image: {{ .Values.images.reg }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          ports:
+            - containerPort: 5000
+          livenessProbe:
+            periodSeconds: 60
+            httpGet:
+              path: /
+              port: 5000
+          readinessProbe:
+            periodSeconds: 60
+            httpGet:
+              path: /
+              port: 5000
+          volumeMounts:
+            - name: ctr-vol
+              mountPath: /var/lib/registry
+            - name: ctr-config-vol
+              mountPath: /etc/docker/registry
+
+      volumes:
+        - name: ctr-vol
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc
+        - name: ctr-config-vol
+          configMap:
+            name: {{ .Release.Name }}-reg-cmap
+
+      restartPolicy: Always

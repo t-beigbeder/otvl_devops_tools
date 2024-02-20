@@ -1,0 +1,71 @@
+---
+# otvl/roles/k8s_client/tasks/main.yml
+
+- name: Create k3s config bastion
+  file:
+    path: "/home/{{ otvl.config_vars.devops_user }}/.k3s"
+    state: directory
+    mode: 0700
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+
+- name: Create kube config bastion
+  file:
+    path: "/home/{{ otvl.config_vars.devops_user }}/.kube"
+    state: directory
+    mode: 0700
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+
+- name: Create helm local var files
+  file:
+    path: "/home/{{ otvl.config_vars.devops_user }}/helm_values"
+    state: directory
+    mode: 0700
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+
+- name: Here otvl/roles/k8s_client/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: install_from_url
+  vars:
+    url: "{{ otvl.kubectl.url }}"
+    dload_name: "kubectl.2"
+    sha: "{{ otvl.kubectl.sha }}"
+    binary_name: "kubectl"
+
+- name: Install cmctl on the bastion host
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.cmctl.release_url }}"
+    tgz_name: "cmctl.1.tgz"
+    sha: "{{ otvl.cmctl.sha }}"
+    binary_name: "cmctl"
+    binary_path: "."
+
+- name: Install helm on the bastion host
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.helm.release_url }}"
+    tgz_name: "helm.1.tgz"
+    sha: "{{ otvl.helm.sha }}"
+    binary_name: "helm"
+    binary_path: "linux-amd64"
+
+- name: Install opentofu on the bastion host
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.opentofu.release_url }}"
+    tgz_name: "opentofu.3.zip"
+    sha: "{{ otvl.opentofu.sha }}"
+    binary_name: "tofu"
+    binary_path: "."
+
+###

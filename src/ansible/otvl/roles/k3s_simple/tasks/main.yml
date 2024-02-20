@@ -1,0 +1,81 @@
+---
+# otvl/roles/k3s_simple/tasks/main.yml
+
+- name: Install curl for k3s installation and git for image build
+  ansible.builtin.apt:
+    pkg:
+      - curl
+      - git
+    install_recommends: no
+    update_cache: "{{ otvl.prod }}"
+
+- name: Create rancher/k3s configuration directory
+  file:
+    path: "/etc/rancher/k3s"
+    state: directory
+    mode: 0755
+
+- name: Configure rancher/k3s TLS SAN
+  template:
+    src: rancher-config.yaml
+    dest: /etc/rancher/k3s/config.yaml
+
+- name: Create otvl/k3s configuration yaml directory
+  file:
+    path: "{{ otvl.config_paths.data }}/otvl/k3s"
+    state: directory
+    mode: 0755
+
+- name: Create k3s manifests directory
+  file:
+    path: /var/lib/rancher/k3s/server/manifests
+    state: directory
+    mode: 0755
+
+- name: Configure traefik ingress controller
+  template:
+    src: traefik-config.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+  when: otvl.k3s.traefik.customize
+
+- name: Check k3s cluster presence
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/k3s.service"
+  register: k3s_service_st
+
+- name: Install the k3s cluster if absent
+  shell: "curl -sfL https://get.k3s.io | sh -"
+  when: k3s_service_st.stat.isreg is not defined
+
+- name: Configure the k3s private registry
+  template:
+    src: registries.yaml
+    dest: /etc/rancher/k3s/registries.yaml
+
+- name: Restart the k3s.service once registries.yaml delivered
+  systemd:
+    name: k3s.service
+    state: restarted
+  when: k3s_service_st.stat.isreg is not defined
+
+- name: Make k3s cluster config copy readable
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    remote_src: true
+    dest: "{{ otvl.config_paths.data }}/otvl/k3s/k3s.yaml"
+    mode: "0644"
+
+- name: Adapt k3s cluster config localhost to api_server
+  ansible.builtin.replace:
+    path: "{{ otvl.config_paths.data }}/otvl/k3s/k3s.yaml"
+    regexp: "https://127.0.0.1:"
+    replace: "https://{{ otvl.k3s.api_server }}:"
+
+- name: Fetch k3s cluster config for access from localhost
+  ansible.builtin.fetch:
+    src: "{{ otvl.config_paths.data }}/otvl/k3s/k3s.yaml"
+    dest: "/home/{{ otvl.config_vars.devops_user }}/.k3s"
+  vars:
+    ansible_become: false
+
+###

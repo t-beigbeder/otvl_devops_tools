@@ -1,0 +1,13 @@
+---
+# otvl/roles/services/otvl_web/tasks/deploy_site.yml
+
+- name: Here otvl/roles/services/otvl_web/tasks/deploy_site.yml
+  include_role:
+    name: commons
+    tasks_from: helm_release
+  vars:
+    title: "the otvl_web site {{ current_item.name }}"
+    chart_sp: "otvl/otvl_web"
+    vf_template_sp: "otvl_web.yaml"
+    release_name: "{{ current_item.name }}"
+    uninstall: "{{ current_item.helm_uninstall | default(false) }}"

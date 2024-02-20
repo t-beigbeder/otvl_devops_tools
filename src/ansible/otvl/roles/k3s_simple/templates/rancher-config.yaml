@@ -1,0 +1,2 @@
+tls-san:
+  - "{{ otvl.k3s.api_server }}"

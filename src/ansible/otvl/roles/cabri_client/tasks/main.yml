@@ -1,0 +1,31 @@
+---
+# otvl/roles/cabri_client/tasks/main.yml
+
+- name: Here otvl/roles/cabri_client/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "https://github.com/t-beigbeder/otvl_cabri/releases/download/{{ otvl.cabri.release }}/cabri-{{ otvl.cabri.release }}-linux-amd64.tar.gz"
+    tgz_name: "cabri.2.tgz"
+    sha: "{{ otvl.cabri.sha }}"
+    binary_name: "cabri"
+    binary_path: "cabri"
+
+- name: Create the cabri configuration directory
+  file:
+    dest: /home/{{ otvl.config_vars.devops_user }}/.cabri
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+    state: directory
+    mode: 0750
+
+- name: Copy cabri clientConfig on the bastion
+  copy:
+    src: override/bastion/cabri/clientConfig
+    dest: /home/{{ otvl.config_vars.devops_user }}/.cabri/clientConfig
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+    mode: 0640
+
+###

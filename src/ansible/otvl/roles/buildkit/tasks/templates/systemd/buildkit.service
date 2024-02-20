@@ -1,0 +1,13 @@
+[Unit]
+Description=BuildKit
+Documentation=https://github.com/moby/buildkit
+
+[Service]
+Type=simple
+TimeoutStartSec=10
+Restart=always
+RestartSec=10
+ExecStart=/usr/local/bin/buildkitd
+
+[Install]
+WantedBy=multi-user.target

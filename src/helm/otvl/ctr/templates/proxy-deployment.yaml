@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-proxy
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}-proxy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: {{ .Release.Name }}-proxy
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}-proxy
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.uid }}
+        runAsGroup: {{ .Values.uid }}
+      containers:
+        - name: ctr-proxy
+          image: {{ .Values.images.traefik }}
+          command: ["/usr/local/bin/traefik"]
+          args: ["--configFile=/traefik/static-config.yml"]
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: ctr-config-vol
+              mountPath: /traefik
+      volumes:
+        - name: ctr-config-vol
+          configMap:
+            name: {{ .Release.Name }}-proxy-cmap

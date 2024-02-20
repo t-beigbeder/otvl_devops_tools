@@ -1,0 +1,27 @@
+---
+# otvl/roles/nerdctl/tasks/main.yml
+
+- name: Here otvl/roles/nerdctl/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.nerdctl.release_url }}"
+    tgz_name: "nerdctl-1.7.4.tgz"
+    sha: "{{ otvl.nerdctl.sha }}"
+    binary_name: "nerdctl"
+    binary_path: "."
+
+- name: Create the nerdctl configuration directory
+  file:
+    dest: "/etc/nerdctl"
+    state: directory
+    mode: 0755
+
+- name: Create the nerdctl configuration file
+  copy:
+    dest: "/etc/nerdctl/nerdctl.toml"
+    src: "nerdctl.toml"
+    mode: 0644
+
+###

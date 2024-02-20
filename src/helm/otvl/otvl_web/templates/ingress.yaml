@@ -1,0 +1,24 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  tls:
+    - hosts:
+        - {{ include "ingress-hostname" . }}
+      secretName: {{ .Release.Name }}
+  rules:
+    - host: {{ include "ingress-hostname" . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name:  {{ .Release.Name }}-proxy
+                port:
+                  number: 8080
+{{- end }}

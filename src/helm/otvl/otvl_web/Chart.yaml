@@ -1,0 +1,6 @@
+apiVersion: v2
+name: otvl-web
+description: otvl_web application http and api servers
+type: application
+version: 0.1.2
+appVersion: "v2.6.0"

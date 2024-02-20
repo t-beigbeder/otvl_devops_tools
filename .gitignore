@@ -1,3 +1,4 @@
+
 # Local .terraform directories
 **/.terraform/*
 
@@ -32,3 +33,15 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# dev configuration
+ansible.cfg
+.ostestrc
+.osprodrc
+
+# PyCharm
+/.idea
+/.run
+
+# other
+tmp/

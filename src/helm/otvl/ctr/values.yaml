@@ -1,0 +1,16 @@
+images:
+  reg: registry:2.8
+  traefik: traefik:v2.11
+uid: 3002
+fs_group: 2002
+resources:
+  requests:
+    cpu: "50m"
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+ingress:
+  enabled: true
+  # host: otvl-ctr.example.com, defaults to <release-name>.example.com
+apr_credentials: "ctrlogin:"

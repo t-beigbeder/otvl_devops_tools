@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-app-cmap
+data:
+  "init-data-app.sh": |
+    echo /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} '<hidden>'
+    /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} ${CABRI_SYNC_WEB_PASSWORD}
+    if [ $? -ne 0 ] ; then exit 1 ; fi
+    mkdir -p /data/assets
+    echo cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_ASSETS} fsy:/data/assets@ -rv --summary --noacl
+    cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_ASSETS} fsy:/data/assets@ -rv --summary --noacl
+  "cabri-sfile.yaml": |
+    synchronize:
+      period: {{ .Values.sync_periods.app }}
+      actions:
+        - type: cmd
+          base:
+            verbose: false
+            dispOut: false
+            dispErr: false
+          cmdLine: cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_ASSETS} fsy:/data/assets@ -rv --summary --noacl
+  "run-cabri-sched.sh": |
+    echo /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} '<hidden>'
+    /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} ${CABRI_SYNC_WEB_PASSWORD}
+    if [ $? -ne 0 ] ; then exit 1 ; fi
+    echo /usr/local/bin/cabri schedule --pfile /etc/cabri-pfile --sfile /app-cmap/cabri-sfile.yaml
+    /usr/local/bin/cabri schedule --pfile /etc/cabri-pfile --sfile /app-cmap/cabri-sfile.yaml

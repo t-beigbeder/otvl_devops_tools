@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-api
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}-api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: {{ .Release.Name }}-api
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}-api
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.uid }}
+        runAsGroup: {{ .Values.uid }}
+        fsGroup: {{ .Values.fs_group }}
+      containers:
+        - name: api
+          image: {{ printf "%s-api:%s" .Values.images.site_name .Values.images.versions.api }}
+          env:
+            - name: OTVL_WEB_CONFIG_PATH
+              value: /data/config/config.yml
+          command: ["/bin/sh"]
+          args: ["-c", "/entrypoint.sh /srv/pkg/otvl_web_server_venv/bin/python -m otvl_web.main"]
+          resources:
+            {{- toYaml .Values.resources.api | nindent 12 }}
+          ports:
+            - containerPort: 9090
+          livenessProbe:
+            periodSeconds: 60
+            httpGet:
+              path: /api/v2/config
+              port: 9090
+          readinessProbe:
+            periodSeconds: 60
+            httpGet:
+              path: /api/v2/config
+              port: 9090
+          volumeMounts:
+            - name: api-vol
+              mountPath: /data
+            - name: api-cmap-vol
+              mountPath: /api-cmap
+        - name: sched
+          image: {{ .Values.images.cabri_sched }}
+          env:
+            {{- include "podenv-from-cabri-webapi" . | trim | nindent 12 }}
+          command:
+            - sh
+            - /entrypoint.sh
+            - /api-cmap/run-cabri-sched.sh
+          resources:
+            {{- toYaml .Values.resources.sync | nindent 12 }}
+          volumeMounts:
+            - name: api-vol
+              mountPath: /data
+            - name: api-cmap-vol
+              mountPath: /api-cmap
+      initContainers:
+        - name: init
+          image: {{ .Values.images.cabri_sched }}
+          env:
+            {{- include "podenv-from-cabri-webapi" . | trim | nindent 12 }}
+          command:
+            - sh
+            - /entrypoint.sh
+            - /api-cmap/init-data-api.sh
+          resources:
+            {{- toYaml .Values.resources.sync | nindent 12 }}
+          volumeMounts:
+            - name: api-vol
+              mountPath: /data
+            - name: api-cmap-vol
+              mountPath: /api-cmap
+
+      volumes:
+        - name: api-vol
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc
+        - name: api-cmap-vol
+          projected:
+            sources:
+              - configMap:
+                  name: {{ .Release.Name }}-api-cmap
+                  items:
+                    - key: init-data-api.sh
+                      path: init-data-api.sh
+                      mode: 0555
+                    - key: cabri-sfile.yaml
+                      path: cabri-sfile.yaml
+                      mode: 0444
+                    - key: run-cabri-sched.sh
+                      path: run-cabri-sched.sh
+                      mode: 0555

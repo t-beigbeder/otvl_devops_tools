@@ -1,0 +1,13 @@
+---
+# otvl/roles/services/cabri/tasks/deploy_webapi.yml
+
+- name: Here otvl/roles/services/cabri/tasks/deploy_webapi.yml
+  include_role:
+    name: commons
+    tasks_from: helm_release
+  vars:
+    title: "the cabri API {{ current_item.name }}"
+    chart_sp: "otvl/cabri"
+    vf_template_sp: "cabri.yaml"
+    release_name: "{{ current_item.name }}"
+    uninstall: "{{ current_item.helm_uninstall | default(false) }}"

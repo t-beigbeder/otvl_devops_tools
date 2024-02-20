@@ -1,0 +1,109 @@
+---
+# default otvl variable for otvl_devops_tools playbooks and roles
+
+default_otvl:
+  debug: false
+  config_paths:
+    delivery: /otvl/delivery
+    data: /otvl/data
+  config_vars:
+    admin_user: otvl_admin_user
+    admin_key: otvl_admin_key
+    devops_user: devops
+    devops_key: id_rsa_devops
+    otvl_devops_tools_repo: "https://github.com/t-beigbeder/otvl_devops_tools"
+    otvl_devops_tools_version: "main"
+    otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz
+  cabri:
+    release: "v0.2.14-rc.1"
+    sha: "33867fea29e63ba2c28d4544b9df40b9e0300aec4daa255bf8e830a05cff2e12"
+    image: "tbeigbeder/cabri:v0.2.14-rc.1"
+    webapi_user: "remote_cabri_login"
+    webapi_password: "remote_cabri_password"
+  cabri_sched:
+    image: "tbeigbeder/cabri-sched:v0.2.14-rc.1"
+  kubectl:
+    url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
+    sha: "7816d067740f47f949be826ac76943167b7b3a38c4f0c18b902fffa8779a5afa"
+  cmctl:
+    release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.12.7/cmctl-linux-amd64.tar.gz"
+    sha: "bf47f11c8fc637ea18da84e36ab7c9ad5e40449fd04afcbbc25ce5ae3f22d038"
+  helm:
+    release_url: "https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz"
+    sha: "f43e1c3387de24547506ab05d24e5309c0ce0b228c23bd8aa64e9ec4b8206651"
+  opentofu:
+    release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
+    sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
+  k3s:
+    traefik:
+      customize: true
+#    api_server: ovhk6-loc
+#    api_server_ansible_host: ovhk6
+    default_namespace: "default"
+  nerdctl:
+    release_url: "https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz"
+    sha: "71aee9d987b7fad0ff2ade50b038ad7e2356324edc02c54045960a3521b3e6a7"
+  buildkit:
+    release_url: "https://github.com/moby/buildkit/releases/download/v0.13.0/buildkit-v0.13.0.linux-amd64.tar.gz"
+    sha: "0893f55180c3da895ad998af25305f32413676a72a36b4372607ff7396f607e8"
+  cert_manager:
+    release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml"
+    sha: "af39d0d73641327d921647cf6add447f3dfdc0c431e43820b227ab249e3728d9"
+    le_url: "https://acme-v02.api.letsencrypt.org/directory"
+    le_email: "acme@example.com"
+  ctr:
+    release: otvl-ctr
+    uid: 3002
+    fs_group: 2002
+    ingress_host: ctr.example.com
+    login: ctrlogin
+    password: ""
+    apr_credentials: "ctr:"
+  traefik:
+    image: "traefik:v2.11"
+  cabri_services: []
+#    - name: test-rca
+#      skip_hdeploy: true
+#      helm_uninstall: true
+#      uid: 3003
+#      fs_group: 2003
+#      ingress_host: rca.example.com
+#      ingress_auth:
+#        - "rcalogin:rcapassword"
+#      obs_config:
+#        AK: S3 access key
+#        EP: S3 endpoint
+#        RG: S3 region
+#        SK: S3 secret key
+#      dsss:
+#        - "obs:dss-s3-bucket-and-url"
+  otvl_web_services: []
+#    - name: blog-test
+#      skip_build: true
+#      skip_hdeploy: true
+#      helm_uninstall: true
+#      git:
+#        otvl_web:
+#          repo: "https://github.com/t-beigbeder/otvl_web"
+#          version: "bdevx"
+#        otvl_site:
+#          repo: "https://github.com/t-beigbeder/otvl_blog"
+#          version: "bdevx"
+#          build_dir: "/blog"
+#      images_versions:
+#        app: "2.6.n"
+#        api: "2.6.n"
+#      uid: 3003
+#      fs_group: 2003
+#      ingress_host: t1.example.com
+#      ingress_auth:
+#        - "owlogin:owpassword"
+#      enable_bots: false
+#      sync_periods:
+#        app: "3599"
+#        api: "3599"
+#      sync_cabri_endpoint:
+#        dss: "webapi+https://rca.example.com/test-obs-otvl-web"
+#        config: "otvl_sites/config/blog"
+#        content: "otvl_sites/content/blog"
+#        assets: "otvl_sites/assets/blog"

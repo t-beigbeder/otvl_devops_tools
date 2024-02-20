@@ -1,0 +1,57 @@
+---
+# otvl/roles/buildkit/tasks/main.yml
+
+- name: Here otvl/roles/buildkit/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.buildkit.release_url }}"
+    tgz_name: "buildkit-0.13.0-1.tgz"
+    sha: "{{ otvl.buildkit.sha }}"
+    binary_name: "buildkit"
+    binary_path: "bin"
+    dir_content: true
+
+- name: Install downloaded builkit binaries
+  ansible.builtin.copy:
+    src: "{{ ghr_extr }}/bin"
+    remote_src: true
+    dest: "/usr/local"
+  when: ghr_release_extract.changed
+
+- name: Create the buildkit configuration directory
+  file:
+    dest: "/etc/buildkit"
+    state: directory
+    mode: 0755
+
+- name: Create the buildkit configuration file
+  copy:
+    dest: "/etc/buildkit/buildkitd.toml"
+    src: "buildkitd.toml"
+    mode: 0644
+
+- name: "Create buildkit systemd service file"
+  template:
+    src: systemd/buildkit.service
+    dest: /etc/systemd/system/buildkit.service
+    owner: root
+    group: root
+    mode: 0644
+  register: buildkit_config
+
+- name: Create and run systemd service for buildkit
+  block:
+    - name: Enable buildkit systemd service
+      systemd:
+        name: "buildkit"
+        enabled: yes
+    - name: Restart buildkit systemd service
+      systemd:
+        name: "buildkit"
+        state: restarted
+        daemon_reload: yes
+  when: buildkit_config.changed
+
+###

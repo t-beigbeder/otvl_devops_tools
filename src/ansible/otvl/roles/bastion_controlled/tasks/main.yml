@@ -1,0 +1,21 @@
+---
+# otvl/roles/bastion_controlled/tasks/main.yml
+
+- name: Here otvl/roles/bastion_controlled/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: check_vars
+  when: otvl.debug
+
+- name: Here otvl/roles/bastion_controlled/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: srv_dirs
+
+- name: Authorize ssh admin public key
+  authorized_key:
+    user: "{{ otvl.config_vars.admin_user }}"
+    state: present
+    key: "{{ lookup('file', 'override/bastion/ssh/id_rsa_admin.pub') }}"
+
+###

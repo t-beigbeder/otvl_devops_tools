@@ -1,0 +1,16 @@
+---
+# otvl/roles/services/ctr/tasks/main.yml
+
+- name: Here otvl/roles/services/ctr/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: helm_release
+  vars:
+    title: "the container registry"
+    chart_sp: "otvl/ctr"
+    vf_template_sp: "ctr.yaml"
+    release_name: "{{ otvl.ctr.release }}"
+    uninstall: "{{ otvl.ctr.helm_uninstall | default(false) }}"
+  when: not (otvl.ctr.skip_hdeploy | default(false))
+
+###

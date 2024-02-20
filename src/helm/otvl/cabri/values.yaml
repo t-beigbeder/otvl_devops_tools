@@ -1,0 +1,26 @@
+images:
+  cabri: tbeigbeder/cabri:v0.2.14-rc.1
+  traefik: traefik:v2.11
+uid: 3002
+fs_group: 2002
+resources:
+  requests:
+    cpu: 53m
+    memory: 131Mi
+  limits:
+    cpu: "4"
+    memory: 4Gi
+urls:
+  - data
+dsss:
+  - "obs:data"
+env:
+  AK: s3_access_key
+  EP: s3_endpoint
+  RG: s3_region
+  SK: s3_secret_key
+ingress:
+  enabled: true
+  # host: otvl-cabri.example.com, defaults to <release-name>.example.com
+apr_credentials:
+  - "cabrilogin:"

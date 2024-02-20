@@ -1,0 +1,48 @@
+images:
+  cabri: tbeigbeder/cabri:v0.2.14-rc.1
+  cabri_sched: tbeigbeder/cabri-sched:v0.2.14-rc.1
+  traefik: traefik:v2.11
+  site_name: otvl-web-sample
+  versions:
+    app: "2.6.0"
+    api: "2.6.0"
+uid: 3002
+fs_group: 2002
+resources:
+  app:
+    requests:
+      cpu: "0.1"
+      memory: 128Mi
+    limits:
+      cpu: "0.5"
+      memory: 512Mi
+  api:
+    requests:
+      cpu: "0.1"
+      memory: 128Mi
+    limits:
+      cpu: "0.5"
+      memory: 512Mi
+  sync:
+    requests:
+      cpu: "0.1"
+      memory: 128Mi
+    limits:
+      cpu: "0.5"
+      memory: 512Mi
+cabri_webapi:
+  dss: "webapi+https://prca.otvl.org/prod-obs-otvl-web"
+  user: "remote_cabri_login"
+  password: "remote_cabri_password"
+  config: "path/to/config"
+  content: "path/to/content"
+  assets: "path/to/assets"
+ingress:
+  enabled: true
+  # host: otvl-web-app.example.com, defaults to <release-name>.example.com
+apr_credentials:
+  - "weblogin:"
+sync_periods:
+  app: "3600"
+  api: "3600"
+enable_bots: false

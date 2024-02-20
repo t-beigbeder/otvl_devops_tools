@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-api-cmap
+data:
+  "init-data-api.sh": |
+    echo /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} '<hidden>'
+    /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} ${CABRI_SYNC_WEB_PASSWORD}
+    if [ $? -ne 0 ] ; then exit 1 ; fi
+    mkdir -p /data/config /data/content
+    echo /usr/local/bin/cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_CONFIG} fsy:/data/config@ -rv --summary --noacl
+    /usr/local/bin/cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_CONFIG} fsy:/data/config@ -rv --summary --noacl
+    if [ $? -ne 0 ] ; then exit 1 ; fi
+    ln -s /data/content /data/config/content
+    echo cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_CONTENT} fsy:/data/content@ -rv --summary --noacl
+    cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_CONTENT} fsy:/data/content@ -rv --summary --noacl
+  "cabri-sfile.yaml": |
+    synchronize:
+      period: {{ .Values.sync_periods.api }}
+      actions:
+        - type: cmd
+          base:
+            verbose: false
+            dispOut: false
+            dispErr: false
+          cmdLine: cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_CONTENT} fsy:/data/content@ -rv --summary --noacl
+  "run-cabri-sched.sh": |
+    echo /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} '<hidden>'
+    /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} ${CABRI_SYNC_WEB_PASSWORD}
+    if [ $? -ne 0 ] ; then exit 1 ; fi
+    echo /usr/local/bin/cabri schedule --pfile /etc/cabri-pfile --sfile /api-cmap/cabri-sfile.yaml
+    /usr/local/bin/cabri schedule --pfile /etc/cabri-pfile --sfile /api-cmap/cabri-sfile.yaml
