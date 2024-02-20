@@ -10,6 +10,6 @@
     mode: 0755
   with_items:
     - "{{ otvl.config_paths.data }}"
-    - "{{ combined_otvl.config_paths.delivery }}"
+    - "{{ otvl.config_paths.delivery }}"
 
 ###

@@ -49,4 +49,22 @@
     recursive: no
     force: no
 
+- name: Create virtualenv otvl_devops_tools/venv
+  command: "virtualenv -p python3 /home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
+  args:
+    creates: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
+
+- name: Install requirements in virtualenv otvl_ansible/venv
+  command: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/pip install -r /home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/python/requirements.txt"
+  args:
+    creates: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/ansible-playbook"
+
+- name: Copy ansible configuration on the bastion
+  copy:
+    src: override/bastion/ansible/ansible.cfg
+    dest: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/ansible.cfg"
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+    mode: 0600
+
 ###
