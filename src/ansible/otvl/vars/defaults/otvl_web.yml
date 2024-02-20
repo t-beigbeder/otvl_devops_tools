@@ -1,0 +1,16 @@
+---
+# default otvl variable for otvl_ansible playbooks and roles
+
+default_otvl:
+  debug: false
+  config_paths:
+    delivery: /otvl/delivery
+    data: /otvl/data
+  config_vars:
+    admin_user: otvl_admin_user
+    admin_key: otvl_admin_key
+    devops_user: devops
+    devops_key: id_rsa_devops
+    otvl_devops_tools_repo: "https://github.com/t-beigbeder/otvl_devops_tools"
+    otvl_devops_tools_version: "main"
+    otvl_ans_inv_local_git_repo_tgz: /data/E4/projets/gitbare/pub/otvl_anprin.git.tar.gz

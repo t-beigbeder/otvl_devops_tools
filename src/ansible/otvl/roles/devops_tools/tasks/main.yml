@@ -1,0 +1,52 @@
+---
+# otvl/roles/devops_tools/tasks/main.yml
+
+- name: Here otvl/roles/devops_tools/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: check_vars
+  when: otvl.debug
+
+- name: Here otvl/roles/devops_tools/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: srv_dirs
+
+- name: Install packages for devops automation
+  ansible.builtin.apt:
+    pkg:
+      - git
+      - virtualenv
+      - python3-dev
+      - gcc
+      - rsync
+      - sudo
+      - fail2ban
+    update_cache: "{{ otvl.prod }}"
+    install_recommends: no
+    state: present
+
+- name: "Create devops user {{ otvl.config_vars.devops_user }}"
+  ansible.builtin.user:
+    name: "{{ otvl.config_vars.devops_user }}"
+    append: true
+    groups: ""
+    shell: /bin/bash
+
+- name: "Make devops user {{ otvl.config_vars.devops_user }} sudoer wo passwd"
+  copy:
+    content: "{{ otvl.config_vars.devops_user }} ALL=(ALL) NOPASSWD:ALL"
+    dest: /etc/sudoers.d/devops_nopasswd
+    mode: 0440
+
+- name: Checkout git otvl_devops_tools once
+  git:
+    repo: "{{ otvl.config_vars.otvl_devops_tools_repo }}"
+    version: "{{ otvl.config_vars.otvl_devops_tools_version }}"
+    dest: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools"
+    depth: 1
+    update: false
+    recursive: no
+    force: no
+
+###

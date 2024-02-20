@@ -1,0 +1,8 @@
+-r requirements.txt
+coverage
+flake8
+mccabe
+pep8
+pyflakes
+pip-tools
+mypy

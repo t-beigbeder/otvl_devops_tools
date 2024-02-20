@@ -1,0 +1,21 @@
+- hosts: "*"
+  gather_facts: False
+  tasks:
+    - name: Load default variables
+      include_vars:
+        dir: vars/defaults
+    - name: Combine default with actual otvl config data
+      set_fact:
+        combined_otvl: "{{ default_otvl | combine(otvl, recursive=True) }}"
+  tags: always
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - devops_tools
+    - k8s_client
+  vars:
+    otvl: "{{ combined_otvl }}"
+  tags:
+    - otvl_bastion
