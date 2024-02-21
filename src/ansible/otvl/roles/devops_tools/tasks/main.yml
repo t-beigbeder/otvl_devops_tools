@@ -67,4 +67,84 @@
     group: "{{ otvl.config_vars.devops_user }}"
     mode: 0600
 
+- name: Get stat of ansible inventory checkout
+  ansible.builtin.stat:
+    path: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_anprin"
+  register: otvl_anprin_st
+
+- name: Extract ansible inventory git repository on the bastion once
+  unarchive:
+    src: "{{ otvl.config_vars.otvl_ans_inv_local_git_repo_tgz }}"
+    dest: "/home/{{ otvl.config_vars.devops_user }}"
+  when: otvl_anprin_st.stat.isdir is not defined
+
+- name: Checkout git ansible inventory once
+  git:
+    repo: "/home/{{ otvl.config_vars.devops_user }}/otvl_anprin.git"
+    dest: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_anprin"
+    update: false
+    recursive: no
+    force: no
+  when: otvl_anprin_st.stat.isdir is not defined
+
+- name: Give files read access to devops user
+  ansible.builtin.file:
+    dest: "/home/{{ otvl.config_vars.devops_user }}"
+    recurse: yes
+    mode: ugo+rX
+
+- name: "Add devops key as authorized for ssh localhost"
+  ansible.posix.authorized_key:
+    user: "{{ otvl.config_vars.devops_user }}"
+    state: present
+    key: "{{ lookup('file', 'override/bastion/ssh/id_rsa_devops.pub') }}"
+
+- name: Copy ssh devops private key on the bastion
+  copy:
+    src: override/bastion/ssh/id_rsa_devops
+    dest: /home/{{ otvl.config_vars.devops_user }}/.ssh/{{ otvl.config_vars.devops_key }}
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+    mode: 0600
+
+- name: Copy ssh devops public key on the bastion
+  copy:
+    src: override/bastion/ssh/id_rsa_devops.pub
+    dest: /home/{{ otvl.config_vars.devops_user }}/.ssh/{{ otvl.config_vars.devops_key }}.pub
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+    mode: 0600
+
+- name: Create openstack configuration dir on the bastion
+  file:
+    path: /home/{{ otvl.config_vars.devops_user }}/.config/openstack
+    state: directory
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+    mode: 0700
+
+- name: Copy openstack configuration on the bastion
+  copy:
+    src: override/bastion/openstack/clouds.yaml
+    dest: /home/{{ otvl.config_vars.devops_user }}/.config/openstack/clouds.yaml
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+    mode: 0600
+
+- name: Copy ssh admin private key on the bastion
+  copy:
+    src: override/bastion/ssh/id_rsa_admin
+    dest: /home/{{ otvl.config_vars.admin_user }}/.ssh/{{ otvl.config_vars.admin_key }}
+    owner: "{{ otvl.config_vars.admin_user }}"
+    group: "{{ otvl.config_vars.admin_user }}"
+    mode: 0600
+
+- name: Copy ssh admin public key on the bastion
+  copy:
+    src: override/bastion/ssh/id_rsa_admin.pub
+    dest: /home/{{ otvl.config_vars.admin_user }}/.ssh/{{ otvl.config_vars.admin_key }}.pub
+    owner: "{{ otvl.config_vars.admin_user }}"
+    group: "{{ otvl.config_vars.admin_user }}"
+    mode: 0600
+
 ###
