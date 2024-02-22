@@ -19,4 +19,34 @@
   vars:
     otvl: "{{ cbd_otvl }}"
   tags:
-    - otvl_bastion
+    - bastion
+
+- hosts: bastion_controlled_group
+  gather_facts: False
+  become: yes
+  roles:
+    - bastion_controlled
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - bastion
+
+- hosts: k3s_simple_group
+  gather_facts: False
+  become: yes
+  roles:
+    - k3s_simple
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - k3s_simple
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - k8s_client/configure_k3s
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - k3s_simple

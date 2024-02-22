@@ -1,0 +1,21 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    persistence:
+      enabled: true
+    logs:
+      general:
+        level: INFO
+      access:
+        enabled: false
+    
+    ports:
+      web:
+        redirectTo:
+          port: websecure
+          # enable cert-manager to bypass redirection during http challenge
+          priority: 1000

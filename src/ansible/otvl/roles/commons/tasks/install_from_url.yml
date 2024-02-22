@@ -1,0 +1,42 @@
+# otvl/roles/commons/tasks/install_from_url.yml
+# install binary from github releases
+# vars:
+#   url: url
+#   sha: sha256sum of the downloaded file
+#   dload_name: downloaded file name
+#   binary_name: extracted file name
+
+- name: set delivery directory for downloads
+  block:
+    - name: Does {{ otvl.config_paths.delivery }} exist
+      stat:
+        path: "{{ otvl.config_paths.delivery }}"
+      register: ghr_dlv_stat
+    - name: Set delivery to {{ otvl.config_paths.delivery }}
+      set_fact:
+        ghr_dlv: "{{ otvl.config_paths.delivery }}"
+      when: ghr_dlv_stat.stat.exists
+    - name: Set delivery to /tmp
+      set_fact:
+        ghr_dlv: "/tmp"
+      when: not ghr_dlv_stat.stat.exists
+
+- name: set included vars
+  set_fact:
+    ghr_get_msg: "Download {{ dload_name }} in {{ ghr_dlv }} from {{ url }}"
+    ghr_inst_msg: "Install {{ binary_name }} from {{ ghr_dlv }}/{{ dload_name }}"
+
+- name: "{{ ghr_get_msg }}"
+  ansible.builtin.get_url:
+    url: "{{ url }}"
+    dest: "{{ ghr_dlv }}/{{ dload_name }}"
+    checksum: "sha256:{{ sha }}"
+  register: release_download
+
+- name: "{{ ghr_inst_msg }}"
+  ansible.builtin.copy:
+    src: "{{ ghr_dlv }}/{{ dload_name }}"
+    remote_src: true
+    dest: "/usr/local/bin/{{ binary_name }}"
+    mode: "0755"
+  when: release_download.changed

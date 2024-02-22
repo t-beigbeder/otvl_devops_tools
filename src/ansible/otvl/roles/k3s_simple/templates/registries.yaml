@@ -1,0 +1,9 @@
+mirrors:
+  "{{ otvl.ctr.ingress_host }}":
+    endpoint:
+      - "https://{{ otvl.ctr.ingress_host }}"
+configs:
+  "{{ otvl.ctr.ingress_host }}":
+    auth:
+      username: "{{ otvl.ctr.login }}"
+      password: "{{ otvl.ctr.password }}"

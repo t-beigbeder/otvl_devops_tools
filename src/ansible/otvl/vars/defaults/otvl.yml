@@ -17,4 +17,24 @@ default_otvl:
   cabri:
     release: "v0.2.13"
     sha: "29f47154e88f75e82eda224bfa9b3a782196bfc08e53fb5bffa833f355c073d3"
-
+  kubectl:
+    url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
+    sha: "7816d067740f47f949be826ac76943167b7b3a38c4f0c18b902fffa8779a5afa"
+  cmctl:
+    release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.12.7/cmctl-linux-amd64.tar.gz"
+    sha: "bf47f11c8fc637ea18da84e36ab7c9ad5e40449fd04afcbbc25ce5ae3f22d038"
+  helm:
+    release_url: "https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz"
+    sha: "f43e1c3387de24547506ab05d24e5309c0ce0b228c23bd8aa64e9ec4b8206651"
+  k3s:
+    install_sh: "https://github.com/k3s-io/k3s/blob/release-1.28/install.sh"
+    install_sha: "5f785120f00ef4b0aba205161232d2a04b6e7a75332cae7059fcc1f517340777"
+  ctr:
+    skip_undeploy: false
+    skip_deploy: false
+    uid: 3002
+    fs_group: 2002
+    ingress_host: ctr.example.com
+    login: ctrlogin
+    password: ""
+    apr_credentials: "ctr:"
