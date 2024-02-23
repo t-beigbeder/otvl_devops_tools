@@ -1,0 +1,15 @@
+ext_net_name = "Ext-Net"
+loc_net_name = "otvl-net"
+loc_net_cidr = "172.23.0.0/28"
+ssh_key_name = "otvl-key-name"
+ssh_pub = "ssh-rsa to_be_completed"
+instances_attrs = [
+  {
+    name = "ovhb6.example.com"
+    logical_name = "ovhb6"
+    groups = []
+    ip_v4 = "172.23.0.4"
+    image_name  = "Debian 12"
+    flavor_name = "d2-2"
+  }
+]

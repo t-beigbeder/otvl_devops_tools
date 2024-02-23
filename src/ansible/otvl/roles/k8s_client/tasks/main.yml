@@ -50,4 +50,15 @@
     binary_name: "helm"
     binary_path: "linux-amd64"
 
+- name: Install opentofu on the bastion host
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.opentofu.release_url }}"
+    tgz_name: "opentofu.3.zip"
+    sha: "{{ otvl.opentofu.sha }}"
+    binary_name: "tofu"
+    binary_path: "."
+
 ###

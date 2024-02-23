@@ -29,6 +29,9 @@ default_otvl:
   k3s:
     install_sh: "https://github.com/k3s-io/k3s/blob/release-1.28/install.sh"
     install_sha: "5f785120f00ef4b0aba205161232d2a04b6e7a75332cae7059fcc1f517340777"
+  opentofu:
+    release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
+    sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
   ctr:
     skip_undeploy: false
     skip_deploy: false
