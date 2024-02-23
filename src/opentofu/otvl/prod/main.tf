@@ -31,6 +31,8 @@ module "networking" {
 
 module "instances" {
   source = "../modules/instances"
+  ext_net_id = module.networking.ext_net_id
+  loc_net_id = module.networking.loc_net_id
   ssh_key_name = var.ssh_key_name
   ssh_pub = var.ssh_pub
   instances_attrs = var.instances_attrs
