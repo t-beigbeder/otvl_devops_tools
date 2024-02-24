@@ -17,8 +17,8 @@ enablevenv() {
 }
 
 getosmeta() {
-  if [ -f /root/clinit/osmeta ] ; then return 0 ; fi
-  curl http://169.254.169.254/openstack/2018-08-27/meta_data.json | jq .meta > /root/clinit/osmeta && \
+  if [ -f /root/clinit/osmeta.json ] ; then return 0 ; fi
+  curl http://169.254.169.254/openstack/2018-08-27/meta_data.json | jq .meta > /root/clinit/osmeta.json && \
   true
 }
 
