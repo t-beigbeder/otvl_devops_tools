@@ -142,7 +142,9 @@ installvenv && \
 cp src/python/otvl/otvl_network_configurator.py /srv/otvl/iaas/python/ && \
 getosmeta && \
 updatehosts && \
+systemctl enable /etc/systemd/system/otvl_network_configurator.timer && \
+echo `date`: reboot && \
+reboot && \
 true || exit 1
-
-echo `date`: command $0 is exiting || exit 1
+echo `date`: command $0 is exiting
 exit 0
