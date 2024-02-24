@@ -32,6 +32,7 @@ updatehosts() {
   echo 127.0.1.1 $hn >> /etc/hosts
   lip=`grep $hn < /root/clinit/etc_loc_hosts | cut -d ' ' -f1`
   echo $lip $ln >> /etc/hosts
+
 }
 
 git_repo="https://github.com/t-beigbeder/otvl_devops_tools"
@@ -39,7 +40,7 @@ git_branch="bdev1"
 git_local="/root/clinit/otvl_devops_tools"
 echo `date`: command $0 is starting
 
-mkdir -p /root/bin /srv/venv /srv/otvl/iaas/python
+mkdir -p /root/bin /srv/venv /srv/otvl/iaas/python /srv/otvl/iaas/data
 cat > /root/bin/otvl_display_net_conf.sh <<EOF
 #!/bin/sh
 logger -t  otvl_display_net_conf -s "command $0 is starting"
@@ -113,6 +114,14 @@ backend = systemd
 enabled = true
 EOF
 
+# FIXME: vars
+cat > /srv/otvl/iaas/data/resolv.conf.reference <<EOF
+# created by otvl_network_configurator
+domain openstacklocal
+search openstacklocal
+nameserver 213.186.33.99
+EOF
+
 tmp=`ip -4 -o address show | grep dynamic`
 external_ip=`echo $tmp | cut -d' ' -f4 | cut -d/ -f1`
 nic_dev=`echo $tmp | cut -d' ' -f2`
@@ -135,10 +144,9 @@ sed -i -e 's=#precedence ::ffff:0:0/96  100=precedence ::ffff:0:0/96  100=' /etc
 
 systemctl enable /etc/systemd/system/otvl_display_net_conf.service && \
 virtualenv -p python3 /srv/venv/otvl_cloud_init && \
-/srv/venv/otvl_cloud_init/bin/pip install pyudev && \
+/srv/venv/otvl_cloud_init/bin/pip install pyudev PyYAML cryptography && \
 /srv/venv/otvl_cloud_init/bin/python /root/otvl_cloud_init_py_check.py && \
 enableswap && \
-installvenv && \
 cp src/python/otvl/otvl_network_configurator.py /srv/otvl/iaas/python/ && \
 getosmeta && \
 updatehosts && \
