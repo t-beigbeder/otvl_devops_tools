@@ -24,8 +24,12 @@ variable "instances_attrs" {
     name         = string
     logical_name = string
     groups       = list(string)
-    ip_v4 = string
+    ip_v4        = string
     image_name   = string
     flavor_name  = string
   }))
+}
+variable "instance_user_data" {
+  description = "User data (cloud-init) passed at instance creation"
+  type        = string
 }

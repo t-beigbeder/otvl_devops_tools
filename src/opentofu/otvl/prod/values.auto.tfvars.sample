@@ -11,5 +11,98 @@ instances_attrs = [
     ip_v4 = "172.23.0.4"
     image_name  = "Debian 12"
     flavor_name = "d2-2"
+  },
+  {
+    name = "ovhk6.example.com"
+    logical_name = "ovhk6"
+    groups = []
+    ip_v4 = "172.23.0.5"
+    image_name  = "Debian 12"
+    flavor_name = "d2-2"
   }
 ]
+instance_user_data = <<-EOF
+      #cloud-config
+      write_files:
+      - content: |
+          #!/bin/sh
+          logger -t  otvl_display_net_conf -s "command $0 is starting"
+          echo "otvl_display_net_conf `date`": command $0 is starting > /dev/console
+          cat /etc/network/interfaces > /tmp/tf.$$
+          ls -l /etc/network/interfaces.d/50-cloud-init.cfg >> /tmp/tf.$$
+          rm -f /etc/network/interfaces.d/50-cloud-init.cfg
+          ip ad show >> /tmp/tf.$$
+          ip route show >> /tmp/tf.$$
+          logger -t  otvl_display_net_conf -s -f /tmp/tf.$$
+          cat /tmp/tf.$$ | sed -e "s/^/otvl_display_net_conf `date` /" > /dev/console
+          rm /tmp/tf.$$
+          logger -t  otvl_display_net_conf -s "command $0 is exiting"
+          echo "otvl_display_net_conf `date`": command $0 is exiting > /dev/console
+          exit 0
+        path: /root/bin/otvl_display_net_conf.sh
+        owner: root:root
+        permissions: '0750'
+      - content: |
+          [Unit]
+          Description=Display network configuration at startup
+
+          [Service]
+          Type=oneshot
+          ExecStart=/root/bin/otvl_display_net_conf.sh
+
+          [Install]
+          WantedBy=multi-user.target
+        path: /etc/systemd/system/otvl_display_net_conf.service
+      - content: |
+          import sys
+          import pyudev
+          context = pyudev.Context()
+          for device in context.list_devices():
+              sys.stderr.write("otvl_cloud_init_py_check: listing {0}\n".format(device))
+        path: /root/otvl_cloud_init_py_check.py
+      - content: |
+          #!/bin/sh
+          echo `date`: command $0 is starting
+          systemctl enable /etc/systemd/system/otvl_display_net_conf.service
+          apt-get update && apt-get install -y --no-install-recommends virtualenv libudev1 ifupdown
+          virtualenv -p python3 /srv/venv/otvl_cloud_init
+          /srv/venv/otvl_cloud_init/bin/pip install pyudev
+          /srv/venv/otvl_cloud_init/bin/python /root/otvl_cloud_init_py_check.py || exit 1
+          tmp=`ip -4 -o address show | grep -v ' lo '`
+          external_ip=`echo $tmp | cut -d' ' -f4 | cut -d/ -f1`
+          nic_dev=`echo $tmp | cut -d' ' -f2`
+          rm -f /etc/network/interfaces.d/50-cloud-init.cfg
+
+          cat > /etc/network/interfaces <<NIEOF
+          # This file describes the network interfaces available on your system
+          # and how to activate them. For more information, see interfaces(5).
+
+          source /etc/network/interfaces.d/*
+
+          # The loopback network interface
+          auto lo
+          iface lo inet loopback
+
+          # The primary network interface
+          allow-hotplug $nic_dev
+          iface $nic_dev inet dhcp
+          NIEOF
+
+          # no swap in OVH!
+          fallocate -l 1G /swapfile
+          chmod 600 /swapfile
+          mkswap /swapfile
+          echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
+
+          # routes only configured for IPV4, use it
+          sed -i -e 's=#precedence ::ffff:0:0/96  100=precedence ::ffff:0:0/96  100=' /etc/gai.conf
+
+          echo `date`: command $0 is exiting
+          echo `date`: reboot
+          reboot
+          exit 0
+        path: /root/bin/otvl_cloud_init.sh
+        owner: root:root
+        permissions: '0750'
+      runcmd:
+      - [ /root/bin/otvl_cloud_init.sh ]

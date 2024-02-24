@@ -28,7 +28,7 @@ variable "instances_attrs" {
     name         = string
     logical_name = string
     groups       = list(string)
-    ip_v4 = string
+    ip_v4        = string
     image_name   = string
     flavor_name  = string
   }))
@@ -38,3 +38,8 @@ variable "instances_attrs" {
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
+variable "instance_user_data" {
+  description = "User data (cloud-init) passed at instance creation"
+  type        = string
+  default     = null
+}
