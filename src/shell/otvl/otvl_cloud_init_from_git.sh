@@ -9,7 +9,7 @@ enableswap() {
   true
 }
 
-enablevenv() {
+installvenv() {
   if [ -d /srv/venv/otvl_cloud_init ] ; then return 0 ; fi
   virtualenv -p python3 /srv/venv/otvl_cloud_init && \
   /srv/venv/otvl_cloud_init/bin/pip install pyudev PyYAML cryptography && \
@@ -20,6 +20,18 @@ getosmeta() {
   if [ -f /root/clinit/osmeta.json ] ; then return 0 ; fi
   curl http://169.254.169.254/openstack/2018-08-27/meta_data.json | jq .meta > /root/clinit/osmeta.json && \
   true
+}
+
+updatehosts() {
+  hn=`cat /root/clinit/osmeta.json | jq -r .hostname`
+  if [ $hn == "null" ] ; then return 1 ; fi
+  tmp=`cat /etc/hosts | grep $hn`
+  if [ -n "$tmp" ] ; then return 0 ; fi
+  cat /root/clinit/etc_loc_hosts >> /etc/hosts
+  ln=`cat /root/clinit/osmeta.json | jq -r .logical_name`
+  echo 127.0.1.1 $hn >> /etc/hosts
+  lip=`grep $hn < /root/clinit/etc_loc_hosts | cut -d ' ' -f1`
+  echo $lip $ln >> /etc/hosts
 }
 
 git_repo="https://github.com/t-beigbeder/otvl_devops_tools"
@@ -92,6 +104,15 @@ OnCalendar=*:0/2
 WantedBy=timers.target
 EOF
 
+cat > /etc/fail2ban/jail.d/defaults-debian.conf <<EOF
+[DEFAULT]
+# Debian 12 has no log files, just journalctl
+backend = systemd
+
+[sshd]
+enabled = true
+EOF
+
 tmp=`ip -4 -o address show | grep dynamic`
 external_ip=`echo $tmp | cut -d' ' -f4 | cut -d/ -f1`
 nic_dev=`echo $tmp | cut -d' ' -f2`
@@ -117,7 +138,7 @@ virtualenv -p python3 /srv/venv/otvl_cloud_init && \
 /srv/venv/otvl_cloud_init/bin/pip install pyudev && \
 /srv/venv/otvl_cloud_init/bin/python /root/otvl_cloud_init_py_check.py && \
 enableswap && \
-enablevenv && \
+installvenv && \
 cp src/python/otvl/otvl_network_configurator.py /srv/otvl/iaas/python/ && \
 getosmeta && \
 true || exit 1
