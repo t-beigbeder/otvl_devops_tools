@@ -32,7 +32,7 @@ updatehosts() {
   echo 127.0.1.1 $hn >> /etc/hosts
   lip=`grep $hn < /root/clinit/etc_loc_hosts | cut -d ' ' -f1`
   echo $lip $ln >> /etc/hosts
-
+  sed -e s=to_be_changed=$lip= /srv/otvl/iaas/config/network_config_base.yml > /srv/otvl/iaas/config/network_config.yml
 }
 
 git_repo="https://github.com/t-beigbeder/otvl_devops_tools"
@@ -112,14 +112,6 @@ backend = systemd
 
 [sshd]
 enabled = true
-EOF
-
-# FIXME: vars
-cat > /srv/otvl/iaas/data/resolv.conf.reference <<EOF
-# created by otvl_network_configurator
-domain openstacklocal
-search openstacklocal
-nameserver 213.186.33.99
 EOF
 
 tmp=`ip -4 -o address show | grep dynamic`
