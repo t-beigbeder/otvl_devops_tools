@@ -24,7 +24,7 @@ getosmeta() {
 
 updatehosts() {
   hn=`cat /root/clinit/osmeta.json | jq -r .hostname`
-  if [ $hn == "null" ] ; then return 1 ; fi
+  if [ "$hn" == "null" ] ; then return 1 ; fi
   tmp=`cat /etc/hosts | grep $hn`
   if [ -n "$tmp" ] ; then return 0 ; fi
   cat /root/clinit/etc_loc_hosts >> /etc/hosts
@@ -144,7 +144,7 @@ getosmeta && \
 updatehosts && \
 systemctl enable /etc/systemd/system/otvl_network_configurator.timer && \
 echo `date`: reboot && \
-echo reboot && \
+reboot && \
 true || exit 1
 echo `date`: command $0 is exiting
 exit 0
