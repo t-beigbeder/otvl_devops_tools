@@ -1,4 +1,13 @@
 #!/bin/sh
+
+enableswap() {
+  if [ -f /swapfile ] ; then return 0 ; fi
+  fallocate -l 1G /swapfile && \
+  chmod 600 /swapfile && \
+  mkswap /swapfile && \
+  echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
+}
+
 git_repo="https://github.com/t-beigbeder/otvl_devops_tools"
 git_branch="bdev1"
 git_local="/root/clinit/otvl_devops_tools"
@@ -50,6 +59,7 @@ virtualenv -p python3 /srv/venv/otvl_cloud_init && \
 tmp=`ip -4 -o address show | grep dynamic` && \
 external_ip=`echo $tmp | cut -d' ' -f4 | cut -d/ -f1` && \
 nic_dev=`echo $tmp | cut -d' ' -f2` && \
+enableswap && \
 true || exit 1
 
 cat > /etc/network/interfaces <<EOF
