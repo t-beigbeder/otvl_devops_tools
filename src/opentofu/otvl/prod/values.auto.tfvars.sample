@@ -43,22 +43,22 @@ instance_user_data = <<-EOF
         owner: root:root
         permissions: '0750'
       - content: |
-          [Unit]
-          Description=Display network configuration at startup
+      [Unit]
+      Description=Display network configuration at startup
 
-          [Service]
-          Type=oneshot
-          ExecStart=/root/bin/otvl_display_net_conf.sh
+      [Service]
+      Type=oneshot
+      ExecStart=/root/bin/otvl_display_net_conf.sh
 
-          [Install]
-          WantedBy=multi-user.target
+      [Install]
+      WantedBy=multi-user.target
         path: /etc/systemd/system/otvl_display_net_conf.service
       - content: |
-          import sys
-          import pyudev
-          context = pyudev.Context()
-          for device in context.list_devices():
-              sys.stderr.write("otvl_cloud_init_py_check: listing {0}\n".format(device))
+      import sys
+      import pyudev
+      context = pyudev.Context()
+      for device in context.list_devices():
+          sys.stderr.write("otvl_cloud_init_py_check: listing {0}\n".format(device))
         path: /root/otvl_cloud_init_py_check.py
       - content: |
           #!/bin/sh
