@@ -43,6 +43,15 @@ for device in context.list_devices():
     sys.stderr.write("otvl_cloud_init_py_check: listing {0}\n".format(device))
 EOF
 
+systemctl enable /etc/systemd/system/otvl_display_net_conf.service && \
+virtualenv -p python3 /srv/venv/otvl_cloud_init && \
+/srv/venv/otvl_cloud_init/bin/pip install pyudev && \
+/srv/venv/otvl_cloud_init/bin/python /root/otvl_cloud_init_py_check.py && \
+tmp=`ip -4 -o address show | grep dynamic` && \
+external_ip=`echo $tmp | cut -d' ' -f4 | cut -d/ -f1` && \
+nic_dev=`echo $tmp | cut -d' ' -f2` && \
+true || exit 1
+
 cat > /etc/network/interfaces <<EOF
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
@@ -58,12 +67,5 @@ allow-hotplug $nic_dev
 iface $nic_dev inet dhcp
 EOF
 
-systemctl enable /etc/systemd/system/otvl_display_net_conf.service && \
-virtualenv -p python3 /srv/venv/otvl_cloud_init && \
-/srv/venv/otvl_cloud_init/bin/pip install pyudev && \
-/srv/venv/otvl_cloud_init/bin/python /root/otvl_cloud_init_py_check.py && \
-tmp=`ip -4 -o address show | grep dynamic` && \
-external_ip=`echo $tmp | cut -d' ' -f4 | cut -d/ -f1` && \
-nic_dev=`echo $tmp | cut -d' ' -f2` && \
 echo `date`: command $0 is exiting || exit 1
 exit 0
