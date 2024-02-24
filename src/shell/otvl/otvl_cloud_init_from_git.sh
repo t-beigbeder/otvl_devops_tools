@@ -144,7 +144,7 @@ getosmeta && \
 updatehosts && \
 systemctl enable /etc/systemd/system/otvl_network_configurator.timer && \
 echo `date`: reboot && \
-reboot && \
+echo reboot && \
 true || exit 1
 echo `date`: command $0 is exiting
 exit 0
