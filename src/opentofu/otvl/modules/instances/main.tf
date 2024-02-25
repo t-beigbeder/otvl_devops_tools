@@ -13,20 +13,35 @@ resource "openstack_compute_keypair_v2" "this" {
   public_key = var.ssh_pub
 }
 
+resource "openstack_networking_port_v2" "ext" {
+  count              = length(var.instances_attrs)
+  network_id         = var.ext_net_id
+  security_group_ids = [count.index == 0 ? var.bastion_sg_id : var.ext_sg_id]
+}
+
+resource "openstack_networking_port_v2" "loc" {
+  count      = length(var.instances_attrs)
+  network_id = var.loc_net_id
+  fixed_ip {
+    subnet_id  = var.loc_subnet_id
+    ip_address = var.instances_attrs[count.index].ip_v4
+  }
+  admin_state_up = "true"
+}
+
 resource "openstack_compute_instance_v2" "this" {
-  count       = length(var.instances_attrs)
-  name        = var.instances_attrs[count.index].name
-  image_name  = var.instances_attrs[count.index].image_name
-  flavor_name = var.instances_attrs[count.index].flavor_name
-  key_pair    = openstack_compute_keypair_v2.this.name
-  user_data   = var.instance_user_data
+  count           = length(var.instances_attrs)
+  name            = var.instances_attrs[count.index].name
+  image_name      = var.instances_attrs[count.index].image_name
+  flavor_name     = var.instances_attrs[count.index].flavor_name
+  key_pair        = openstack_compute_keypair_v2.this.name
+  user_data       = var.instance_user_data
   security_groups = []
   network {
-    uuid = var.ext_net_id
+    port = openstack_networking_port_v2.ext[count.index].id
   }
   network {
-    uuid        = var.loc_net_id
-    fixed_ip_v4 = var.instances_attrs[count.index].ip_v4
+    port = openstack_networking_port_v2.loc[count.index].id
   }
   metadata = {
     "hostname"     = var.instances_attrs[count.index].name
@@ -34,14 +49,8 @@ resource "openstack_compute_instance_v2" "this" {
   }
 }
 
-resource "openstack_networking_port_v2" "ext" {
-  count       = length(var.instances_attrs)
-  network_id  = var.ext_net_id
-  security_group_ids = [var.ext_sg_id]
-}
-
 data "openstack_networking_port_v2" "ext" {
-  count       = length(var.instances_attrs)
-  device_id = openstack_compute_instance_v2.this[count.index].id
+  count      = length(var.instances_attrs)
   network_id = var.ext_net_id
+  device_id  = openstack_compute_instance_v2.this[count.index].id
 }

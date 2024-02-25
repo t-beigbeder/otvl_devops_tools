@@ -10,6 +10,10 @@ variable "loc_net_id" {
   description = "The local network id"
   type        = string
 }
+variable "loc_subnet_id" {
+  description = "The local subnet id"
+  type        = string
+}
 variable "ssh_key_name" {
   description = "The SSH key name to store the ssh_pub public key"
   type        = string
@@ -31,6 +35,10 @@ variable "instances_attrs" {
 }
 variable "instance_user_data" {
   description = "User data (cloud-init) passed at instance creation"
+  type        = string
+}
+variable "bastion_sg_id" {
+  description = "bastion sg id"
   type        = string
 }
 variable "ext_sg_id" {

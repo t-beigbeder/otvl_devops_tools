@@ -8,6 +8,16 @@ output "loc_net_id" {
   description = "The local network id"
 }
 
+output "loc_subnet_id" {
+  value       = openstack_networking_subnet_v2.loc_net_sn.id
+  description = "The local subnet id"
+}
+
+output "bastion_sg_id" {
+  value       = openstack_networking_secgroup_v2.bastion.id
+  description = "The bastion sg id"
+}
+
 output "ext_sg_id" {
   value       = openstack_networking_secgroup_v2.ext.id
   description = "The ext sg id"
