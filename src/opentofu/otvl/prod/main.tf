@@ -23,12 +23,12 @@ terraform {
 }
 
 module "networking" {
-  source       = "../modules/networking"
-  ext_net_name = var.ext_net_name
-  loc_net_name = var.loc_net_name
-  loc_net_cidr = var.loc_net_cidr
+  source          = "../modules/networking"
+  ext_net_name    = var.ext_net_name
+  loc_net_name    = var.loc_net_name
+  loc_net_cidr    = var.loc_net_cidr
   bastion_sg_name = var.bastion_sg_name
-  ext_sg_name = var.ext_sg_name
+  ext_sg_name     = var.ext_sg_name
 }
 
 module "instances" {
@@ -39,4 +39,5 @@ module "instances" {
   ssh_pub            = var.ssh_pub
   instances_attrs    = var.instances_attrs
   instance_user_data = var.instance_user_data
+  ext_sg_id          = module.networking.ext_sg_id
 }

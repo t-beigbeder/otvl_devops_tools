@@ -33,3 +33,7 @@ variable "instance_user_data" {
   description = "User data (cloud-init) passed at instance creation"
   type        = string
 }
+variable "ext_sg_id" {
+  description = "ext sg id"
+  type        = string
+}
