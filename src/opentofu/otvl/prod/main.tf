@@ -27,6 +27,8 @@ module "networking" {
   ext_net_name = var.ext_net_name
   loc_net_name = var.loc_net_name
   loc_net_cidr = var.loc_net_cidr
+  bastion_sg_name = var.bastion_sg_name
+  ext_sg_name = var.ext_sg_name
 }
 
 module "instances" {

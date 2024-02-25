@@ -22,6 +22,14 @@ variable "ssh_pub" {
   description = "The SSH public key to authorize in created instances"
   type        = string
 }
+variable "bastion_sg_name" {
+  description = "The security group name for bastion access"
+  type        = string
+}
+variable "ext_sg_name" {
+  description = "The security group name for external access"
+  type        = string
+}
 variable "instances_attrs" {
   description = "Attributes for instances to create"
   type        = list(object({
