@@ -50,6 +50,27 @@ instance_user_data = <<-EOF
         path: /root/clinit/etc_loc_hosts
         owner: root:root
         permissions: '0640'
+      - content: |
+          networks:
+            - key: Ext-Net
+              cidr:
+              prefix:
+              host_ip:
+            - key: local
+              cidr: 172.23.0.0/28
+              prefix: 172.25.0.
+              host_ip: to_be_changed
+        path: /srv/otvl/iaas/config/network_config_base.yml
+        owner: root:root
+        permissions: '0640'
+      - content: |
+          # created by otvl_network_configurator
+          domain openstacklocal
+          search openstacklocal
+          nameserver 213.186.33.99
+        path: /srv/otvl/iaas/data/resolv.conf.reference
+        owner: root:root
+        permissions: '0640'
 
       runcmd:
       - [ /root/bin/otvl_cloud_init.sh ]
