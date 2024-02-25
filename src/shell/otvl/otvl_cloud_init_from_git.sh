@@ -24,7 +24,7 @@ getosmeta() {
 
 updatehosts() {
   hn=`cat /root/clinit/osmeta.json | jq -r .hostname`
-  if [ "$hn" == "null" ] ; then return 1 ; fi
+  if [ "$hn" = "null" ] ; then return 1 ; fi
   tmp=`cat /etc/hosts | grep "127.0.1.1 $hn"`
   if [ -n "$tmp" ] ; then return 0 ; fi
   cp -p /etc/hosts /etc/hosts.ori
