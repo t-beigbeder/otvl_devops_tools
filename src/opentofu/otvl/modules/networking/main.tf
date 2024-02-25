@@ -57,6 +57,16 @@ resource "openstack_networking_secgroup_rule_v2" "bastion_ssh" {
   security_group_id = openstack_networking_secgroup_v2.bastion.id
 }
 
+resource "openstack_networking_secgroup_rule_v2" "bastion_ssh6" {
+  direction         = "ingress"
+  ethertype         = "IPv6"
+  protocol          = "tcp"
+  port_range_min    = 22
+  port_range_max    = 22
+  remote_ip_prefix  = "::/0"
+  security_group_id = openstack_networking_secgroup_v2.bastion.id
+}
+
 resource "openstack_networking_secgroup_rule_v2" "bastion_icmp" {
   direction         = "ingress"
   ethertype         = "IPv4"

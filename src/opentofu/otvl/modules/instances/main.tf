@@ -46,6 +46,7 @@ resource "openstack_compute_instance_v2" "this" {
   metadata = {
     "hostname"     = var.instances_attrs[count.index].name
     "logical_name" = var.instances_attrs[count.index].logical_name
+    "groups"       = var.instances_attrs[count.index].groups
   }
 }
 

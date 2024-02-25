@@ -35,7 +35,7 @@ variable "instances_attrs" {
   type        = list(object({
     name         = string
     logical_name = string
-    groups       = list(string)
+    groups       = string
     ip_v4        = string
     image_name   = string
     flavor_name  = string
