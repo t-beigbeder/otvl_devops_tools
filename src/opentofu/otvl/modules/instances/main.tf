@@ -44,8 +44,8 @@ resource "openstack_compute_instance_v2" "this" {
     port = openstack_networking_port_v2.loc[count.index].id
   }
   metadata = {
-    "hostname"     = var.instances_attrs[count.index].hostname
-    "groups"       = var.instances_attrs[count.index].groups
+    "groups"    = var.instances_attrs[count.index].groups
+    "otvl_meta" = var.instances_attrs[count.index].otvl_meta
   }
 }
 

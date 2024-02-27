@@ -34,7 +34,6 @@ variable "instances_attrs" {
   description = "Attributes for instances to create"
   type        = list(object({
     name        = string
-    hostname    = string
     groups      = string
     otvl_meta   = string
     ip_v4       = string
