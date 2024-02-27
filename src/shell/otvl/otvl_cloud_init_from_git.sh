@@ -23,17 +23,11 @@ getosmeta() {
 }
 
 updatehosts() {
-  hn=`cat /root/clinit/osmeta.json | jq -r .hostname`
-  if [ "$hn" = "null" ] ; then return 1 ; fi
-  tmp=`cat /etc/hosts | grep "127.0.1.1 $hn"`
-  if [ -n "$tmp" ] ; then return 0 ; fi
+  if [ -f /etc/hosts.ori ] ; then return 0 ; fi
   cp -p /etc/hosts /etc/hosts.ori
-  grep -v $hn < /etc/hosts.ori > /etc/hosts
   cat /root/clinit/etc_loc_hosts >> /etc/hosts
-  hn=`cat /root/clinit/osmeta.json | jq -r .hostname`
-  echo "# 127.0.1.1 $hn" >> /etc/hosts
+  hn=`hostname`
   lip=`grep $hn < /root/clinit/etc_loc_hosts | cut -d ' ' -f1`
-  echo $lip $hn >> /etc/hosts
   sed -e s=to_be_changed=$lip= /srv/otvl/iaas/config/network_config_base.yml > /srv/otvl/iaas/config/network_config.yml
 }
 
