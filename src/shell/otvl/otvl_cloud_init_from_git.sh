@@ -128,7 +128,7 @@ allow-hotplug $nic_dev
 iface $nic_dev inet dhcp
 EOF
 
-sed -i -e 's=#precedence ::ffff:0:0/96  100=precedence ::ffff:0:0/96  100=' /etc/gai.conf
+#sed -i -e 's=#precedence ::ffff:0:0/96  100=precedence ::ffff:0:0/96  100=' /etc/gai.conf
 
 systemctl enable /etc/systemd/system/otvl_display_net_conf.service && \
 virtualenv -p python3 /srv/venv/otvl_cloud_init && \
