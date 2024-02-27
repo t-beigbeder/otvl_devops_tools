@@ -33,12 +33,13 @@ variable "ext_sg_name" {
 variable "instances_attrs" {
   description = "Attributes for instances to create"
   type        = list(object({
-    name         = string
-    logical_name = string
-    groups       = string
-    ip_v4        = string
-    image_name   = string
-    flavor_name  = string
+    name        = string
+    hostname    = string
+    groups      = string
+    otvl_meta   = string
+    ip_v4       = string
+    image_name  = string
+    flavor_name = string
   }))
 }
 

@@ -30,10 +30,10 @@ updatehosts() {
   cp -p /etc/hosts /etc/hosts.ori
   grep -v $hn < /etc/hosts.ori > /etc/hosts
   cat /root/clinit/etc_loc_hosts >> /etc/hosts
-  ln=`cat /root/clinit/osmeta.json | jq -r .logical_name`
+  hn=`cat /root/clinit/osmeta.json | jq -r .hostname`
   echo "# 127.0.1.1 $hn" >> /etc/hosts
   lip=`grep $hn < /root/clinit/etc_loc_hosts | cut -d ' ' -f1`
-  echo $lip $ln >> /etc/hosts
+  echo $lip $hn >> /etc/hosts
   sed -e s=to_be_changed=$lip= /srv/otvl/iaas/config/network_config_base.yml > /srv/otvl/iaas/config/network_config.yml
 }
 
