@@ -8,7 +8,18 @@
     install_recommends: no
     update_cache: "{{ otvl.prod }}"
 
-- name: Create k3s configuration yaml directory
+- name: Create rancher/k3s configuration directory
+  file:
+    path: "/etc/rancher/k3s"
+    state: directory
+    mode: 0755
+
+- name: Configure rancher/k3s TLS SAN
+  template:
+    src: rancher-config.yaml
+    dest: /etc/rancher/k3s/config.yaml
+
+- name: Create otvl/k3s configuration yaml directory
   file:
     path: "{{ otvl.config_paths.data }}/otvl/k3s"
     state: directory
@@ -25,7 +36,6 @@
     src: traefik-config.yaml
     dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
   when: otvl.k3s.traefik.customize
-  register: tci_st
 
 - name: Check k3s cluster presence
   ansible.builtin.stat:
