@@ -22,6 +22,7 @@
       - rsync
       - sudo
       - fail2ban
+      - unzip
     update_cache: "{{ otvl.prod }}"
     install_recommends: no
     state: present
