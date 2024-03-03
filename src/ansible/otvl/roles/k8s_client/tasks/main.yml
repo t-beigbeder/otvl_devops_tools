@@ -1,7 +1,6 @@
 ---
 # otvl/roles/k8s_client/tasks/main.yml
 
-
 - name: Create k3s config bastion
   file:
     path: "/home/{{ otvl.config_vars.devops_user }}/.k3s"
@@ -13,6 +12,14 @@
 - name: Create kube config bastion
   file:
     path: "/home/{{ otvl.config_vars.devops_user }}/.kube"
+    state: directory
+    mode: 0700
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+
+- name: Create helm local var files
+  file:
+    path: "/home/{{ otvl.config_vars.devops_user }}/helm_values"
     state: directory
     mode: 0700
     owner: "{{ otvl.config_vars.devops_user }}"

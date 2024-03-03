@@ -53,4 +53,3 @@ Eg
 - [Terraform](https://developer.hashicorp.com/terraform?product_intent=terraform)
 - [AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 - [OS Provider](https://registry.terraform.io/providers/terraform-provider-openstack/openstack/latest/docs)
-- [kubernetes.core.helm module](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/helm_module.html)

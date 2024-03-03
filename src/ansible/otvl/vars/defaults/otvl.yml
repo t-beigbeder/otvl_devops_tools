@@ -33,12 +33,12 @@ default_otvl:
       customize: true
 #    api_server: ovhk6-loc
 #    api_server_ansible_host: ovhk6
+    default_namespace: "default"
   opentofu:
     release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
     sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
   ctr:
-    skip_undeploy: false
-    skip_deploy: false
+    release: otvl-ctr
     uid: 3002
     fs_group: 2002
     ingress_host: ctr.example.com

@@ -1,0 +1,14 @@
+---
+# otvl/roles/services/ctr/tasks/main.yml
+
+- name: Here otvl/roles/services/ctr/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: helm_release
+  vars:
+    title: "the container registry"
+    chart_sp: "otvl/ctr"
+    template_sp: "ctr.yaml"
+    release_name: "{{ otvl.ctr.release }}"
+
+###

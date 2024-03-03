@@ -11,3 +11,7 @@
     ansible-playbook -i /path/to/inventory src/ansible/otvl/otvl_bastion_v6.yml
     # from bastion host with fast access to openstack API
     ansible-playbook -i /path/to/inventory src/ansible/otvl/otvl_web_v6.yml
+
+## Documentation
+
+- [kubernetes.core.helm module](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/helm_module.html)

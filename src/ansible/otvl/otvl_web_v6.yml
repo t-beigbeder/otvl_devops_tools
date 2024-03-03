@@ -50,3 +50,13 @@
     otvl: "{{ cbd_otvl }}"
   tags:
     - k3s_simple
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/ctr
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - ctr
