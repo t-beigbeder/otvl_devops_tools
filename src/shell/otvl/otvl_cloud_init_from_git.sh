@@ -115,14 +115,14 @@ OnCalendar=*:0/2
 WantedBy=timers.target
 EOF
 
-#cat > /etc/fail2ban/jail.d/defaults-debian.conf <<EOF
-#[DEFAULT]
-## Debian 12 has no log files, just journalctl
-#backend = systemd
-#
-#[sshd]
-#enabled = true
-#EOF
+cat > /etc/fail2ban/jail.d/defaults-debian.conf <<EOF
+[DEFAULT]
+# Debian 12 has no log files, just journalctl
+backend = systemd
+
+[sshd]
+enabled = true
+EOF
 
 tmp=`ip -4 -o address show | grep dynamic`
 external_ip=`echo $tmp | cut -d' ' -f4 | cut -d/ -f1`
