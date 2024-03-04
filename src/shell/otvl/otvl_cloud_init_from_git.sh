@@ -157,5 +157,7 @@ systemctl daemon-reload && \
 systemctl enable otvl_network_configurator.timer && \
 systemctl start otvl_network_configurator.timer && \
 true || exit 1
-echo `date`: command $0 is exiting
+echo `date`: command $0 is exiting, will reboot in 10s
+sleep 10
+reboot
 exit 0
