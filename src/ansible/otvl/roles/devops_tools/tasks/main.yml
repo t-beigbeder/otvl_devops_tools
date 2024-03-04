@@ -55,7 +55,7 @@
   args:
     creates: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
 
-- name: Install requirements in virtualenv otvl_ansible/venv
+- name: Install requirements in virtualenv otvl_devops_tools/venv
   command: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/pip install -r /home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/python/requirements.txt"
   args:
     creates: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/ansible-playbook"

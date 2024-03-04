@@ -1,5 +1,5 @@
 ---
-# default otvl variable for otvl_ansible playbooks and roles
+# default otvl variable for otvl_devops_tools playbooks and roles
 
 default_otvl:
   debug: false
