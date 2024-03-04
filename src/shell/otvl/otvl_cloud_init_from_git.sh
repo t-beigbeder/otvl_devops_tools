@@ -67,6 +67,20 @@ ExecStart=/root/bin/otvl_display_net_conf.sh
 WantedBy=multi-user.target
 EOF
 
+cat > /etc/systemd/system/otvl_network_configurator_forced.service <<EOF
+[Unit]
+Description=Force network configuration at startup
+
+[Service]
+Type=oneshot
+Environment="OTVL_NC_FIC=1"
+ExecStart=/srv/venv/otvl_cloud_init/bin/python /srv/otvl/iaas/python/otvl_network_configurator.py
+WorkingDirectory=/srv/otvl/iaas/python
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 cat > /root/otvl_cloud_init_py_check.py <<EOF
 import sys
 import pyudev
@@ -131,6 +145,7 @@ EOF
 #sed -i -e 's=#precedence ::ffff:0:0/96  100=precedence ::ffff:0:0/96  100=' /etc/gai.conf
 
 systemctl enable /etc/systemd/system/otvl_display_net_conf.service && \
+systemctl enable /etc/systemd/system/otvl_network_configurator_forced.service && \
 virtualenv -p python3 /srv/venv/otvl_cloud_init && \
 /srv/venv/otvl_cloud_init/bin/pip install pyudev PyYAML cryptography && \
 /srv/venv/otvl_cloud_init/bin/python /root/otvl_cloud_init_py_check.py && \

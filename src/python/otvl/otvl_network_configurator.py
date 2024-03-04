@@ -159,7 +159,7 @@ class NetConf:
         return self._run_cmd(args, warn_if_error=False)
 
     def _display_routes(self, json_lines):
-        routes = json.loads(json_lines, encoding="utf-8")
+        routes = json.loads(json_lines)
         self.logger.info(f"Current routes are:")
         for route in routes:
             self.logger.info(f"\t{route}")
