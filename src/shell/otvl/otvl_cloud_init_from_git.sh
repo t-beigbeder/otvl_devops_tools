@@ -138,9 +138,9 @@ enableswap && \
 cp src/python/otvl/otvl_network_configurator.py /srv/otvl/iaas/python/ && \
 getosmeta && \
 updatehosts && \
-#systemctl daemon-reload && \
-#systemctl enable otvl_network_configurator.timer && \
-#systemctl start otvl_network_configurator.timer && \
+systemctl daemon-reload && \
+systemctl enable otvl_network_configurator.timer && \
+systemctl start otvl_network_configurator.timer && \
 true || exit 1
 echo `date`: command $0 is exiting
 exit 0
