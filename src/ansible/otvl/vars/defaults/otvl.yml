@@ -26,17 +26,19 @@ default_otvl:
   helm:
     release_url: "https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz"
     sha: "f43e1c3387de24547506ab05d24e5309c0ce0b228c23bd8aa64e9ec4b8206651"
+  opentofu:
+    release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
+    sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
   k3s:
-    install_sh: "https://github.com/k3s-io/k3s/blob/release-1.28/install.sh"
-    install_sha: "5f785120f00ef4b0aba205161232d2a04b6e7a75332cae7059fcc1f517340777"
     traefik:
       customize: true
 #    api_server: ovhk6-loc
 #    api_server_ansible_host: ovhk6
     default_namespace: "default"
-  opentofu:
-    release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
-    sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
+  cert_manager:
+    release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml"
+    le_url: "https://acme-v02.api.letsencrypt.org/directory"
+    le_email: "thierry@beigbeder.info"
   ctr:
     release: otvl-ctr
     uid: 3002

@@ -1,0 +1,14 @@
+---
+# otvl/roles/cert_manager/tasks/main.yml
+
+- name: Install cert-manager on the k3s cluster
+  block:
+    - command:
+        cmd: "kubectl apply -f {{ otvl.cert_manager.release_url }}"
+      register: kapply
+    - debug: var=kapply.cmd
+    - debug: var=kapply.stderr_lines
+    - debug: var=kapply.stdout_lines
+  when: true
+
+###
