@@ -8,7 +8,7 @@
   vars:
     title: "the container registry"
     chart_sp: "otvl/ctr"
-    template_sp: "ctr.yaml"
+    vf_template_sp: "ctr.yaml"
     release_name: "{{ otvl.ctr.release }}"
 
 ###

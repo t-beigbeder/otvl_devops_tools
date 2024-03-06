@@ -37,10 +37,12 @@ default_otvl:
     default_namespace: "default"
   cert_manager:
     release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml"
+    sha: "af39d0d73641327d921647cf6add447f3dfdc0c431e43820b227ab249e3728d9"
     le_url: "https://acme-v02.api.letsencrypt.org/directory"
-    le_email: "thierry@beigbeder.info"
+    le_email: "acme@example.com"
   ctr:
     release: otvl-ctr
+    image: "registry:2.8"
     uid: 3002
     fs_group: 2002
     ingress_host: ctr.example.com

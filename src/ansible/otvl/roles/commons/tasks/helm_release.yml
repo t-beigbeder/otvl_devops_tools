@@ -3,7 +3,7 @@
 # vars:
 #   title: name what is to be deployed
 #   chart_sp: repository sub-path in devops src/helm
-#   template_sp: repository sub-path in devops src/ansible/templates
+#   vf_template_sp: repository sub-path for the values file template (in devops src/ansible/otvl/templates/override/helm)
 #   release_name: Helm release name
 
 - name: set included vars
