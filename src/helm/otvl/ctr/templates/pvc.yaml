@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ctr-reg-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ctr-reg-pvc
+  resources:
+    requests:
+      storage: 10Gi

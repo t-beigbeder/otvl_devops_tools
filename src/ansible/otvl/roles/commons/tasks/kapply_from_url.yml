@@ -23,7 +23,7 @@
 
 - name: set included vars
   set_fact:
-    kfu_get_msg: "Download {{ dload_name }} in {{ ghr_dlv }} from {{ url }}"
+    kfu_get_msg: "Download {{ dload_name }} in {{ kfu_dlv }} from {{ url }}"
 
 - name: "{{ kfu_get_msg }}"
   ansible.builtin.get_url:
@@ -36,6 +36,7 @@
   block:
     - command:
         cmd: "kubectl apply -f {{ kfu_dlv }}/{{ dload_name }}"
+      become: no
       register: kapply
     - debug: var=kapply.cmd
     - debug: var=kapply.stderr_lines
