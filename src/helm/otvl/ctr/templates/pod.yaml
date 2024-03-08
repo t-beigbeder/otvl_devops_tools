@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: ctr-reg
+  name: {{ .Release.Name }}
   labels:
-    app.kubernetes.io/name: ctr-reg
+    app.kubernetes.io/name: {{ .Release.Name }}
 spec:
   securityContext:
-    runAsUser: 3002
-    runAsGroup: 3002
-    fsGroup: 3002
+    runAsUser: {{ .Values.uid }}
+    runAsGroup: {{ .Values.uid }}
+    fsGroup: {{ .Values.uid }}
   containers:
     - name: ctr-reg
-      image: registry:2.8
+      image: {{ .Values.image }}
       ports:
         - containerPort: 5000
       volumeMounts:
@@ -23,9 +23,9 @@ spec:
   volumes:
     - name: ctr-vol
       persistentVolumeClaim:
-        claimName: ctr-reg-pvc
+        claimName: {{ .Release.Name }}-pvc
     - name: ctr-config-vol
       configMap:
-        name: ctr-reg-cmap
+        name: {{ .Release.Name }}-cmap
 
   restartPolicy: OnFailure

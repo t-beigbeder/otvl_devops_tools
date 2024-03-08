@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ctr-reg-pvc
+  name: {{ .Release.Name }}-pvc
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: ctr-reg-pvc
+  storageClassName: local-path
   resources:
     requests:
       storage: 10Gi
