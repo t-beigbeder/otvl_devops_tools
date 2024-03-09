@@ -36,6 +36,8 @@
   become: yes
   roles:
     - k3s_simple
+    - nerdctl
+    - buildkit
   vars:
     otvl: "{{ cbd_otvl }}"
   tags:

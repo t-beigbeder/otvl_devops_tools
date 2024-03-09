@@ -35,14 +35,17 @@ default_otvl:
 #    api_server: ovhk6-loc
 #    api_server_ansible_host: ovhk6
     default_namespace: "default"
+  nerdctl:
+    release_url: "https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz"
+    sha: "71aee9d987b7fad0ff2ade50b038ad7e2356324edc02c54045960a3521b3e6a7"
+  buildkit:
+    release_url: "https://github.com/moby/buildkit/releases/download/v0.13.0/buildkit-v0.13.0.linux-amd64.tar.gz"
+    sha: "0893f55180c3da895ad998af25305f32413676a72a36b4372607ff7396f607e8"
   cert_manager:
     release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml"
     sha: "af39d0d73641327d921647cf6add447f3dfdc0c431e43820b227ab249e3728d9"
     le_url: "https://acme-v02.api.letsencrypt.org/directory"
     le_email: "acme@example.com"
-  local_path_provisioner:
-    release_url: "https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.26/deploy/local-path-storage.yaml"
-    sha: "e7ca7914a78dbbc20d29201ac46a6c95955ffc14cfe75ff2ae603ae36cf76d3e"
   ctr:
     release: otvl-ctr
     uid: 3002
