@@ -45,7 +45,6 @@ default_otvl:
     sha: "e7ca7914a78dbbc20d29201ac46a6c95955ffc14cfe75ff2ae603ae36cf76d3e"
   ctr:
     release: otvl-ctr
-    image: "registry:2.8"
     uid: 3002
     fs_group: 2002
     ingress_host: ctr.example.com

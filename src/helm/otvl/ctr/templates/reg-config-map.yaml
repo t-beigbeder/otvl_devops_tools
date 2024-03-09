@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-cmap
+  name: {{ .Release.Name }}-reg-cmap
 data:
   "config.yml": |
     version: 0.1

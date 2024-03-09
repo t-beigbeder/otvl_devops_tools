@@ -8,17 +8,17 @@ metadata:
 spec:
   tls:
     - hosts:
-        - {{ include "web-sample-otvl-ingress-hostname" . }}
+        - {{ include "otvl-ctr-ingress-hostname" . }}
       secretName: {{ .Release.Name }}
   rules:
-    - host: {{ include "web-sample-otvl-ingress-hostname" . }}
+    - host: {{ include "otvl-ctr-ingress-hostname" . }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name:  {{ .Release.Name }}
+                name:  {{ .Release.Name }}-proxy
                 port:
                   number: 5000
 {{- end }}

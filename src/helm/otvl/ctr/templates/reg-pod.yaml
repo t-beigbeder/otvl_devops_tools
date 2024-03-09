@@ -1,19 +1,31 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-reg
   labels:
-    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Release.Name }}-reg
 spec:
   securityContext:
     runAsUser: {{ .Values.uid }}
     runAsGroup: {{ .Values.uid }}
-    fsGroup: {{ .Values.uid }}
+    fsGroup: {{ .Values.fs_group }}
   containers:
     - name: ctr-reg
-      image: {{ .Values.image }}
+      image: {{ .Values.images.reg }}
+      resources:
+          {{- toYaml .Values.resources | nindent 10 }}
       ports:
         - containerPort: 5000
+      livenessProbe:
+        periodSeconds: 60
+        httpGet:
+          path: /
+          port: 5000
+      readinessProbe:
+        periodSeconds: 60
+        httpGet:
+          path: /
+          port: 5000
       volumeMounts:
         - name: ctr-vol
           mountPath: /var/lib/registry
@@ -26,6 +38,6 @@ spec:
         claimName: {{ .Release.Name }}-pvc
     - name: ctr-config-vol
       configMap:
-        name: {{ .Release.Name }}-cmap
+        name: {{ .Release.Name }}-reg-cmap
 
   restartPolicy: OnFailure
