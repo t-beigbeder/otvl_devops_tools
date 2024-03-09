@@ -11,7 +11,14 @@
     sha: "{{ otvl.buildkit.sha }}"
     binary_name: "buildkit"
     binary_path: "bin"
-    extract_dir: true
+    dir_content: true
+
+- name: Install downloaded builkit binaries
+  ansible.builtin.copy:
+    src: "{{ ghr_extr }}/bin"
+    remote_src: true
+    dest: "/usr/local"
+  when: ghr_release_extract.changed
 
 - name: Create the buildkit configuration directory
   file:

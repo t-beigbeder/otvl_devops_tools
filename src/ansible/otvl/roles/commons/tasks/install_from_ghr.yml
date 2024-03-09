@@ -4,7 +4,9 @@
 #   url: url
 #   tgz_name: name of downloaded file
 #   sha: sha256sum of the downloaded file
-#   binary_name: extracted file name
+#   binary_name: extracted file name and/or archive extraction name
+#   binary_path: path in the extracted archive
+#   dir_content: extract binary_path content if var present and true
 
 - name: set delivery directory for downloads
   block:
@@ -22,6 +24,14 @@
         ghr_dlv: "/tmp"
         ghr_extr: "/tmp/{{ binary_name }}"
       when: not ghr_dlv_stat.stat.exists
+    - name: Set extracted file origin and target
+      set_fact:
+        ghr_extr_ori: "{{ ghr_extr }}/{{ binary_path }}/{{ binary_name }}"
+      when: not (dir_content | default(false))
+    - name: Set extracted dir origin and target
+      set_fact:
+        ghr_extr_ori: "{{ ghr_extr }}/{{ binary_path }}"
+      when: dir_content | default(false)
 
 - name: set included vars
   set_fact:
@@ -29,7 +39,7 @@
     ghr_purge_msg: "Purge the {{ tgz_name }} extraction directory {{ ghr_extr }}"
     ghr_mkextr_msg: "Create the {{ tgz_name }} extraction directory {{ ghr_extr }}"
     ghr_extr_msg: "Extract {{ ghr_extr }} from {{ tgz_name }}"
-    ghr_inst_msg: "Install {{ binary_name }} from {{ ghr_extr }}/{{ binary_path }}/{{ binary_name }}"
+    ghr_inst_msg: "Install {{ binary_name }} from {{ ghr_extr_ori }}"
 
 - name: "{{ ghr_get_msg }}"
   ansible.builtin.get_url:
@@ -56,7 +66,7 @@
     src: "{{ ghr_dlv }}/{{ tgz_name }}"
     remote_src: yes
     dest: "{{ ghr_extr }}"
-  register: release_extract
+  register: ghr_release_extract
   when: release_download.changed or release_mkextr.changed
 
 - name: "{{ ghr_inst_msg }}"
@@ -65,4 +75,4 @@
     remote_src: true
     dest: "/usr/local/bin/{{ binary_name }}"
     mode: "0755"
-  when: release_extract.changed
+  when: ghr_release_extract.changed and not dir_content | default(false)
