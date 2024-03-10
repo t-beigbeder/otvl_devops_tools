@@ -8,7 +8,6 @@
 
 - name: set included vars
   set_fact:
-    hr_msg: "Deploy {{ title }}"
     hr_lvf: "/home/{{ otvl.config_vars.devops_user }}/helm_values"
 
 - name: Instantiate the template {{ vf_template_sp }} as a local values file {{ hr_lvf }}
@@ -19,7 +18,7 @@
     group: "{{ otvl.config_vars.devops_user }}"
     mode: 0600
 
-- name: Deploy {{ hr_msg }}
+- name: Deploy {{ title }}
   kubernetes.core.helm:
     name: "{{ release_name }}"
     release_namespace: "{{ otvl.k3s.default_namespace }}"

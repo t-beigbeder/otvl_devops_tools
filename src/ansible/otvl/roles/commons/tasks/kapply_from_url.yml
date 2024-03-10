@@ -36,7 +36,7 @@
   block:
     - command:
         cmd: "kubectl apply -f {{ kfu_dlv }}/{{ dload_name }}"
-      become: no
+      become_user: "{{ otvl.config_vars.devops_user }}"
       register: kapply
     - debug: var=kapply.cmd
     - debug: var=kapply.stderr_lines

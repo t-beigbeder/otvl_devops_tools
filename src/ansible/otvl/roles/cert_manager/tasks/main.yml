@@ -11,4 +11,12 @@
     dload_name: "cert-manager.yaml"
     kapp_message: "Install cert-manager on the k3s cluster"
 
+- name: Here otvl/roles/cert_manager/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: kapply_from_template
+  vars:
+    kapp_message: "Install cert-manager cluster issuer for let's encrypt"
+    template: "cluster_issuer.yaml"
+
 ###
