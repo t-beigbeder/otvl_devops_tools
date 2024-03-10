@@ -1,0 +1,10 @@
+---
+# otvl/roles/services/cabri/tasks/main.yml
+
+- name: Loop over Cabri webapis for deploying pods
+  include_tasks: deploy_webapi.yml
+  loop: "{{ otvl.cabri_services }}"
+  loop_control:
+    loop_var: current_item
+
+###

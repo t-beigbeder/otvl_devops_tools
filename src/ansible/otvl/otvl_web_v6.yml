@@ -63,3 +63,13 @@
     otvl: "{{ cbd_otvl }}"
   tags:
     - ctr
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/cabri
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - services

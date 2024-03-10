@@ -15,8 +15,9 @@ default_otvl:
     otvl_devops_tools_version: "main"
     otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz
   cabri:
-    release: "v0.2.13"
-    sha: "29f47154e88f75e82eda224bfa9b3a782196bfc08e53fb5bffa833f355c073d3"
+    release: "v0.2.14-rc.1"
+    sha: "699a484d8a721c2a9bb1536d43ec7ac777521ba3295256f441d5709a56ae1457"
+    image: "tbeigbeder/cabri:v0.2.14-rc.1"
   kubectl:
     url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
     sha: "7816d067740f47f949be826ac76943167b7b3a38c4f0c18b902fffa8779a5afa"
@@ -54,3 +55,5 @@ default_otvl:
     login: ctrlogin
     password: ""
     apr_credentials: "ctr:"
+  traefik:
+    image: "traefik:v2.11"
