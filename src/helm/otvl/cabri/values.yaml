@@ -14,5 +14,4 @@ ingress:
   enabled: true
   # host: otvl-cabri.example.com, defaults to <release-name>.example.com
 urls:
-  - test-obs-otvl-web
-  - test-obs-otvl-web-bis
+  - data

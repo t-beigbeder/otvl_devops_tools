@@ -23,6 +23,7 @@
       - sudo
       - fail2ban
       - unzip
+      - python3-yaml
     update_cache: "{{ otvl.prod }}"
     install_recommends: no
     state: present

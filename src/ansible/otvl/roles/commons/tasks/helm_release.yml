@@ -5,6 +5,7 @@
 #   chart_sp: repository sub-path in devops src/helm
 #   vf_template_sp: repository sub-path for the values file template (in devops src/ansible/otvl/templates/override/helm)
 #   release_name: Helm release name
+#   uninstall: uninstalls the release if present and true
 
 - name: set included vars
   set_fact:
@@ -18,7 +19,18 @@
     group: "{{ otvl.config_vars.devops_user }}"
     mode: 0600
 
-- name: Deploy {{ title }}
+- name: Uninstall {{ title }}
+  kubernetes.core.helm:
+    name: "{{ release_name }}"
+    release_namespace: "{{ otvl.k3s.default_namespace }}"
+    chart_ref: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
+    state: absent
+    values_files:
+      - "{{ hr_lvf }}/{{ release_name }}.yaml"
+  become_user: "{{ otvl.config_vars.devops_user }}"
+  when: uninstall | default(false)
+
+- name: Install {{ title }}
   kubernetes.core.helm:
     name: "{{ release_name }}"
     release_namespace: "{{ otvl.k3s.default_namespace }}"

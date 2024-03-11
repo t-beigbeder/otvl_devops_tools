@@ -29,10 +29,26 @@ spec:
       volumeMounts:
         - name: dss-vol
           mountPath: /data
+        - name: api-config-vol
+          mountPath: /init-scripts
+  initContainers:
+    - name: init
+      image: {{ .Values.images.cabri }}
+      command: ["sh", "/init-scripts/init-cabri-webapi.sh", "arg"]
+      volumeMounts:
+        - name: workdir
+          mountPath: /workdir
+        - name: api-config-vol
+          mountPath: /init-scripts
 
   volumes:
     - name: dss-vol
       persistentVolumeClaim:
         claimName: {{ .Release.Name }}-pvc
+    - name: workdir
+      emptyDir: {}
+    - name: api-config-vol
+      configMap:
+        name: {{ .Release.Name }}-api-cmap
 
   restartPolicy: OnFailure

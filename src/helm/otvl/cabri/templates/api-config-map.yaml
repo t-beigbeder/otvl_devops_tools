@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-api-cmap
+data:
+  "init-cabri-webapi.sh": |
+    echo $0 $*
+    env | sort
+    exit 0
+    copt="--pfile /etc/cabri-pfile --cdir /data/cdir"
+    ccmd="/usr/local/bin/cabri $copt"
+    mkdir -p /data/cdir /data/backups/cdir && \
+      $ccmd cli config --get
+    urls=
+    for dss in $* ; do
+      urls="$urls `sh /etc/config/init-dss.sh $dss`"
+    done
+    ts=`date +%Y%m%d-%H:%M:%S`
+    tar czf /data/backups/cdir/cdir.$ts.tgz data/cdir
+    cmd="$ccmd webapi $urls --haslog"
+    echo $cmd
+    $cmd
+  "init-dss.sh": |
+    dt=`echo $1 | cut -d':' -f1`
+    dn=`echo $1 | cut -d':' -f2`
