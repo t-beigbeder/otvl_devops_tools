@@ -12,8 +12,10 @@ spec:
   containers:
     - name: api
       image: {{ .Values.images.cabri }}
+      env:
+        {{- include "podenv-from-var" . | trim | nindent 8 }}
       resources:
-          {{- toYaml .Values.resources | nindent 10 }}
+        {{- toYaml .Values.resources | nindent 8 }}
       ports:
         - containerPort: 3000
       livenessProbe:
@@ -34,6 +36,8 @@ spec:
   initContainers:
     - name: init
       image: {{ .Values.images.cabri }}
+      env:
+        {{- include "podenv-from-var" . | trim | nindent 8 }}
       command: ["sh", "/init-scripts/init-cabri-webapi.sh", "arg"]
       volumeMounts:
         - name: workdir
