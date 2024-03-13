@@ -31,27 +31,23 @@ spec:
       volumeMounts:
         - name: dss-vol
           mountPath: /data
-        - name: api-config-vol
-          mountPath: /init-scripts
   initContainers:
     - name: init
       image: {{ .Values.images.cabri }}
       env:
         {{- include "podenv-from-var" . | trim | nindent 8 }}
-      command: ["sh", "/init-scripts/init-cabri-webapi.sh", "arg"]
+      command: ["sh", "/api-cmap/init-cabri-webapi.sh", "arg"]
       volumeMounts:
-        - name: workdir
-          mountPath: /workdir
-        - name: api-config-vol
-          mountPath: /init-scripts
+        - name: dss-vol
+          mountPath: /data
+        - name: api-cmap-vol
+          mountPath: /api-cmap
 
   volumes:
     - name: dss-vol
       persistentVolumeClaim:
         claimName: {{ .Release.Name }}-pvc
-    - name: workdir
-      emptyDir: {}
-    - name: api-config-vol
+    - name: api-cmap-vol
       configMap:
         name: {{ .Release.Name }}-api-cmap
 

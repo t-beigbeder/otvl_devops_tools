@@ -25,8 +25,7 @@
     release_namespace: "{{ otvl.k3s.default_namespace }}"
     chart_ref: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
     state: absent
-    values_files:
-      - "{{ hr_lvf }}/{{ release_name }}.yaml"
+    wait: true
   become_user: "{{ otvl.config_vars.devops_user }}"
   when: uninstall | default(false)
 
