@@ -1,13 +1,22 @@
 {{/*
-print a Pod environment from var
+print a Pod environment from env value as dict
 */}}
-{{- define "podenv-from-var" -}}
+{{- define "podenv-from-env" -}}
 {{- if .Values.env -}}
 {{- range $key, $value := .Values.env }}
 - name: {{ printf "%s" $key }}
   value: {{ printf "%s" $value }}
 {{- end }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+print a list of DSS from dsss value as list of strings
+*/}}
+{{- define "dsss-args-from-dsss" -}}
+{{- range $value := .Values.dsss }}
+- {{ printf "%s" $value }}
+{{- end }}
 {{- end -}}
 
 {{/*

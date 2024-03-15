@@ -13,7 +13,7 @@ spec:
     - name: api
       image: {{ .Values.images.cabri }}
       env:
-        {{- include "podenv-from-var" . | trim | nindent 8 }}
+        {{- include "podenv-from-env" . | trim | nindent 8 }}
       resources:
         {{- toYaml .Values.resources | nindent 8 }}
       ports:
@@ -35,8 +35,11 @@ spec:
     - name: init
       image: {{ .Values.images.cabri }}
       env:
-        {{- include "podenv-from-var" . | trim | nindent 8 }}
-      command: [  "sh", "/api-cmap/init-cabri-webapi.sh", {{ concat ( list "1" "2" ) ( .Values.dsss | fromYaml ) | join "," }} ]
+        {{- include "podenv-from-env" . | trim | nindent 8 }}
+      command:
+        - sh
+        - /api-cmap/init-cabri-webapi.sh
+        {{- include "dsss-args-from-dsss" . | trim | nindent 8 }}
       volumeMounts:
         - name: dss-vol
           mountPath: /data
