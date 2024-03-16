@@ -1,10 +1,11 @@
 ---
 # otvl/roles/k3s_simple/tasks/main.yml
 
-- name: Install curl for k3s installation
+- name: Install curl for k3s installation and git for image build
   ansible.builtin.apt:
     pkg:
       - curl
+      - git
     install_recommends: no
     update_cache: "{{ otvl.prod }}"
 

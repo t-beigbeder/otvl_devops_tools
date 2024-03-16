@@ -1,0 +1,11 @@
+---
+# otvl/roles/services/otvl_web/build/tasks/main.yml
+
+- name: Loop over otvl_web site entries for building app and api images
+  include_tasks: build_site.yml
+  loop: "{{ otvl.otvl_web_services }}"
+  loop_control:
+    loop_var: current_item
+  when: not (current_item.skip_build | default(false))
+
+###

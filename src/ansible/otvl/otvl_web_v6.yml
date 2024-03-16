@@ -64,6 +64,16 @@
   tags:
     - ctr
 
+- hosts: k3s_simple_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/otvl_web/build
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - services
+
 - hosts: bastion_group
   gather_facts: False
   become: yes
