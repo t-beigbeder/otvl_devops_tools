@@ -10,4 +10,4 @@
     chart_sp: "otvl/cabri"
     vf_template_sp: "cabri.yaml"
     release_name: "cabri-{{ current_item.name }}"
-    uninstall: true
+    uninstall: "{{ current_item.helm_uninstall | default(false) }}"

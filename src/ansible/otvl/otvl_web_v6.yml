@@ -69,6 +69,7 @@
   become: yes
   roles:
     - services/cabri
+    - services/otvl_web
   vars:
     otvl: "{{ cbd_otvl }}"
   tags:
