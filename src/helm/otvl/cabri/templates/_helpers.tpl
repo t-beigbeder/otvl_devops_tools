@@ -20,6 +20,15 @@ print a list of DSS from dsss value as list of strings
 {{- end -}}
 
 {{/*
+print a list of auth_users from apr_credentials list value as list of strings
+*/}}
+{{- define "auth-users-from-credentials" -}}
+{{- range $value := .Values.apr_credentials }}
+- {{ printf "%s" $value }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Set the ingress hostname
 */}}
 {{- define "ingress-hostname" -}}
