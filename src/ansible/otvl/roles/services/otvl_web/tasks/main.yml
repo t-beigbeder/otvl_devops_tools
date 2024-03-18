@@ -6,5 +6,6 @@
   loop: "{{ otvl.otvl_web_services }}"
   loop_control:
     loop_var: current_item
+  when: not (current_item.skip_hdeploy | default(false))
 
 ###

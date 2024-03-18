@@ -7,12 +7,27 @@ images:
 uid: 3002
 fs_group: 2002
 resources:
-  requests:
-    cpu: "0.25"
-    memory: 256Mi
-  limits:
-    cpu: "0.5"
-    memory: 1Gi
+  app:
+    requests:
+      cpu: "0.25"
+      memory: 256Mi
+    limits:
+      cpu: "0.5"
+      memory: 512Mi
+  api:
+    requests:
+      cpu: "0.25"
+      memory: 256Mi
+    limits:
+      cpu: "0.5"
+      memory: 512Mi
+cabri_webapi:
+  dss: "webapi+https://prca.otvl.org/prod-obs-otvl-web"
+  user: "remote_cabri_login"
+  password: "remote_cabri_password"
+  config: "path/to/config"
+  content: "path/to/content"
+  assets: "path/to/assets"
 env:
   AK: s3_access_key
   EP: s3_endpoint
@@ -20,6 +35,6 @@ env:
   SK: s3_secret_key
 ingress:
   enabled: true
-  # host: otvl-cabri.example.com, defaults to <release-name>.example.com
+  # host: otvl-web-app.example.com, defaults to <release-name>.example.com
 apr_credentials:
-  - "cabrilogin:"
+  - "weblogin:"

@@ -18,6 +18,8 @@ default_otvl:
     release: "v0.2.14-rc.1"
     sha: "699a484d8a721c2a9bb1536d43ec7ac777521ba3295256f441d5709a56ae1457"
     image: "tbeigbeder/cabri:v0.2.14-rc.1"
+    webapi_user: "remote_cabri_login"
+    webapi_password: "remote_cabri_password"
   kubectl:
     url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
     sha: "7816d067740f47f949be826ac76943167b7b3a38c4f0c18b902fffa8779a5afa"
@@ -57,3 +59,20 @@ default_otvl:
     apr_credentials: "ctr:"
   traefik:
     image: "traefik:v2.11"
+  cabri_services: []
+#    - name: test-rca
+#      skip_hdeploy: true
+#      helm_uninstall: true
+#      uid: 3003
+#      fs_group: 2003
+#      ingress_host: rca.example.com
+#      ingress_auth:
+#        - "rcalogin:rcapassword"
+#      obs_config:
+#        AK: S3 access key
+#        EP: S3 endpoint
+#        RG: S3 region
+#        SK: S3 secret key
+#      dsss:
+#        - "obs:dss-s3-bucket-and-url"
+  otvl_web_services: []
