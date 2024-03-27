@@ -29,7 +29,7 @@
   become_user: "{{ otvl.config_vars.devops_user }}"
   when: uninstall | default(false)
 
-- name: Install {{ title }}
+- name: Install {{ title }} bck
   kubernetes.core.helm:
     name: "{{ release_name }}"
     release_namespace: "{{ otvl.k3s.default_namespace }}"
@@ -37,3 +37,15 @@
     values_files:
       - "{{ hr_lvf }}/{{ release_name }}.yaml"
   become_user: "{{ otvl.config_vars.devops_user }}"
+  when: true
+
+- name: Install {{ title }} new
+  block:
+    - command:
+        cmd: "helm upgrade -i -f {{ hr_lvf }}/{{ release_name }}.yaml {{ release_name }} /home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
+      become_user: "{{ otvl.config_vars.devops_user }}"
+      register: helm
+    - debug: var=helm.cmd
+    - debug: var=helm.stderr_lines
+    - debug: var=helm.stdout_lines
+  when: false
