@@ -1,13 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}-api
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Release.Name }}-api
-  strategy:
-    type: Recreate
+  serviceName: {{ .Release.Name }}-api
   template:
     metadata:
       name: {{ .Release.Name }}-api

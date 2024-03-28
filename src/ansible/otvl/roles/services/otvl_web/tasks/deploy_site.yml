@@ -9,5 +9,5 @@
     title: "the otvl_web site {{ current_item.name }}"
     chart_sp: "otvl/otvl_web"
     vf_template_sp: "otvl_web.yaml"
-    release_name: "ow-{{ current_item.name }}"
+    release_name: "{{ current_item.name }}"
     uninstall: "{{ current_item.helm_uninstall | default(false) }}"

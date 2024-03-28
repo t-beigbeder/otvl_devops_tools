@@ -9,3 +9,4 @@ spec:
     - name: "api-port"
       port: 3000
       protocol: TCP
+  clusterIP: None

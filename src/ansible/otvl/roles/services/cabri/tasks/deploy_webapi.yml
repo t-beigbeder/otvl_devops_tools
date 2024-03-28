@@ -9,5 +9,5 @@
     title: "the cabri API {{ current_item.name }}"
     chart_sp: "otvl/cabri"
     vf_template_sp: "cabri.yaml"
-    release_name: "cabri-{{ current_item.name }}"
+    release_name: "{{ current_item.name }}"
     uninstall: "{{ current_item.helm_uninstall | default(false) }}"
