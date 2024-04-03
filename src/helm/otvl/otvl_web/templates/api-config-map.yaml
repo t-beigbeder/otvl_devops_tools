@@ -23,7 +23,7 @@ data:
             verbose: false
             dispOut: false
             dispErr: false
-          cmdLine: cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_CONTENT} fsy:/data/content@ -rv --summary --noacl
+          cmdLine: cabri cli --pfile /etc/cabri-pfile sync ${CABRI_SYNC_DSS}@${CABRI_SYNC_CONTENT} fsy:/data/content@ -rvn --summary --noacl
   "run-cabri-sched.sh": |
     echo /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} '<hidden>'
     /usr/local/bin/cabri cli --pfile /etc/cabri-pfile config --put WebBasicAuth ${CABRI_SYNC_WEB_USER} ${CABRI_SYNC_WEB_PASSWORD}
