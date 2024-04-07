@@ -1,22 +1,22 @@
 terraform {
-  required_version = ">= 1.0.0, < 2.0.0"
+  required_version = ">= 1.6.2, < 2.0.0"
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.22"
+      version = "~> 5.44"
     }
   }
 }
 
-data "aws_vpc" "default" {
+data "aws_vpc" "default_or_other" {
   default = var.vpc_is_default
 }
 
 data "aws_subnets" "all" {
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
+    values = [data.aws_vpc.default_or_other.id]
   }
 }
 

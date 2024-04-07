@@ -20,8 +20,66 @@ terraform {
   #   }
 }
 
-module "gsn" {
-  source = "../../modules/aws/get_subnets"
-  subnets_name_filter = ""
-  vpc_is_default = true
+module "get_default_subnets" {
+  source              = "../../modules/aws/get_subnets"
+  subnets_name_filter = "-default"
+  vpc_is_default      = true
+}
+
+module "sg_bastion" {
+  source         = "../../modules/aws/mk_sg"
+  name           = "bastion"
+  default_vpc_id = module.get_default_subnets.default_vpc.id
+  ingress_rules = [{
+    from_port          = 22
+    to_port            = 22
+    protocol           = "tcp"
+    cidr_blocks        = ["0.0.0.0/0"]
+    ipv6_cidr_blocks   = ["::/0"]
+    security_group_ids = []
+  }]
+  tags = {}
+}
+
+module "get_ami" {
+  source         = "../../modules/aws/get_ami"
+  ami_name_regex = var.ec2_instance_ami_name_regex
+  ami_owner      = var.ec2_instance_ami_owner
+}
+
+resource "aws_instance" "bastion_instance" {
+  ami                    = module.get_ami.ami.id
+  instance_type          = var.ec2_bastion_instance_type
+  key_name               = var.ec2_bastion_instance_key_name
+  vpc_security_group_ids = [module.sg_bastion.security_group.id]
+}
+
+module "sg_k3s_server" {
+  source         = "../../modules/aws/mk_sg"
+  name           = "k3s_server"
+  default_vpc_id = module.get_default_subnets.default_vpc.id
+  ingress_rules = [{
+    from_port          = 22
+    to_port            = 22
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_bastion.security_group.id]
+  }]
+  tags = {}
+}
+
+resource "aws_instance" "k3s_server_instance" {
+  count                  = var.ec2_k3s_server_nb_per_subnet * length(module.get_default_subnets.ids)
+  ami                    = module.get_ami.ami.id
+  instance_type          = var.ec2_bastion_instance_type
+  key_name               = var.ec2_bastion_instance_key_name
+  subnet_id              = module.get_default_subnets.ids[count.index % length(module.get_default_subnets.ids)]
+  vpc_security_group_ids = [module.sg_k3s_server.security_group.id]
+}
+
+locals {
+  aws_instance_ips = [
+    for v in aws_instance.k3s_server_instance : v.public_ip
+  ]
 }

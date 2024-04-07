@@ -24,6 +24,6 @@ output "byname" {
 }
 
 output "default_vpc" {
-  value = data.aws_vpc.default
+  value = data.aws_vpc.default_or_other
   description = "The default VPC in this account"
 }
