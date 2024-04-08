@@ -38,7 +38,8 @@ module "sg_bastion" {
     ipv6_cidr_blocks   = ["::/0"]
     security_group_ids = []
   }]
-  tags = {}
+  egress_allow_all = true
+  tags             = {}
 }
 
 module "get_ami" {
@@ -52,6 +53,9 @@ resource "aws_instance" "bastion_instance" {
   instance_type          = var.ec2_bastion_instance_type
   key_name               = var.ec2_bastion_instance_key_name
   vpc_security_group_ids = [module.sg_bastion.security_group.id]
+  tags = {
+    Name = "k3s-ha-bastion"
+  }
 }
 
 module "sg_k3s_server" {
@@ -66,7 +70,8 @@ module "sg_k3s_server" {
     ipv6_cidr_blocks   = []
     security_group_ids = [module.sg_bastion.security_group.id]
   }]
-  tags = {}
+  egress_allow_all = true
+  tags             = {}
 }
 
 resource "aws_instance" "k3s_server_instance" {
@@ -76,6 +81,9 @@ resource "aws_instance" "k3s_server_instance" {
   key_name               = var.ec2_bastion_instance_key_name
   subnet_id              = module.get_default_subnets.ids[count.index % length(module.get_default_subnets.ids)]
   vpc_security_group_ids = [module.sg_k3s_server.security_group.id]
+  tags = {
+    Name = format("k3s-ha-server-%d", count.index)
+  }
 }
 
 locals {
