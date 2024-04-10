@@ -37,3 +37,9 @@ variable "ec2_bastion_instance_key_name" {
   type        = string
   default     = ""
 }
+
+variable "ec2_instance_user_data" {
+  description = "User data to be passed to the instance"
+  type        = string
+  default     = null
+}

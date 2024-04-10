@@ -52,6 +52,7 @@ resource "aws_instance" "bastion_instance" {
   ami                    = module.get_ami.ami.id
   instance_type          = var.ec2_bastion_instance_type
   key_name               = var.ec2_bastion_instance_key_name
+  user_data              = var.ec2_instance_user_data
   vpc_security_group_ids = [module.sg_bastion.security_group.id]
   tags = {
     Name = "k3s-ha-bastion"
@@ -79,6 +80,7 @@ resource "aws_instance" "k3s_server_instance" {
   ami                    = module.get_ami.ami.id
   instance_type          = var.ec2_bastion_instance_type
   key_name               = var.ec2_bastion_instance_key_name
+  user_data              = var.ec2_instance_user_data
   subnet_id              = module.get_default_subnets.ids[count.index % length(module.get_default_subnets.ids)]
   vpc_security_group_ids = [module.sg_k3s_server.security_group.id]
   tags = {
