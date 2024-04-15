@@ -9,9 +9,6 @@ enableswap() {
   true
 }
 
-git_repo="https://github.com/t-beigbeder/otvl_devops_tools"
-git_branch="bdev2"
-git_local="/root/clinit/otvl_devops_tools"
 echo `date`: command $0 is starting
 
 cat > /etc/fail2ban/jail.d/defaults-debian.conf <<EOF
@@ -26,7 +23,5 @@ EOF
 enableswap && \
 systemctl restart fail2ban.service && \
 true || exit 1
-echo `date`: command $0 is exiting, will reboot in 10s
-sleep 10
-reboot
+
 exit 0

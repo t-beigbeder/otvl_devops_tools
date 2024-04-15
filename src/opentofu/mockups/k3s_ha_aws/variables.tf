@@ -27,6 +27,16 @@ variable "ec2_k3s_server_instance_type" {
   type        = string
 }
 
+variable "ec2_git_repo" {
+  description = "The git repo to be exposed as a variable in the cloud-init script for EC2 instances"
+  type        = string
+}
+
+variable "ec2_git_branch" {
+  description = "The git branch to be exposed as a variable in the cloud-init script for EC2 instances"
+  type        = string
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
@@ -36,10 +46,4 @@ variable "ec2_bastion_instance_key_name" {
   description = "The key name for ssh to EC2 Bastion Instance or empty if no ssh"
   type        = string
   default     = ""
-}
-
-variable "ec2_instance_user_data" {
-  description = "User data to be passed to the instance"
-  type        = string
-  default     = null
 }
