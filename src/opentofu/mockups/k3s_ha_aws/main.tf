@@ -53,9 +53,11 @@ resource "aws_instance" "bastion_instance" {
   instance_type = var.ec2_bastion_instance_type
   key_name      = var.ec2_bastion_instance_key_name
   user_data = base64encode(templatefile("${path.module}/cloud-config.yaml", {
-    ec2_git_repo   = var.ec2_git_repo
-    ec2_git_branch = var.ec2_git_branch
-    ec2_profile    = "bastion"
+    ec2_git_repo         = var.ec2_git_repo
+    ec2_git_branch       = var.ec2_git_branch
+    ec2_profile          = "k3s-ha-bastion"
+    ec2_hostname         = "k3s-ha-bastion"
+    ec2_k3s_server_count = var.ec2_k3s_server_nb_per_subnet * length(module.get_default_subnets.ids)
   }))
   vpc_security_group_ids = [module.sg_bastion.security_group.id]
   tags = {
@@ -85,9 +87,11 @@ resource "aws_instance" "k3s_server_instance" {
   instance_type = var.ec2_bastion_instance_type
   key_name      = var.ec2_bastion_instance_key_name
   user_data = base64encode(templatefile("${path.module}/cloud-config.yaml", {
-    ec2_git_repo   = var.ec2_git_repo
-    ec2_git_branch = var.ec2_git_branch
-    ec2_profile    = "k3s_server"
+    ec2_git_repo         = var.ec2_git_repo
+    ec2_git_branch       = var.ec2_git_branch
+    ec2_profile          = "k3s-ha-server"
+    ec2_hostname         = format("k3s-ha-server-%d", count.index)
+    ec2_k3s_server_count = var.ec2_k3s_server_nb_per_subnet * length(module.get_default_subnets.ids)
   }))
   subnet_id              = module.get_default_subnets.ids[count.index % length(module.get_default_subnets.ids)]
   vpc_security_group_ids = [module.sg_k3s_server.security_group.id]

@@ -20,6 +20,21 @@ write_files:
     path: /root/bin/otvl_cloud_init.sh
     owner: root:root
     permissions: '0750'
+  - content: ${ec2_profile}
+    path: /etc/k3s_ha_aws/ec2_profile
+    owner: root:root
+    permissions: '0444'
+  - content: ${ec2_hostname}
+    path: /etc/k3s_ha_aws/ec2_hostname
+    owner: root:root
+    permissions: '0444'
+  - content: |
+      export ec2_profile=${ec2_profile}
+      export ec2_hostname=${ec2_hostname}
+      export ec2_k3s_server_count=${ec2_k3s_server_count}
+    path: /etc/k3s_ha_aws/ec2_exports
+    owner: root:root
+    permissions: '0444'
 
 runcmd:
   - [ /root/bin/otvl_cloud_init.sh ]
