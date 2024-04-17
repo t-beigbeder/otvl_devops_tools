@@ -9,8 +9,6 @@ import yaml
 
 
 def run():
-    debug = True
-
     res, lb = False, False
     if len(sys.argv) < 2:
         sys.stderr.write(f"Usage: {sys.argv[0]} <yaml-inventory-host-file> [-lb]\n")
@@ -20,14 +18,10 @@ def run():
             sys.stderr.write(f"Usage: {sys.argv[0]} <yaml-inventory-host-file> [-lb]\n")
             return res
         lb = True
-    if debug:
-        with open("/home/guest/locgit/otvl/otvl_devops_tools/tmp/ec2-dci.json") as fi:
-            osi = json.load(fi)
-    else:
-        result = subprocess.run(f"openstack --os-cloud {sys.argv[1]} server list -f json --long".split(" "), stdout=subprocess.PIPE)
-        if result.returncode != 0:
-            return res
-        osi = json.loads(result.stdout)
+    result = subprocess.run(f"aws ec2 describe-instances".split(" "), stdout=subprocess.PIPE)
+    if result.returncode != 0:
+        return res
+    osi = json.loads(result.stdout)
     servers = {}
     for rsv in osi["Reservations"]:
         for inst in rsv["Instances"]:
