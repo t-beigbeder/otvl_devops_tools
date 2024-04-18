@@ -1,0 +1,15 @@
+---
+# otvl/roles/commons/tasks/srv_dirs.yml
+
+- name: Create server root directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - "{{ otvl.config_paths.data }}"
+    - "{{ otvl.config_paths.delivery }}"
+
+###

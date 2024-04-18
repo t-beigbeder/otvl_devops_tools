@@ -1,0 +1,16 @@
+---
+# default_values variable for otvl_devops_tools mockups playbooks and roles
+
+default_values:
+  debug: false
+  config_paths:
+    delivery: /otvl/delivery
+    data: /otvl/data
+  config_vars:
+    admin_user: otvl_admin_user
+    admin_key: otvl_admin_key
+    devops_user: devops
+    devops_key: id_rsa_devops
+    otvl_devops_tools_repo: "https://github.com/t-beigbeder/otvl_devops_tools"
+    otvl_devops_tools_version: "main"
+    otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz

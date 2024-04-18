@@ -1,0 +1,39 @@
+# otvl/roles/commons/tasks/helm_release.yml
+# install helm release from local repo and ansible template instanciated
+# vars:
+#   title: name what is to be deployed
+#   chart_sp: repository sub-path in devops src/helm
+#   vf_template_sp: repository sub-path for the values file template (in devops src/ansible/otvl/templates/override/helm)
+#   release_name: Helm release name
+#   uninstall: uninstalls the release if present and true
+
+- name: set included vars
+  set_fact:
+    hr_lvf: "/home/{{ otvl.config_vars.devops_user }}/helm_values"
+
+- name: Instantiate the template {{ vf_template_sp }} as a local values file {{ hr_lvf }}
+  template:
+    src: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/ansible/otvl/templates/override/helm/{{ vf_template_sp }}"
+    dest: "{{ hr_lvf }}/{{ release_name }}.yaml"
+    owner: "{{ otvl.config_vars.devops_user }}"
+    group: "{{ otvl.config_vars.devops_user }}"
+    mode: 0600
+
+- name: Uninstall {{ title }}
+  kubernetes.core.helm:
+    name: "{{ release_name }}"
+    release_namespace: "{{ otvl.k3s.default_namespace }}"
+    chart_ref: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
+    state: absent
+    wait: true
+  become_user: "{{ otvl.config_vars.devops_user }}"
+  when: uninstall | default(false)
+
+- name: Install {{ title }}
+  kubernetes.core.helm:
+    name: "{{ release_name }}"
+    release_namespace: "{{ otvl.k3s.default_namespace }}"
+    chart_ref: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
+    values_files:
+      - "{{ hr_lvf }}/{{ release_name }}.yaml"
+  become_user: "{{ otvl.config_vars.devops_user }}"
