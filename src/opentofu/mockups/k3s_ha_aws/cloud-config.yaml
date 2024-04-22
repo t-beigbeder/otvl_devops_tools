@@ -6,8 +6,13 @@ write_files:
       ec2_git_branch="bdev2"
       git_local="/root/clinit/otvl_devops_tools"
       echo `date`: command $0 is starting with profile ${ec2_profile}
+      if [ "${ec2_profile}" = "k3s-ha-bastion" -a "${ec2_bastion_instance_has_fail2ban}" != "false" ] ; then
+        lpkg="git jq curl python3-systemd fail2ban"
+      else
+        lpkg="git jq curl python3-systemd"
+      fi
       apt-get update && \
-        apt-get install -y --no-install-recommends git jq curl python3-systemd fail2ban && \
+        apt-get install -y --no-install-recommends  && \
         mkdir -p /root/clinit && \
         cd /root/clinit && \
         rm -rf $git_local && \
@@ -30,6 +35,7 @@ write_files:
     permissions: '0444'
   - content: |
       export ec2_profile=${ec2_profile}
+      export ec2_bastion_instance_has_fail2ban=${ec2_bastion_instance_has_fail2ban}
       export ec2_hostname=${ec2_hostname}
       export ec2_k3s_server_count=${ec2_k3s_server_count}
     path: /etc/k3s_ha_aws/ec2_exports

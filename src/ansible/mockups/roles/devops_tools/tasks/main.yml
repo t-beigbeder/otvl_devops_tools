@@ -1,13 +1,13 @@
 ---
-# otvl/roles/devops_tools/tasks/main.yml
+# mockups/roles/devops_tools/tasks/main.yml
 
-- name: Here otvl/roles/devops_tools/tasks/main.yml
+- name: Here mockups/roles/devops_tools/tasks/main.yml
   include_role:
     name: commons
     tasks_from: check_vars
-  when: otvl.debug
+  when: values.debug
 
-- name: Here otvl/roles/devops_tools/tasks/main.yml
+- name: Here mockups/roles/devops_tools/tasks/main.yml
   include_role:
     name: commons
     tasks_from: srv_dirs
@@ -21,69 +21,68 @@
       - gcc
       - rsync
       - sudo
-      - fail2ban
       - unzip
       - python3-yaml
-    update_cache: "{{ otvl.prod }}"
+    update_cache: "{{ values.prod }}"
     install_recommends: no
     state: present
 
-- name: "Create devops user {{ otvl.config_vars.devops_user }}"
+- name: "Create devops user {{ values.config_vars.devops_user }}"
   ansible.builtin.user:
-    name: "{{ otvl.config_vars.devops_user }}"
+    name: "{{ values.config_vars.devops_user }}"
     append: true
     groups: ""
     shell: /bin/bash
 
-- name: "Make devops user {{ otvl.config_vars.devops_user }} sudoer wo passwd"
+- name: "Make devops user {{ values.config_vars.devops_user }} sudoer wo passwd"
   copy:
-    content: "{{ otvl.config_vars.devops_user }} ALL=(ALL) NOPASSWD:ALL"
+    content: "{{ values.config_vars.devops_user }} ALL=(ALL) NOPASSWD:ALL"
     dest: /etc/sudoers.d/devops_nopasswd
     mode: 0440
 
 - name: Checkout git otvl_devops_tools once
   git:
-    repo: "{{ otvl.config_vars.otvl_devops_tools_repo }}"
-    version: "{{ otvl.config_vars.otvl_devops_tools_version }}"
-    dest: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools"
+    repo: "{{ values.config_vars.otvl_devops_tools_repo }}"
+    version: "{{ values.config_vars.otvl_devops_tools_version }}"
+    dest: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools"
     depth: 1
     update: false
     recursive: no
     force: no
 
 - name: Create virtualenv otvl_devops_tools/venv
-  command: "virtualenv -p python3 /home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
+  command: "virtualenv -p python3 /home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
   args:
-    creates: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
+    creates: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
 
 - name: Install requirements in virtualenv otvl_devops_tools/venv
-  command: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/pip install -r /home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/python/requirements.txt"
+  command: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/pip install -r /home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/python/requirements.txt"
   args:
-    creates: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/ansible-playbook"
+    creates: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/ansible-playbook"
 
 - name: Copy ansible configuration on the bastion
   copy:
     src: override/bastion/ansible/ansible.cfg
-    dest: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/ansible.cfg"
-    owner: "{{ otvl.config_vars.devops_user }}"
-    group: "{{ otvl.config_vars.devops_user }}"
+    dest: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/ansible.cfg"
+    owner: "{{ values.config_vars.devops_user }}"
+    group: "{{ values.config_vars.devops_user }}"
     mode: 0600
 
 - name: Get stat of ansible inventory checkout
   ansible.builtin.stat:
-    path: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_anprin"
+    path: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_anprin"
   register: otvl_anprin_st
 
 - name: Extract ansible inventory git repository on the bastion once
   unarchive:
-    src: "{{ otvl.config_vars.otvl_ans_inv_local_git_repo_tgz }}"
-    dest: "/home/{{ otvl.config_vars.devops_user }}"
+    src: "{{ values.config_vars.otvl_ans_inv_local_git_repo_tgz }}"
+    dest: "/home/{{ values.config_vars.devops_user }}"
   when: otvl_anprin_st.stat.isdir is not defined
 
 - name: Checkout git ansible inventory once
   git:
-    repo: "/home/{{ otvl.config_vars.devops_user }}/otvl_anprin.git"
-    dest: "/home/{{ otvl.config_vars.devops_user }}/locgit/otvl/otvl_anprin"
+    repo: "/home/{{ values.config_vars.devops_user }}/otvl_anprin.git"
+    dest: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_anprin"
     update: false
     recursive: no
     force: no
@@ -91,62 +90,62 @@
 
 - name: Give files read access to devops user
   ansible.builtin.file:
-    dest: "/home/{{ otvl.config_vars.devops_user }}"
+    dest: "/home/{{ values.config_vars.devops_user }}"
     recurse: yes
     mode: ugo+rX
 
 - name: "Add devops key as authorized for ssh localhost"
   ansible.posix.authorized_key:
-    user: "{{ otvl.config_vars.devops_user }}"
+    user: "{{ values.config_vars.devops_user }}"
     state: present
     key: "{{ lookup('file', 'override/bastion/ssh/id_rsa_devops.pub') }}"
 
 - name: Copy ssh devops private key on the bastion
   copy:
     src: override/bastion/ssh/id_rsa_devops
-    dest: /home/{{ otvl.config_vars.devops_user }}/.ssh/{{ otvl.config_vars.devops_key }}
-    owner: "{{ otvl.config_vars.devops_user }}"
-    group: "{{ otvl.config_vars.devops_user }}"
+    dest: /home/{{ values.config_vars.devops_user }}/.ssh/{{ values.config_vars.devops_key }}
+    owner: "{{ values.config_vars.devops_user }}"
+    group: "{{ values.config_vars.devops_user }}"
     mode: 0600
 
 - name: Copy ssh devops public key on the bastion
   copy:
     src: override/bastion/ssh/id_rsa_devops.pub
-    dest: /home/{{ otvl.config_vars.devops_user }}/.ssh/{{ otvl.config_vars.devops_key }}.pub
-    owner: "{{ otvl.config_vars.devops_user }}"
-    group: "{{ otvl.config_vars.devops_user }}"
+    dest: /home/{{ values.config_vars.devops_user }}/.ssh/{{ values.config_vars.devops_key }}.pub
+    owner: "{{ values.config_vars.devops_user }}"
+    group: "{{ values.config_vars.devops_user }}"
     mode: 0600
 
 - name: Create openstack configuration dir on the bastion
   file:
-    path: /home/{{ otvl.config_vars.devops_user }}/.config/openstack
+    path: /home/{{ values.config_vars.devops_user }}/.config/openstack
     state: directory
-    owner: "{{ otvl.config_vars.devops_user }}"
-    group: "{{ otvl.config_vars.devops_user }}"
+    owner: "{{ values.config_vars.devops_user }}"
+    group: "{{ values.config_vars.devops_user }}"
     mode: 0700
 
 - name: Copy openstack configuration on the bastion
   copy:
     src: override/bastion/openstack/clouds.yaml
-    dest: /home/{{ otvl.config_vars.devops_user }}/.config/openstack/clouds.yaml
-    owner: "{{ otvl.config_vars.devops_user }}"
-    group: "{{ otvl.config_vars.devops_user }}"
+    dest: /home/{{ values.config_vars.devops_user }}/.config/openstack/clouds.yaml
+    owner: "{{ values.config_vars.devops_user }}"
+    group: "{{ values.config_vars.devops_user }}"
     mode: 0600
 
 - name: Copy ssh admin private key on the bastion
   copy:
     src: override/bastion/ssh/id_rsa_admin
-    dest: /home/{{ otvl.config_vars.admin_user }}/.ssh/{{ otvl.config_vars.admin_key }}
-    owner: "{{ otvl.config_vars.admin_user }}"
-    group: "{{ otvl.config_vars.admin_user }}"
+    dest: /home/{{ values.config_vars.admin_user }}/.ssh/{{ values.config_vars.admin_key }}
+    owner: "{{ values.config_vars.admin_user }}"
+    group: "{{ values.config_vars.admin_user }}"
     mode: 0600
 
 - name: Copy ssh admin public key on the bastion
   copy:
     src: override/bastion/ssh/id_rsa_admin.pub
-    dest: /home/{{ otvl.config_vars.admin_user }}/.ssh/{{ otvl.config_vars.admin_key }}.pub
-    owner: "{{ otvl.config_vars.admin_user }}"
-    group: "{{ otvl.config_vars.admin_user }}"
+    dest: /home/{{ values.config_vars.admin_user }}/.ssh/{{ values.config_vars.admin_key }}.pub
+    owner: "{{ values.config_vars.admin_user }}"
+    group: "{{ values.config_vars.admin_user }}"
     mode: 0600
 
 ###

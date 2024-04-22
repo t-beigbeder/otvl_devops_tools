@@ -47,3 +47,9 @@ variable "ec2_bastion_instance_key_name" {
   type        = string
   default     = ""
 }
+
+variable "ec2_bastion_instance_has_fail2ban" {
+  description = "Does the EC2 Bastion Instance install fail2ban"
+  type        = bool
+  default     = true
+}

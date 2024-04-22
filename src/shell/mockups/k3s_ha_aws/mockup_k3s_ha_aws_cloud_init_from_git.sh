@@ -11,17 +11,18 @@ enableswap() {
 
 echo `date`: command $0 is starting
 
-cat > /etc/fail2ban/jail.d/defaults-debian.conf <<EOF
-[DEFAULT]
-# Debian 12 has no log files, just journalctl
-backend = systemd
+enableswap || exit 1
 
-[sshd]
-enabled = true
+if [ "${ec2_profile}" = "k3s-ha-bastion" -a "${ec2_bastion_instance_has_fail2ban}" != "false" ] ; then
+  cat > /etc/fail2ban/jail.d/defaults-debian.conf <<EOF
+  [DEFAULT]
+  # Debian 12 has no log files, just journalctl
+  backend = systemd
+
+  [sshd]
+  enabled = true
 EOF
-
-enableswap && \
-systemctl restart fail2ban.service && \
-true || exit 1
+  systemctl restart fail2ban.service || exit 1
+fi
 
 exit 0

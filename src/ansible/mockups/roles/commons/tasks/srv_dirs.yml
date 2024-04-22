@@ -1,5 +1,5 @@
 ---
-# otvl/roles/commons/tasks/srv_dirs.yml
+# mockups/roles/commons/tasks/srv_dirs.yml
 
 - name: Create server root directories
   file:
@@ -9,7 +9,7 @@
     group: root
     mode: 0755
   with_items:
-    - "{{ otvl.config_paths.data }}"
-    - "{{ otvl.config_paths.delivery }}"
+    - "{{ values.config_paths.data }}"
+    - "{{ values.config_paths.delivery }}"
 
 ###

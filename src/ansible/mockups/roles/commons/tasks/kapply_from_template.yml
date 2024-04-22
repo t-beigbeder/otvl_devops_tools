@@ -1,4 +1,4 @@
-# otvl/roles/commons/tasks/kapply_from_template.yml
+# mockups/roles/commons/tasks/kapply_from_template.yml
 # kubectl apply manifest downloaded from url
 # vars:
 #   template: template
@@ -9,7 +9,7 @@
     - command:
         cmd: "kubectl apply -f -"
         stdin: "{{ lookup('template', template) }}"
-      become_user: "{{ otvl.config_vars.devops_user }}"
+      become_user: "{{ values.config_vars.devops_user }}"
       register: kapply
     - debug: var=kapply.cmd
     - debug: var=kapply.stderr_lines

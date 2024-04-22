@@ -1,7 +1,7 @@
 ---
-# otvl/roles/commons/tasks/check_vars.yml
+# mockups/roles/commons/tasks/check_vars.yml
 
-- name: Here otvl/roles/commons/tasks/check_vars.yml
+- name: Here mockups/roles/commons/tasks/check_vars.yml
   debug:
     msg: "otvl is {{ otvl }}"
 

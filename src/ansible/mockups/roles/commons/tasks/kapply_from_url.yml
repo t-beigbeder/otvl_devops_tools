@@ -1,4 +1,4 @@
-# otvl/roles/commons/tasks/kapply_from_url.yml
+# mockups/roles/commons/tasks/kapply_from_url.yml
 # kubectl apply manifest downloaded from url
 # vars:
 #   url: url
@@ -8,13 +8,13 @@
 
 - name: set delivery directory for downloads
   block:
-    - name: Does {{ otvl.config_paths.delivery }} exist
+    - name: Does {{ values.config_paths.delivery }} exist
       stat:
-        path: "{{ otvl.config_paths.delivery }}"
+        path: "{{ values.config_paths.delivery }}"
       register: kfu_dlv_stat
-    - name: Set delivery to {{ otvl.config_paths.delivery }}
+    - name: Set delivery to {{ values.config_paths.delivery }}
       set_fact:
-        kfu_dlv: "{{ otvl.config_paths.delivery }}"
+        kfu_dlv: "{{ values.config_paths.delivery }}"
       when: kfu_dlv_stat.stat.exists
     - name: Set delivery to /tmp
       set_fact:
@@ -36,7 +36,7 @@
   block:
     - command:
         cmd: "kubectl apply -f {{ kfu_dlv }}/{{ dload_name }}"
-      become_user: "{{ otvl.config_vars.devops_user }}"
+      become_user: "{{ values.config_vars.devops_user }}"
       register: kapply
     - debug: var=kapply.cmd
     - debug: var=kapply.stderr_lines

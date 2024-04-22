@@ -1,4 +1,4 @@
-# otvl/roles/commons/tasks/install_from_ghr.yml
+# mockups/roles/commons/tasks/install_from_ghr.yml
 # install binary from github releases
 # vars:
 #   url: url
@@ -10,14 +10,14 @@
 
 - name: set delivery directory for downloads
   block:
-    - name: Does {{ otvl.config_paths.delivery }} exist
+    - name: Does {{ values.config_paths.delivery }} exist
       stat:
-        path: "{{ otvl.config_paths.delivery }}"
+        path: "{{ values.config_paths.delivery }}"
       register: ghr_dlv_stat
-    - name: Set delivery to {{ otvl.config_paths.delivery }}
+    - name: Set delivery to {{ values.config_paths.delivery }}
       set_fact:
-        ghr_dlv: "{{ otvl.config_paths.delivery }}"
-        ghr_extr: "{{ otvl.config_paths.delivery }}/{{ binary_name }}"
+        ghr_dlv: "{{ values.config_paths.delivery }}"
+        ghr_extr: "{{ values.config_paths.delivery }}/{{ binary_name }}"
       when: ghr_dlv_stat.stat.exists
     - name: Set delivery to /tmp
       set_fact:
