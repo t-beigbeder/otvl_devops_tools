@@ -28,26 +28,28 @@ data:
     ts=`date +%Y%m%d-%H:%M:%S`
     if [ ! -d /data/dss/$dn ] ; then
       mkdir -p /data/dss/$dn /data/backups/$dn && \
-      echo >&2 $ccmd cli dss make $OBS_ENV -s m --ximpl bdb $dt:/data/dss/$dn && \
+      echo >&2 $ts $ccmd cli dss make $OBS_ENV -s m --ximpl bdb $dt:/data/dss/$dn && \
       $ccmd cli dss make $OBS_ENV -s m --ximpl bdb $dt:/data/dss/$dn && \
-      echo >&2 $ccmd cli dss reindex $dt:/data/dss/$dn && \
+      echo >&2 $ts $ccmd cli dss reindex $dt:/data/dss/$dn && \
       $ccmd cli dss reindex $dt:/data/dss/$dn && \
       tar czf /data/backups/$dn/$dn.$ts.tgz data/dss/$dn
     else
-      echo >&2 $ccmd cli dss unlock $dt:/data/dss/$dn && \
+      echo >&2 $ts $ccmd cli dss unlock $dt:/data/dss/$dn && \
       $ccmd cli dss unlock $dt:/data/dss/$dn && \
       tar czf /data/backups/$dn/$dn.$ts.tgz data/dss/$dn
     fi
   "run-cabri-webapi.sh": |
     copt="--pfile /etc/cabri-pfile --cdir /data/cdir"
     ccmd="/usr/local/bin/cabri $copt"
+    ts=`date +%Y%m%d-%H:%M:%S`
+    echo $ts $ccmd cli config --get
     $ccmd cli config --get
     urls=
     for dss in $* ; do
       urls="$urls `sh /api-cmap/get-dss.sh $dss`"
     done
     cmd="$ccmd webapi $urls --haslog"
-    echo $cmd
+    echo $ts $cmd
     ${cmd}
   "get-dss.sh": |
     dt=`echo $1 | cut -d':' -f1`
