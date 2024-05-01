@@ -83,6 +83,8 @@ default_otvl:
 #        SK: S3 secret key
 #      dsss:
 #        - "obs:dss-s3-bucket-and-url"
+#      check_url: dss-s3-bucket-and-url
+
   otvl_web_services: []
 #    - name: blog-test
 #      skip_build: true
