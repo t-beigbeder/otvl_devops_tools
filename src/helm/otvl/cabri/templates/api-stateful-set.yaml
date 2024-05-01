@@ -33,12 +33,12 @@ spec:
           livenessProbe:
             periodSeconds: 60
             httpGet:
-              path: /{{ first .Values.urls }}/check
+              path: /{{ .Values.check_url }}/check
               port: 3000
           readinessProbe:
             periodSeconds: 60
             httpGet:
-              path: /{{ first .Values.urls }}/check
+              path: /{{ .Values.check_url }}/check
               port: 3000
           volumeMounts:
             - name: dss-vol

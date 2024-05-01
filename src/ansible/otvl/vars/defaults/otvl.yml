@@ -15,20 +15,23 @@ default_otvl:
     otvl_devops_tools_version: "main"
     otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz
   cabri:
-    release: "v0.2.14-rc.1"
-    sha: "33867fea29e63ba2c28d4544b9df40b9e0300aec4daa255bf8e830a05cff2e12"
-    image: "tbeigbeder/cabri:v0.2.14-rc.1"
+    release: "v0.2.14"
+    sha: "c0aafb3d0b47dc518d1da9d411fad203edf9288c1f7090eb53eb2442e301f74f"
+    image: "tbeigbeder/cabri:v0.2.14"
     webapi_user: "remote_cabri_login"
     webapi_password: "remote_cabri_password"
   cabri_sched:
-    image: "tbeigbeder/cabri-sched:v0.2.14-rc.1"
+    image: "tbeigbeder/cabri-sched:v0.2.14"
   kubectl:
+    # https://cdn.dl.k8s.io/release/stable.txt => v1.29.3
     url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
     sha: "7816d067740f47f949be826ac76943167b7b3a38c4f0c18b902fffa8779a5afa"
   cmctl:
+    # v1.14.4
     release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.12.7/cmctl-linux-amd64.tar.gz"
     sha: "bf47f11c8fc637ea18da84e36ab7c9ad5e40449fd04afcbbc25ce5ae3f22d038"
   helm:
+    # v3.14.3
     release_url: "https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz"
     sha: "f43e1c3387de24547506ab05d24e5309c0ce0b228c23bd8aa64e9ec4b8206651"
   opentofu:
@@ -41,12 +44,15 @@ default_otvl:
 #    api_server_ansible_host: ovhk6
     default_namespace: "default"
   nerdctl:
+    # 1.7.5
     release_url: "https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz"
     sha: "71aee9d987b7fad0ff2ade50b038ad7e2356324edc02c54045960a3521b3e6a7"
   buildkit:
+    # 0.13.1
     release_url: "https://github.com/moby/buildkit/releases/download/v0.13.0/buildkit-v0.13.0.linux-amd64.tar.gz"
     sha: "0893f55180c3da895ad998af25305f32413676a72a36b4372607ff7396f607e8"
   cert_manager:
+    # v1.14.4
     release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml"
     sha: "af39d0d73641327d921647cf6add447f3dfdc0c431e43820b227ab249e3728d9"
     le_url: "https://acme-v02.api.letsencrypt.org/directory"
@@ -77,6 +83,8 @@ default_otvl:
 #        SK: S3 secret key
 #      dsss:
 #        - "obs:dss-s3-bucket-and-url"
+#      check_url: dss-s3-bucket-and-url
+
   otvl_web_services: []
 #    - name: blog-test
 #      skip_build: true

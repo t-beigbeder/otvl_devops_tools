@@ -1,0 +1,46 @@
+#cloud-config
+write_files:
+  - content: |
+      #!/bin/sh
+      ec2_git_repo="https://github.com/t-beigbeder/otvl_devops_tools"
+      ec2_git_branch="bdev2"
+      git_local="/root/clinit/otvl_devops_tools"
+      echo `date`: command $0 is starting with profile ${ec2_profile}
+      if [ "${ec2_profile}" = "k3s-ha-bastion" -a "${ec2_bastion_instance_has_fail2ban}" != "false" ] ; then
+        lpkg="git jq curl python3-systemd fail2ban"
+      else
+        lpkg="git jq curl python3-systemd"
+      fi
+      apt-get update && \
+        apt-get install -y --no-install-recommends  && \
+        mkdir -p /root/clinit && \
+        cd /root/clinit && \
+        rm -rf $git_local && \
+        git clone ${ec2_git_repo} -b ${ec2_git_branch} && \
+        cd $git_local && \
+        chmod 700 src/shell/mockups/k3s_ha_aws/mockup_k3s_ha_aws_cloud_init_from_git.sh && \
+        src/shell/mockups/k3s_ha_aws/mockup_k3s_ha_aws_cloud_init_from_git.sh && \
+        echo `date`: command $0 is exiting || exit 1
+      exit 0
+    path: /root/bin/otvl_cloud_init.sh
+    owner: root:root
+    permissions: '0750'
+  - content: ${ec2_profile}
+    path: /etc/k3s_ha_aws/ec2_profile
+    owner: root:root
+    permissions: '0444'
+  - content: ${ec2_hostname}
+    path: /etc/k3s_ha_aws/ec2_hostname
+    owner: root:root
+    permissions: '0444'
+  - content: |
+      export ec2_profile=${ec2_profile}
+      export ec2_bastion_instance_has_fail2ban=${ec2_bastion_instance_has_fail2ban}
+      export ec2_hostname=${ec2_hostname}
+      export ec2_k3s_server_count=${ec2_k3s_server_count}
+    path: /etc/k3s_ha_aws/ec2_exports
+    owner: root:root
+    permissions: '0444'
+
+runcmd:
+  - [ /root/bin/otvl_cloud_init.sh ]
