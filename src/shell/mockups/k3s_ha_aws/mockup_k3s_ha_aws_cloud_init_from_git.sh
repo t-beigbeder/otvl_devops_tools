@@ -10,7 +10,7 @@ enableswap() {
 }
 
 echo `date`: command $0 is starting
-
+. /etc/k3s_ha_aws/ec2_exports
 enableswap || exit 1
 
 if [ "${ec2_profile}" = "k3s-ha-bastion" -a "${ec2_bastion_instance_has_fail2ban}" != "false" ] ; then

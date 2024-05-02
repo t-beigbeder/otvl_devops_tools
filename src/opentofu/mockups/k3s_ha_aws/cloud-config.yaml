@@ -12,7 +12,7 @@ write_files:
         lpkg="git jq curl python3-systemd"
       fi
       apt-get update && \
-        apt-get install -y --no-install-recommends  && \
+        apt-get install -y --no-install-recommends $lpkg && \
         mkdir -p /root/clinit && \
         cd /root/clinit && \
         rm -rf $git_local && \
