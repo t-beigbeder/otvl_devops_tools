@@ -5,6 +5,7 @@ enableswap() {
   fallocate -l 1G /swapfile && \
   chmod 600 /swapfile && \
   mkswap /swapfile && \
+  swapon /swapfile && \
   echo "/swapfile swap swap defaults 0 0" >> /etc/fstab && \
   true
 }
@@ -25,4 +26,5 @@ EOF
   systemctl restart fail2ban.service || exit 1
 fi
 
+echo `date`: command $0 is exiting
 exit 0
