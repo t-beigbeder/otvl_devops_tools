@@ -14,6 +14,7 @@
   become: yes
   roles:
     - devops_tools
+    - k8s_client
   vars:
     values: "{{ cbd_values }}"
   tags:
@@ -28,3 +29,26 @@
     values: "{{ cbd_values }}"
   tags:
     - bastion
+
+- hosts: k3s_ha_server_group
+  gather_facts: False
+  become: yes
+  roles:
+    - k3s_ha_server
+    - nerdctl
+    - buildkit
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - k3s_ha
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - k8s_client/configure_k3s
+    - cert_manager
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - k3s_ha
