@@ -82,6 +82,15 @@ module "sg_k3s_server" {
   tags             = {}
 }
 
+resource "aws_security_group_rule" "k3s_server_comm" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  self              = true
+  security_group_id = module.sg_k3s_server.security_group.id
+}
+
 resource "aws_instance" "k3s_server_instance" {
   count         = var.ec2_k3s_server_nb_per_subnet * length(module.get_default_subnets.ids)
   ami           = module.get_ami.ami.id

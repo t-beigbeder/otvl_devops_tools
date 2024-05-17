@@ -1,0 +1,71 @@
+---
+# mockups/roles/k3s_ha_server/tasks/main.yml
+
+- name: Update /etc/hosts with K3s servers and their local IPs
+  blockinfile:
+    state: present
+    dest: /etc/hosts
+    content: |
+      {% for host in groups.k3s_ha_server_group %}
+      {{ hostvars[host]['ansible_host'] }} {{ host }}
+      {% endfor %}
+
+- name: Install curl for k3s installation and git for image build
+  ansible.builtin.apt:
+    pkg:
+      - curl
+      - git
+    install_recommends: no
+    update_cache: "{{ values.prod }}"
+
+- name: Create rancher/k3s configuration directory
+  file:
+    path: "/etc/rancher/k3s"
+    state: directory
+    mode: 0755
+
+- name: Configure rancher/k3s TLS SAN
+  template:
+    src: rancher-config.yaml
+    dest: /etc/rancher/k3s/config.yaml
+
+- name: Create otvl/k3s configuration yaml directory
+  file:
+    path: "{{ values.config_paths.data }}/otvl/k3s"
+    state: directory
+    mode: 0755
+
+- name: Check k3s cluster presence
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/k3s.service"
+  register: k3s_service_st
+
+- name: Install the k3s cluster and initialized it on server 0 if absent
+  shell: "curl -sfL https://get.k3s.io | K3S_TOKEN={{ values.k3s.cluster_secret }} sh -s - server --cluster-init"
+  when: k3s_service_st.stat.isreg is not defined and inventory_hostname == groups.k3s_ha_server_group[0]
+
+- name: Install the k3s service and join the cluster on other servers if absent
+  shell: "curl -sfL https://get.k3s.io | K3S_TOKEN={{ values.k3s.cluster_secret }} sh -s - server --server https://{{ values.k3s.api_server }}:6443"
+  when: k3s_service_st.stat.isreg is not defined and inventory_hostname != groups.k3s_ha_server_group[0]
+
+- name: Make k3s cluster config copy readable
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    remote_src: true
+    dest: "{{ values.config_paths.data }}/otvl/k3s/k3s.yaml"
+    mode: "0644"
+
+- name: Adapt k3s cluster config localhost to api_server
+  ansible.builtin.replace:
+    path: "{{ values.config_paths.data }}/otvl/k3s/k3s.yaml"
+    regexp: "https://127.0.0.1:"
+    replace: "https://{{ values.k3s.api_server }}:"
+
+- name: Fetch k3s cluster config for access from localhost
+  ansible.builtin.fetch:
+    src: "{{ values.config_paths.data }}/otvl/k3s/k3s.yaml"
+    dest: "/home/{{ values.config_vars.devops_user }}/.k3s"
+  vars:
+    ansible_become: false
+
+###

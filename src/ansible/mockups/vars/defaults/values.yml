@@ -30,10 +30,11 @@ default_values:
     release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
     sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
   k3s:
+    cluster_secret: PLEASE_UPDATE_THIS_K3S_TOKEN
     traefik:
       customize: true
-    #    api_server: ovhk6-loc
-    #    api_server_ansible_host: ovhk6
+    #    api_server: k3s-ha-server-0
+    #    api_server_ansible_host: k3s-ha-server-0
     default_namespace: "default"
   nerdctl:
     # 1.7.5
