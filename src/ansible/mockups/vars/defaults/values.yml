@@ -14,3 +14,39 @@ default_values:
     otvl_devops_tools_repo: "https://github.com/t-beigbeder/otvl_devops_tools"
     otvl_devops_tools_version: "main"
     otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz
+  kubectl:
+    # https://cdn.dl.k8s.io/release/stable.txt => v1.29.3
+    url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
+    sha: "7816d067740f47f949be826ac76943167b7b3a38c4f0c18b902fffa8779a5afa"
+  cmctl:
+    # v1.14.4
+    release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.12.7/cmctl-linux-amd64.tar.gz"
+    sha: "bf47f11c8fc637ea18da84e36ab7c9ad5e40449fd04afcbbc25ce5ae3f22d038"
+  helm:
+    # v3.14.3
+    release_url: "https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz"
+    sha: "f43e1c3387de24547506ab05d24e5309c0ce0b228c23bd8aa64e9ec4b8206651"
+  opentofu:
+    release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
+    sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
+  k3s:
+    cluster_secret: PLEASE_UPDATE_THIS_K3S_TOKEN
+    traefik:
+      customize: true
+    #    api_server: k3s-ha-server-0
+    #    api_server_ansible_host: k3s-ha-server-0
+    default_namespace: "default"
+  nerdctl:
+    # 1.7.5
+    release_url: "https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz"
+    sha: "71aee9d987b7fad0ff2ade50b038ad7e2356324edc02c54045960a3521b3e6a7"
+  buildkit:
+    # 0.13.1
+    release_url: "https://github.com/moby/buildkit/releases/download/v0.13.0/buildkit-v0.13.0.linux-amd64.tar.gz"
+    sha: "0893f55180c3da895ad998af25305f32413676a72a36b4372607ff7396f607e8"
+  cert_manager:
+    # v1.14.4
+    release_url: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml"
+    sha: "af39d0d73641327d921647cf6add447f3dfdc0c431e43820b227ab249e3728d9"
+    le_url: "https://acme-v02.api.letsencrypt.org/directory"
+    le_email: "acme@example.com"

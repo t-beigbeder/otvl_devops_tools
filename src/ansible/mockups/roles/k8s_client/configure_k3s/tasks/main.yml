@@ -1,0 +1,23 @@
+---
+# mockups/roles/k8s_client/configure_k3s/tasks/main.yml
+
+- name: Update /etc/hosts with K3s servers and their local IPs
+  blockinfile:
+    state: present
+    dest: /etc/hosts
+    content: |
+      {% for host in groups.k3s_ha_server_group %}
+      {{ hostvars[host]['ansible_host'] }} {{ host }}
+      {% endfor %}
+
+- name: Configure access to k3s api server
+  ansible.builtin.copy:
+    src: "/home/{{ values.config_vars.devops_user }}/.k3s/{{ values.k3s.api_server_ansible_host }}/srv/data/otvl/k3s/k3s.yaml"
+    remote_src: true
+    dest: "/home/{{ values.config_vars.devops_user }}/.kube/config"
+    mode: "0600"
+    owner: "{{ values.config_vars.devops_user }}"
+    group: "{{ values.config_vars.devops_user }}"
+  become: true
+
+###

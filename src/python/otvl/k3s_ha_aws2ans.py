@@ -25,6 +25,8 @@ def run():
     servers = {}
     for rsv in osi["Reservations"]:
         for inst in rsv["Instances"]:
+            if inst["State"]["Name"] != "running":
+                continue
             for tag in inst["Tags"]:
                 if tag["Key"] == "Name":
                     name = tag["Value"]

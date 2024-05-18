@@ -10,4 +10,4 @@
     # quick setup bastion host from development host, copy dev env
     ansible-playbook -i /path/to/inventory src/ansible/mockups/mockups_bastion.yml
     # from bastion host with fast access to openstack API
-    ansible-playbook -i /path/to/inventory src/ansible/mockups/next_step.yml
+    ansible-playbook -i /path/to/inventory src/ansible/mockups/mockup_k3s_ha.yml

@@ -77,9 +77,25 @@ module "sg_k3s_server" {
     cidr_blocks        = []
     ipv6_cidr_blocks   = []
     security_group_ids = [module.sg_bastion.security_group.id]
+    }, {
+    from_port          = 6443
+    to_port            = 6443
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_bastion.security_group.id]
   }]
   egress_allow_all = true
   tags             = {}
+}
+
+resource "aws_security_group_rule" "k3s_server_comm" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  self              = true
+  security_group_id = module.sg_k3s_server.security_group.id
 }
 
 resource "aws_instance" "k3s_server_instance" {
