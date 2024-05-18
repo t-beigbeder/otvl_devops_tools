@@ -78,6 +78,20 @@ module "sg_k3s_server" {
     ipv6_cidr_blocks   = []
     security_group_ids = [module.sg_bastion.security_group.id]
     }, {
+    from_port          = 80
+    to_port            = 80
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_bastion.security_group.id]
+    }, {
+    from_port          = 443
+    to_port            = 443
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_bastion.security_group.id]
+    }, {
     from_port          = 6443
     to_port            = 6443
     protocol           = "tcp"
