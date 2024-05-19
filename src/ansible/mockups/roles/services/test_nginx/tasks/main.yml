@@ -8,7 +8,7 @@
   vars:
     title: "a simple test with nginx"
     chart_sp: "mockups/test-nginx"
-    vf_template_sp: "test-nginx.yaml"
+    vf_template_sp: "test_nginx.yaml"
     release_name: "{{ values.test_nginx.release }}"
     uninstall: "{{ values.test_nginx.helm_uninstall | default(false) }}"
   when: not (values.test_nginx.skip_hdeploy | default(false))

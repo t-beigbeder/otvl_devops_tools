@@ -103,11 +103,38 @@ module "sg_k3s_server" {
   tags             = {}
 }
 
-resource "aws_security_group_rule" "k3s_server_comm" {
+resource "aws_security_group_rule" "k3s_server_comm_tcp_2379" {
   type              = "ingress"
-  from_port         = 0
-  to_port           = 65535
+  from_port         = 2379
+  to_port           = 2380
   protocol          = "tcp"
+  self              = true
+  security_group_id = module.sg_k3s_server.security_group.id
+}
+
+resource "aws_security_group_rule" "k3s_server_comm_tcp_6443" {
+  type              = "ingress"
+  from_port         = 6443
+  to_port           = 6443
+  protocol          = "tcp"
+  self              = true
+  security_group_id = module.sg_k3s_server.security_group.id
+}
+
+resource "aws_security_group_rule" "k3s_server_comm_tcp_10250" {
+  type              = "ingress"
+  from_port         = 10250
+  to_port           = 10250
+  protocol          = "tcp"
+  self              = true
+  security_group_id = module.sg_k3s_server.security_group.id
+}
+
+resource "aws_security_group_rule" "k3s_server_comm_udp_8472" {
+  type              = "ingress"
+  from_port         = 8472
+  to_port           = 8472
+  protocol          = "udp"
   self              = true
   security_group_id = module.sg_k3s_server.security_group.id
 }

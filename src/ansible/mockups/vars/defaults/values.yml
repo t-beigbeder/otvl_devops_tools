@@ -50,3 +50,5 @@ default_values:
     sha: "af39d0d73641327d921647cf6add447f3dfdc0c431e43820b227ab249e3728d9"
     le_url: "https://acme-v02.api.letsencrypt.org/directory"
     le_email: "acme@example.com"
+  test_nginx:
+    release: "test-nginx"
