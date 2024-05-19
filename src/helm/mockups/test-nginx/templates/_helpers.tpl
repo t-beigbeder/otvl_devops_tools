@@ -1,7 +1,7 @@
 {{/*
 Set the ingress hostname
 */}}
-{{- define "web-sample-otvl-ingress-hostname" -}}
+{{- define "test-nginx-ingress-hostname" -}}
 {{- if .Values.ingress.host -}}
 {{- print .Values.ingress.host -}}
 {{- else -}}
