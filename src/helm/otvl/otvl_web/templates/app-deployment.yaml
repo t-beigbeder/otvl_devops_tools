@@ -25,7 +25,7 @@ spec:
             - name: OTVL_WEB_SERVER_NAME
               value: {{ include "ingress-hostname" . }}
             - name: OTVL_WEB_ENABLE_BOTS
-              value: {{ .Values.enable_bots }}
+              value: "{{ .Values.enable_bots }}"
             - name: OTVL_WEB_ASSETS_DIR
               value: /data/assets
           command: ["/bin/sh"]
