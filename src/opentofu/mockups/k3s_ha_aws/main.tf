@@ -172,6 +172,7 @@ resource "aws_lb" "this" {
   ip_address_type                  = "ipv4"
   enable_cross_zone_load_balancing = true
   subnets                          = module.get_default_subnets.ids
+  security_groups = [module.sg_k3s_ha_server.security_group.id]
 }
 
 resource "aws_lb_target_group" "lbtg_80" {
@@ -179,11 +180,9 @@ resource "aws_lb_target_group" "lbtg_80" {
   port     = 80
   protocol = "TCP"
   vpc_id   = module.get_default_subnets.default_vpc.id
-
   health_check {
     protocol = "TCP"
   }
-
 }
 
 resource "aws_lb_target_group_attachment" "lbtg_80" {
@@ -199,5 +198,31 @@ resource "aws_lb_listener" "lbl_80" {
   default_action {
     type = "forward"
     target_group_arn = aws_lb_target_group.lbtg_80.arn
+  }
+}
+
+resource "aws_lb_target_group" "lbtg_443" {
+  name     = "k3s-ha-lb-tg443"
+  port     = 443
+  protocol = "TCP"
+  vpc_id   = module.get_default_subnets.default_vpc.id
+  health_check {
+    protocol = "TCP"
+  }
+}
+
+resource "aws_lb_target_group_attachment" "lbtg_443" {
+  count            = length(aws_instance.k3s_ha_server_instance)
+  target_group_arn = aws_lb_target_group.lbtg_443.arn
+  target_id        = aws_instance.k3s_ha_server_instance[count.index].id
+}
+
+resource "aws_lb_listener" "lbl_443" {
+  load_balancer_arn = aws_lb.this.arn
+  port              = 443
+  protocol          = "TCP"
+  default_action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.lbtg_443.arn
   }
 }
