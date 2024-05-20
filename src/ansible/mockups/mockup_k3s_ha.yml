@@ -53,6 +53,16 @@
   tags:
     - k3s_ha
 
+- hosts: k3s-ha-server-0
+  gather_facts: False
+  become: yes
+  roles:
+    - services/tcpecho/build
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - services
+
 - hosts: bastion_group
   gather_facts: False
   become: yes

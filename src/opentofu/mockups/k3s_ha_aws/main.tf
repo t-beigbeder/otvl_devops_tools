@@ -144,6 +144,7 @@ resource "aws_instance" "k3s_ha_server_instance" {
   ami           = module.get_ami.ami.id
   instance_type = var.ec2_bastion_instance_type
   key_name      = var.ec2_bastion_instance_key_name
+  associate_public_ip_address = "false"
   user_data = base64encode(templatefile("${path.module}/cloud-config.yaml", {
     ec2_git_repo                      = var.ec2_git_repo
     ec2_git_branch                    = var.ec2_git_branch
@@ -161,7 +162,7 @@ resource "aws_instance" "k3s_ha_server_instance" {
 
 locals {
   aws_instance_ips = [
-    for v in aws_instance.k3s_ha_server_instance : v.public_ip
+    for v in aws_instance.k3s_ha_server_instance : v.private_ip
   ]
 }
 
