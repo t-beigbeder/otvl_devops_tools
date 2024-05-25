@@ -1,4 +1,5 @@
 FROM alpine:3.19
-RUN apk add --no-cache netcat-openbsd
-ENTRYPOINT bin/bash
-CMD [ "ncat", "-l", "2000", "--keep-open", "--exec", "/bin/cat"]
+RUN apk add --no-cache socat
+USER 1000
+ENTRYPOINT /bin/sh
+CMD [ "socat", "tcp-l:2000,fork", "exec:'/bin/cat'"]

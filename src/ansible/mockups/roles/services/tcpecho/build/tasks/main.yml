@@ -3,14 +3,14 @@
 
 - name: Set service name and item
   set_fact:
-    service_name: tcpecho
-    current_item: values.tcpecho
+    service_name: "tcpecho"
+    current_item: "{{ values.tcpecho }}"
 
 - name: Checkout the git project containing mockups for {{ service_name }}
   git:
-    repo: "{{ current_item.git.mockups.repo }}"
+    repo: "{{ current_item.git.repo }}"
     dest: "{{ values.config_paths.delivery }}/mockups/git/{{ service_name }}"
-    version: "{{ current_item.git.mockups.version }}"
+    version: "{{ current_item.git.version }}"
     update: true
     recursive: no
     force: yes
@@ -20,7 +20,7 @@
 - name: Build the service {{ service_name }}
   block:
     - command:
-        cmd: "nerdctl build -t {{ service_name}}-app:{{ current_item.images_versions.app }} ."
+        cmd: "nerdctl build -t {{ service_name}}:{{ current_item.image_version }} ."
         chdir: "{{ values.config_paths.delivery }}/mockups/git/{{ service_name }}/src/docker/mockups/tcpecho"
       register: nerdctl_build_app
     - debug: var=nerdctl_build_app.cmd

@@ -53,3 +53,7 @@ default_values:
   test_nginx:
     release: "test-nginx"
     ingress_host: test-nginx.example.com
+  tcpecho:
+    git:
+      repo: "https://github.com/t-beigbeder/otvl_devops_tools"
+      version: "main"
