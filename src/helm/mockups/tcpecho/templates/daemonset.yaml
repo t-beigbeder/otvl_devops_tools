@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}
+  template:
+    metadata:
+      name: {{ .Release.Name }}
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: listener
+          image: {{ .Values.image }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          ports:
+            - containerPort: 2000
+          livenessProbe:
+            periodSeconds: 60
+            tcpSocket:
+              port: 2000
+          readinessProbe:
+            periodSeconds: 60
+            tcpSocket:
+              port: 2000

@@ -18,3 +18,13 @@
     values: "{{ cbd_values }}"
   tags:
     - services
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/tcpecho
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - services
