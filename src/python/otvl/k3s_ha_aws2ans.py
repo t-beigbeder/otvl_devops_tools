@@ -23,6 +23,7 @@ def run():
         return res
     osi = json.loads(result.stdout)
     servers = {}
+    server_count = 0
     for rsv in osi["Reservations"]:
         for inst in rsv["Instances"]:
             if inst["State"]["Name"] != "running":
@@ -34,6 +35,9 @@ def run():
                         groups = ["bastion_group"]
                     elif "k3s-ha-server" in name:
                         groups = ["bastion_controlled_group", "k3s_ha_server_group"]
+                        server_count += 1
+                        if server_count == 2:
+                            groups.append("k3s_build_group")
                     elif "k3s-ha-node" in name:
                         groups = ["bastion_controlled_group", "k3s_ha_node_group"]
                     else:
