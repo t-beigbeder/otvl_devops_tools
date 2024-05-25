@@ -2,4 +2,5 @@ FROM alpine:3.19
 RUN apk add --no-cache socat
 USER 1000
 ENTRYPOINT /bin/sh
-CMD [ "socat", "tcp-l:2000,fork", "exec:'/bin/cat'"]
+EXPOSE 2000
+CMD socat tcp-l:2000,fork exec:'/bin/cat'
