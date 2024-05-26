@@ -144,7 +144,6 @@ resource "aws_instance" "k3s_ha_server_instance" {
   ami           = module.get_ami.ami.id
   instance_type = var.ec2_bastion_instance_type
   key_name      = var.ec2_bastion_instance_key_name
-  associate_public_ip_address = "false"
   user_data = base64encode(templatefile("${path.module}/cloud-config.yaml", {
     ec2_git_repo                      = var.ec2_git_repo
     ec2_git_branch                    = var.ec2_git_branch
@@ -183,6 +182,7 @@ resource "aws_lb_target_group" "lbtg_80" {
   vpc_id   = module.get_default_subnets.default_vpc.id
   health_check {
     protocol = "TCP"
+    port = 32000
   }
 }
 
@@ -209,6 +209,7 @@ resource "aws_lb_target_group" "lbtg_443" {
   vpc_id   = module.get_default_subnets.default_vpc.id
   health_check {
     protocol = "TCP"
+    port = 32000
   }
 }
 

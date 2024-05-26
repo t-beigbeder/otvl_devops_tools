@@ -67,6 +67,7 @@
   gather_facts: False
   become: yes
   roles:
+    - services/tcpecho
     - services/test_nginx
   vars:
     values: "{{ cbd_values }}"

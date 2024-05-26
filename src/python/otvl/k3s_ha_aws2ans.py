@@ -42,7 +42,7 @@ def run():
                         groups = ["bastion_controlled_group", "k3s_ha_node_group"]
                     else:
                         groups = []
-                    servers[name] = servers[name] = {"ip": inst["PrivateIpAddress"] if lb else inst["PublicIpAddress"], "groups": groups}
+                    servers[name] = servers[name] = {"ip": inst["PrivateIpAddress"] if lb or "PublicIpAddress" not in inst else inst["PublicIpAddress"], "groups": groups}
     yo = {"all": {"hosts": {}, "children": {}}}
     for sn, sv in servers.items():
         yo["all"]["hosts"][sn] = {"ansible_host": sv["ip"]}

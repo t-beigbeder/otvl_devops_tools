@@ -10,4 +10,4 @@ spec:
     - name: "tcp-port"
       port: 2000
       protocol: TCP
-      nodePort: 32000
+      nodePort: {{ .Values.service_port }}
