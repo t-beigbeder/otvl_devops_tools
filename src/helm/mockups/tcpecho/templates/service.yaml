@@ -5,7 +5,9 @@ metadata:
 spec:
   selector:
     app.kubernetes.io/name: {{ .Release.Name }}
+  type: NodePort
   ports:
     - name: "tcp-port"
       port: 2000
       protocol: TCP
+      nodePort: 32000
