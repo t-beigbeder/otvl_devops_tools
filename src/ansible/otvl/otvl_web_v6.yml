@@ -31,13 +31,24 @@
   tags:
     - bastion
 
+- hosts: build_group
+  gather_facts: False
+  become: yes
+  roles:
+    - containerd
+    - nerdctl
+    - buildkit
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - build
+
 - hosts: k3s_simple_group
   gather_facts: False
   become: yes
   roles:
     - k3s_simple
     - nerdctl
-    - buildkit
   vars:
     otvl: "{{ cbd_otvl }}"
   tags:
@@ -64,7 +75,7 @@
   tags:
     - ctr
 
-- hosts: k3s_simple_group
+- hosts: build_group
   gather_facts: False
   become: yes
   roles:

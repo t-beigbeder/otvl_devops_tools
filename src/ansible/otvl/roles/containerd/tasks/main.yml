@@ -1,0 +1,22 @@
+---
+# otvl/roles/containerd/tasks/main.yml
+
+- name: Here otvl/roles/containerd/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.containerd.release_url }}"
+    tgz_name: "containerd.2.tgz"
+    sha: "{{ otvl.containerd.sha }}"
+    binary_name: "bin"
+    binary_path: "."
+
+- name: "containerd installation to be completed"
+  block:
+    - command:
+        cmd: "ls /not_found"
+      register: lsnf
+    - debug: var=lsnf.cmd
+
+###

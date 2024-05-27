@@ -43,6 +43,10 @@ default_otvl:
 #    api_server: ovhk6-loc
 #    api_server_ansible_host: ovhk6
     default_namespace: "default"
+  containerd:
+    # 1.6.32
+    release_url: "https://github.com/containerd/containerd/releases/download/v1.6.32/containerd-1.6.32-linux-amd64.tar.gz"
+    sha: "7acab4dda6edb7e8e0a6cfc3abd9f323db05a3d92a8a1842de8f6c9e28af501d"
   nerdctl:
     # 1.7.5
     release_url: "https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz"
