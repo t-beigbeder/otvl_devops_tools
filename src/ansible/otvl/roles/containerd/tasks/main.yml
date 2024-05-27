@@ -7,10 +7,18 @@
     tasks_from: install_from_ghr
   vars:
     url: "{{ otvl.containerd.release_url }}"
-    tgz_name: "containerd.2.tgz"
+    tgz_name: "containerd.4.tgz"
     sha: "{{ otvl.containerd.sha }}"
-    binary_name: "bin"
-    binary_path: "."
+    binary_name: "containerd"
+    binary_path: "bin"
+    dir_content: true
+
+- name: Install downloaded containerd binaries
+  ansible.builtin.copy:
+    src: "{{ ghr_extr }}/bin"
+    remote_src: true
+    dest: "/usr/local"
+  when: ghr_release_extract.changed
 
 - name: "containerd installation to be completed"
   block:
