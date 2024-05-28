@@ -1,30 +1,76 @@
 ---
 # otvl/roles/containerd/tasks/main.yml
 
+- name: Install packages for CNI network plugins
+  ansible.builtin.apt:
+    pkg:
+      - iptables
+    update_cache: "{{ otvl.prod }}"
+    install_recommends: no
+    state: present
+
 - name: Here otvl/roles/containerd/tasks/main.yml
   include_role:
     name: commons
     tasks_from: install_from_ghr
   vars:
     url: "{{ otvl.containerd.release_url }}"
-    tgz_name: "containerd.4.tgz"
+    tgz_name: "containerd.5.tgz"
     sha: "{{ otvl.containerd.sha }}"
     binary_name: "containerd"
     binary_path: "bin"
     dir_content: true
+    dest_dir_content: "/usr/local"
 
-- name: Install downloaded containerd binaries
-  ansible.builtin.copy:
-    src: "{{ ghr_extr }}/bin"
-    remote_src: true
-    dest: "/usr/local"
-  when: ghr_release_extract.changed
+- name: "Create containerd systemd service file"
+  copy:
+    src: systemd/containerd.service
+    dest: /etc/systemd/system/containerd.service
+    owner: root
+    group: root
+    mode: 0644
+  register: containerd_config
 
-- name: "containerd installation to be completed"
+- name: Create and run systemd service for containerd
   block:
-    - command:
-        cmd: "ls /not_found"
-      register: lsnf
-    - debug: var=lsnf.cmd
+    - name: Enable containerd systemd service
+      systemd:
+        name: "containerd"
+        enabled: yes
+    - name: Restart containerd systemd service
+      systemd:
+        name: "containerd"
+        state: restarted
+        daemon_reload: yes
+  when: containerd_config.changed
+
+- name: Here otvl/roles/containerd/tasks/main.yml bis
+  include_role:
+    name: commons
+    tasks_from: install_from_url
+  vars:
+    url: "{{ otvl.runc.release_url }}"
+    dload_name: "runc.1"
+    sha: "{{ otvl.runc.sha }}"
+    binary_name: "runc"
+
+- name: Create the cni_plugins installation directory
+  file:
+    dest: "/opt/cni/bin"
+    state: directory
+    mode: 0755
+
+- name: Here otvl/roles/containerd/tasks/main.yml ter
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.cni_plugins.release_url }}"
+    tgz_name: "cni_plugins.2.tgz"
+    sha: "{{ otvl.cni_plugins.sha }}"
+    binary_name: "cni_plugins"
+    binary_path: "."
+    dir_content: true
+    dest_dir_content: "/opt/cni/bin"
 
 ###

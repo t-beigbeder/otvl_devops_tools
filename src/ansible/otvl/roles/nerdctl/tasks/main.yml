@@ -19,9 +19,16 @@
     mode: 0755
 
 - name: Create the nerdctl configuration file
-  copy:
-    dest: "/etc/nerdctl/nerdctl.toml"
+  template:
     src: "nerdctl.toml"
+    dest: "/etc/nerdctl/nerdctl.toml"
     mode: 0644
+
+- name: "containerd installation to be completed"
+  block:
+    - command:
+        cmd: "ls /not_found"
+      register: lsnf
+    - debug: var=lsnf.cmd
 
 ###

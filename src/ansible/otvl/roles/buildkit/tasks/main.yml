@@ -7,18 +7,12 @@
     tasks_from: install_from_ghr
   vars:
     url: "{{ otvl.buildkit.release_url }}"
-    tgz_name: "buildkit-0.13.0-1.tgz"
+    tgz_name: "buildkit.1.tgz"
     sha: "{{ otvl.buildkit.sha }}"
     binary_name: "buildkit"
     binary_path: "bin"
     dir_content: true
-
-- name: Install downloaded builkit binaries
-  ansible.builtin.copy:
-    src: "{{ ghr_extr }}/bin"
-    remote_src: true
-    dest: "/usr/local"
-  when: ghr_release_extract.changed
+    dest_dir_content: "/usr/local"
 
 - name: Create the buildkit configuration directory
   file:
