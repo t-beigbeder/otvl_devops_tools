@@ -1,10 +1,11 @@
 ---
 # otvl/roles/containerd/tasks/main.yml
 
-- name: Install packages for CNI network plugins
+- name: Install packages for CNI network plugins and build
   ansible.builtin.apt:
     pkg:
       - iptables
+      - git
     update_cache: "{{ otvl.prod }}"
     install_recommends: no
     state: present

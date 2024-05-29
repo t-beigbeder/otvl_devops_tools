@@ -56,6 +56,21 @@
 
 - name: Build the site {{ site_name }}
   block:
+    - name: Set insecure-registry flag
+      set_fact:
+        ir_flag: " --insecure-registry"
+      when: otvl.ctr.skip_verify | default(false)
+    - name: Set insecure-registry flag
+      set_fact:
+        ir_flag: ""
+      when: not otvl.ctr.skip_verify | default(false)
+    - command:
+        cmd: "nerdctl {{ ir_flag }} login {{ otvl.ctr.ingress_host }} -u {{ otvl.ctr.login }} --password-stdin"
+        stdin: "{{ otvl.ctr.password }}"
+      register: nerdctl_login
+    - debug: var=nerdctl_login.cmd
+    - debug: var=nerdctl_login.stderr_lines
+    - debug: var=nerdctl_login.stdout_lines
     - command:
         cmd: "nerdctl build -t {{ site_name}}-app:{{ current_item.images_versions.app }} -f otvl-web-app/Dockerfile ."
         chdir: "{{ site_build_dir }}"
@@ -64,9 +79,33 @@
     - debug: var=nerdctl_build_app.stderr_lines
     - debug: var=nerdctl_build_app.stdout_lines
     - command:
+        cmd: "nerdctl {{ ir_flag }} tag {{ site_name}}-app:{{ current_item.images_versions.app }} {{ otvl.ctr.ingress_host }}/{{ site_name}}-app:{{ current_item.images_versions.app }}"
+      register: nerdctl_tag_app
+    - debug: var=nerdctl_tag_app.cmd
+    - debug: var=nerdctl_tag_app.stderr_lines
+    - debug: var=nerdctl_tag_app.stdout_lines
+    - command:
+        cmd: "nerdctl {{ ir_flag }} push {{ otvl.ctr.ingress_host }}/{{ site_name}}-app:{{ current_item.images_versions.app }}"
+      register: nerdctl_push_app
+    - debug: var=nerdctl_push_app.cmd
+    - debug: var=nerdctl_push_app.stderr_lines
+    - debug: var=nerdctl_push_app.stdout_lines
+    - command:
         cmd: "nerdctl build -t {{ site_name}}-api:{{ current_item.images_versions.api }} ./otvl_web/server"
         chdir: "{{ site_build_dir }}"
       register: nerdctl_build_api
     - debug: var=nerdctl_build_api.cmd
     - debug: var=nerdctl_build_api.stderr_lines
     - debug: var=nerdctl_build_api.stdout_lines
+    - command:
+        cmd: "nerdctl {{ ir_flag }} tag {{ site_name}}-api:{{ current_item.images_versions.api }} {{ otvl.ctr.ingress_host }}/{{ site_name}}-api:{{ current_item.images_versions.api }}"
+      register: nerdctl_tag_api
+    - debug: var=nerdctl_tag_api.cmd
+    - debug: var=nerdctl_tag_api.stderr_lines
+    - debug: var=nerdctl_tag_api.stdout_lines
+    - command:
+        cmd: "nerdctl {{ ir_flag }} push {{ otvl.ctr.ingress_host }}/{{ site_name}}-api:{{ current_item.images_versions.api }}"
+      register: nerdctl_push_api
+    - debug: var=nerdctl_push_api.cmd
+    - debug: var=nerdctl_push_api.stderr_lines
+    - debug: var=nerdctl_push_api.stdout_lines

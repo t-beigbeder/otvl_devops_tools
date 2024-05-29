@@ -20,7 +20,7 @@ spec:
         fsGroup: {{ .Values.fs_group }}
       containers:
         - name: app
-          image: {{ printf "%s-app:%s" .Values.images.site_name .Values.images.versions.app }}
+          image: {{ printf "%s%s-app:%s" .Values.images.registry_prefix .Values.images.site_name .Values.images.versions.app }}
           env:
             - name: OTVL_WEB_SERVER_NAME
               value: {{ include "ingress-hostname" . }}

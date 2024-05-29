@@ -20,7 +20,7 @@ spec:
         fsGroup: {{ .Values.fs_group }}
       containers:
         - name: api
-          image: {{ printf "%s-api:%s" .Values.images.site_name .Values.images.versions.api }}
+          image: {{ printf "%s%s-api:%s" .Values.images.registry_prefix .Values.images.site_name .Values.images.versions.api }}
           env:
             - name: OTVL_WEB_CONFIG_PATH
               value: /data/config/config.yml
