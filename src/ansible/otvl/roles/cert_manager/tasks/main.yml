@@ -8,7 +8,7 @@
   vars:
     url: "{{ otvl.cert_manager.release_url }}"
     sha: "{{ otvl.cert_manager.sha }}"
-    dload_name: "cert-manager-3.yaml"
+    dload_name: "cert-manager-4.yaml"
     kapp_message: "Install cert-manager on the k3s cluster"
 
 - name: Wait for the cert-manager installation to complete

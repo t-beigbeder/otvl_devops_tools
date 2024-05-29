@@ -24,11 +24,4 @@
     dest: "/etc/nerdctl/nerdctl.toml"
     mode: 0644
 
-- name: "containerd installation to be completed"
-  block:
-    - command:
-        cmd: "ls /not_found"
-      register: lsnf
-    - debug: var=lsnf.cmd
-
 ###

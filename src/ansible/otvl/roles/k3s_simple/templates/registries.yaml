@@ -7,3 +7,5 @@ configs:
     auth:
       username: "{{ otvl.ctr.login }}"
       password: "{{ otvl.ctr.password }}"
+    tls:
+      insecure_skip_verify: {{ otvl.ctr.skip_verify | default(false) }}

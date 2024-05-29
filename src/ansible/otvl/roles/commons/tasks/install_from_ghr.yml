@@ -36,7 +36,6 @@
     - name: Set destination dir content
       set_fact:
         ghr_dest_dir_content: "{{ dest_dir_content | default('/usr/local/bin') }}"
-      when: dir_content | default(false)
 
 - name: set included vars
   set_fact:

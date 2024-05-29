@@ -21,9 +21,9 @@
     mode: 0755
 
 - name: Create the buildkit configuration file
-  copy:
+  template:
+    src: "etc/buildkitd.toml"
     dest: "/etc/buildkit/buildkitd.toml"
-    src: "buildkitd.toml"
     mode: 0644
 
 - name: "Create buildkit systemd service file"
