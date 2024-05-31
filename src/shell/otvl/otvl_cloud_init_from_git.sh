@@ -32,7 +32,7 @@ updatehosts() {
 }
 
 git_repo="https://github.com/t-beigbeder/otvl_devops_tools"
-git_branch="main"
+git_branch="bdev4"
 git_local="/root/clinit/otvl_devops_tools"
 echo `date`: command $0 is starting
 
