@@ -1,0 +1,30 @@
+---
+# mockups/roles/services/tcpecho/build/tasks/main.yml
+
+- name: Set service name and item
+  set_fact:
+    service_name: "tcpecho"
+    current_item: "{{ values.tcpecho }}"
+
+- name: Checkout the git project containing mockups for {{ service_name }}
+  git:
+    repo: "{{ current_item.git.repo }}"
+    dest: "{{ values.config_paths.delivery }}/mockups/git/{{ service_name }}"
+    version: "{{ current_item.git.version }}"
+    update: true
+    recursive: no
+    force: yes
+  register: mockups_git_checkout
+  when: current_item.dev_build_dir is not defined
+
+- name: Build the service {{ service_name }}
+  block:
+    - command:
+        cmd: "nerdctl build -t {{ service_name}}:{{ current_item.image_version }} ."
+        chdir: "{{ values.config_paths.delivery }}/mockups/git/{{ service_name }}/src/docker/mockups/tcpecho"
+      register: nerdctl_build_app
+    - debug: var=nerdctl_build_app.cmd
+    - debug: var=nerdctl_build_app.stderr_lines
+    - debug: var=nerdctl_build_app.stdout_lines
+
+###

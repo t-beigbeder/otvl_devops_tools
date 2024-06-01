@@ -1,0 +1,16 @@
+---
+# mockups/roles/services/test_nginx/tasks/main.yml
+
+- name: Here mockups/roles/services/test_nginx/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: helm_release
+  vars:
+    title: "a simple test with nginx"
+    chart_sp: "mockups/test-nginx"
+    vf_template_sp: "test_nginx.yaml"
+    release_name: "{{ values.test_nginx.release }}"
+    uninstall: "{{ values.test_nginx.helm_uninstall | default(false) }}"
+  when: not (values.test_nginx.skip_hdeploy | default(false))
+
+###

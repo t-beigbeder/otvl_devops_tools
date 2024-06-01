@@ -26,9 +26,9 @@ module "get_default_subnets" {
   vpc_is_default      = true
 }
 
-module "sg_bastion" {
+module "sg_k3s_ha_bastion" {
   source         = "../../modules/aws/mk_sg"
-  name           = "bastion"
+  name           = "k3s_ha_bastion"
   default_vpc_id = module.get_default_subnets.default_vpc.id
   ingress_rules = [{
     from_port          = 22
@@ -48,7 +48,7 @@ module "get_ami" {
   ami_owner      = var.ec2_instance_ami_owner
 }
 
-resource "aws_instance" "bastion_instance" {
+resource "aws_instance" "k3s_ha_bastion_instance" {
   ami           = module.get_ami.ami.id
   instance_type = var.ec2_bastion_instance_type
   key_name      = var.ec2_bastion_instance_key_name
@@ -60,15 +60,15 @@ resource "aws_instance" "bastion_instance" {
     ec2_hostname                      = "k3s-ha-bastion"
     ec2_k3s_server_count              = var.ec2_k3s_server_nb_per_subnet * length(module.get_default_subnets.ids)
   }))
-  vpc_security_group_ids = [module.sg_bastion.security_group.id]
+  vpc_security_group_ids = [module.sg_k3s_ha_bastion.security_group.id]
   tags = {
     Name = "k3s-ha-bastion"
   }
 }
 
-module "sg_k3s_server" {
+module "sg_k3s_ha_server" {
   source         = "../../modules/aws/mk_sg"
-  name           = "k3s_server"
+  name           = "k3s_ha_server"
   default_vpc_id = module.get_default_subnets.default_vpc.id
   ingress_rules = [{
     from_port          = 22
@@ -76,29 +76,70 @@ module "sg_k3s_server" {
     protocol           = "tcp"
     cidr_blocks        = []
     ipv6_cidr_blocks   = []
-    security_group_ids = [module.sg_bastion.security_group.id]
+    security_group_ids = [module.sg_k3s_ha_bastion.security_group.id]
+    }, {
+    from_port          = 80
+    to_port            = 80
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_k3s_ha_bastion.security_group.id]
+    }, {
+    from_port          = 443
+    to_port            = 443
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_k3s_ha_bastion.security_group.id]
     }, {
     from_port          = 6443
     to_port            = 6443
     protocol           = "tcp"
     cidr_blocks        = []
     ipv6_cidr_blocks   = []
-    security_group_ids = [module.sg_bastion.security_group.id]
+    security_group_ids = [module.sg_k3s_ha_bastion.security_group.id]
   }]
   egress_allow_all = true
   tags             = {}
 }
 
-resource "aws_security_group_rule" "k3s_server_comm" {
+resource "aws_security_group_rule" "k3s_server_comm_tcp_2379" {
   type              = "ingress"
-  from_port         = 0
-  to_port           = 65535
+  from_port         = 2379
+  to_port           = 2380
   protocol          = "tcp"
   self              = true
-  security_group_id = module.sg_k3s_server.security_group.id
+  security_group_id = module.sg_k3s_ha_server.security_group.id
 }
 
-resource "aws_instance" "k3s_server_instance" {
+resource "aws_security_group_rule" "k3s_server_comm_tcp_6443" {
+  type              = "ingress"
+  from_port         = 6443
+  to_port           = 6443
+  protocol          = "tcp"
+  self              = true
+  security_group_id = module.sg_k3s_ha_server.security_group.id
+}
+
+resource "aws_security_group_rule" "k3s_server_comm_tcp_10250" {
+  type              = "ingress"
+  from_port         = 10250
+  to_port           = 10250
+  protocol          = "tcp"
+  self              = true
+  security_group_id = module.sg_k3s_ha_server.security_group.id
+}
+
+resource "aws_security_group_rule" "k3s_server_comm_udp_8472" {
+  type              = "ingress"
+  from_port         = 8472
+  to_port           = 8472
+  protocol          = "udp"
+  self              = true
+  security_group_id = module.sg_k3s_ha_server.security_group.id
+}
+
+resource "aws_instance" "k3s_ha_server_instance" {
   count         = var.ec2_k3s_server_nb_per_subnet * length(module.get_default_subnets.ids)
   ami           = module.get_ami.ami.id
   instance_type = var.ec2_bastion_instance_type
@@ -112,7 +153,7 @@ resource "aws_instance" "k3s_server_instance" {
     ec2_k3s_server_count              = var.ec2_k3s_server_nb_per_subnet * length(module.get_default_subnets.ids)
   }))
   subnet_id              = module.get_default_subnets.ids[count.index % length(module.get_default_subnets.ids)]
-  vpc_security_group_ids = [module.sg_k3s_server.security_group.id]
+  vpc_security_group_ids = [module.sg_k3s_ha_server.security_group.id]
   tags = {
     Name = format("k3s-ha-server-%d", count.index)
   }
@@ -120,6 +161,70 @@ resource "aws_instance" "k3s_server_instance" {
 
 locals {
   aws_instance_ips = [
-    for v in aws_instance.k3s_server_instance : v.public_ip
+    for v in aws_instance.k3s_ha_server_instance : v.private_ip
   ]
+}
+
+resource "aws_lb" "this" {
+  name                             = "k3s-ha-lb"
+  internal                         = false
+  load_balancer_type               = "network"
+  ip_address_type                  = "ipv4"
+  enable_cross_zone_load_balancing = true
+  subnets                          = module.get_default_subnets.ids
+  security_groups = [module.sg_k3s_ha_server.security_group.id]
+}
+
+resource "aws_lb_target_group" "lbtg_80" {
+  name     = "k3s-ha-lb-tg80"
+  port     = 80
+  protocol = "TCP"
+  vpc_id   = module.get_default_subnets.default_vpc.id
+  health_check {
+    protocol = "TCP"
+    port = 32000
+  }
+}
+
+resource "aws_lb_target_group_attachment" "lbtg_80" {
+  count            = length(aws_instance.k3s_ha_server_instance)
+  target_group_arn = aws_lb_target_group.lbtg_80.arn
+  target_id        = aws_instance.k3s_ha_server_instance[count.index].id
+}
+
+resource "aws_lb_listener" "lbl_80" {
+  load_balancer_arn = aws_lb.this.arn
+  port              = 80
+  protocol          = "TCP"
+  default_action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.lbtg_80.arn
+  }
+}
+
+resource "aws_lb_target_group" "lbtg_443" {
+  name     = "k3s-ha-lb-tg443"
+  port     = 443
+  protocol = "TCP"
+  vpc_id   = module.get_default_subnets.default_vpc.id
+  health_check {
+    protocol = "TCP"
+    port = 32000
+  }
+}
+
+resource "aws_lb_target_group_attachment" "lbtg_443" {
+  count            = length(aws_instance.k3s_ha_server_instance)
+  target_group_arn = aws_lb_target_group.lbtg_443.arn
+  target_id        = aws_instance.k3s_ha_server_instance[count.index].id
+}
+
+resource "aws_lb_listener" "lbl_443" {
+  load_balancer_arn = aws_lb.this.arn
+  port              = 443
+  protocol          = "TCP"
+  default_action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.lbtg_443.arn
+  }
 }

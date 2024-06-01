@@ -1,0 +1,30 @@
+- hosts: "*"
+  gather_facts: False
+  tasks:
+    - name: Load default variables
+      include_vars:
+        dir: vars/defaults
+    - name: Combine default with actual values config data
+      set_fact:
+        cbd_values: "{{ default_values | combine(values, recursive=True) }}"
+  tags: always
+
+- hosts: k3s_build_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/tcpecho/build
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - services
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/tcpecho
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - services

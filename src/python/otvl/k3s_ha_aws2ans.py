@@ -23,6 +23,7 @@ def run():
         return res
     osi = json.loads(result.stdout)
     servers = {}
+    server_count = 0
     for rsv in osi["Reservations"]:
         for inst in rsv["Instances"]:
             if inst["State"]["Name"] != "running":
@@ -32,13 +33,16 @@ def run():
                     name = tag["Value"]
                     if "k3s-ha-bastion" in name:
                         groups = ["bastion_group"]
+                    elif "k3s-ha-build" in name:
+                        groups = ["bastion_controlled_group", "build_group"]
                     elif "k3s-ha-server" in name:
                         groups = ["bastion_controlled_group", "k3s_ha_server_group"]
+                        server_count += 1
                     elif "k3s-ha-node" in name:
                         groups = ["bastion_controlled_group", "k3s_ha_node_group"]
                     else:
                         groups = []
-                    servers[name] = servers[name] = {"ip": inst["PrivateIpAddress"] if lb else inst["PublicIpAddress"], "groups": groups}
+                    servers[name] = servers[name] = {"ip": inst["PrivateIpAddress"] if lb or "PublicIpAddress" not in inst else inst["PublicIpAddress"], "groups": groups}
     yo = {"all": {"hosts": {}, "children": {}}}
     for sn, sv in servers.items():
         yo["all"]["hosts"][sn] = {"ansible_host": sv["ip"]}

@@ -7,6 +7,7 @@
 #   binary_name: extracted file name and/or archive extraction name
 #   binary_path: path in the extracted archive
 #   dir_content: extract binary_path content if var present and true
+#   dest_dir_content: destination path if dir_content if var present (/usr/local/bin)
 
 - name: set delivery directory for downloads
   block:
@@ -32,6 +33,9 @@
       set_fact:
         ghr_extr_ori: "{{ ghr_extr }}/{{ binary_path }}"
       when: dir_content | default(false)
+    - name: Set destination dir content
+      set_fact:
+        ghr_dest_dir_content: "{{ dest_dir_content | default('/usr/local/bin') }}"
 
 - name: set included vars
   set_fact:
@@ -40,6 +44,7 @@
     ghr_mkextr_msg: "Create the {{ tgz_name }} extraction directory {{ ghr_extr }}"
     ghr_extr_msg: "Extract {{ ghr_extr }} from {{ tgz_name }}"
     ghr_inst_msg: "Install {{ binary_name }} from {{ ghr_extr_ori }}"
+    ghr_inst_dir_msg: "Install {{ ghr_extr }}/{{ binary_path }} to {{ ghr_dest_dir_content }}"
 
 - name: "{{ ghr_get_msg }}"
   ansible.builtin.get_url:
@@ -76,3 +81,10 @@
     dest: "/usr/local/bin/{{ binary_name }}"
     mode: "0755"
   when: ghr_release_extract.changed and not dir_content | default(false)
+
+- name: "{{ ghr_inst_dir_msg }}"
+  ansible.builtin.copy:
+    src: "{{ ghr_extr }}/{{ binary_path }}"
+    remote_src: true
+    dest: "{{ ghr_dest_dir_content }}"
+  when: ghr_release_extract.changed and dir_content | default(false)

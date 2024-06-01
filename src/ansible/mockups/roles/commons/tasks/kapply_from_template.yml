@@ -4,8 +4,9 @@
 #   template: template
 #   kapp_message: message to be displayed during kubectl apply
 
-- name: "{{ kapp_message }}"
+- name: "kapply_from_template {{ kapp_message }}"
   block:
+    - debug: var=kapp_message
     - command:
         cmd: "kubectl apply -f -"
         stdin: "{{ lookup('template', template) }}"

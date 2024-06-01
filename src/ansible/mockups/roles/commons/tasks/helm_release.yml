@@ -13,7 +13,7 @@
 
 - name: Instantiate the template {{ vf_template_sp }} as a local values file {{ hr_lvf }}
   template:
-    src: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/ansible/otvl/templates/override/helm/{{ vf_template_sp }}"
+    src: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/ansible/mockups/templates/override/helm/{{ vf_template_sp }}"
     dest: "{{ hr_lvf }}/{{ release_name }}.yaml"
     owner: "{{ values.config_vars.devops_user }}"
     group: "{{ values.config_vars.devops_user }}"

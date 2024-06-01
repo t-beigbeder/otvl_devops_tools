@@ -1,0 +1,19 @@
+---
+# mockups/roles/services/tcpecho/main.yml
+
+- name: debug
+  debug: var=values
+
+- name: Here mockups/roles/services/tcpecho/main.yml
+  include_role:
+    name: commons
+    tasks_from: helm_release
+  vars:
+    title: "tcpecho"
+    chart_sp: "mockups/tcpecho"
+    vf_template_sp: "tcpecho.yaml"
+    release_name: "{{ values.tcpecho.release }}"
+    uninstall: "{{ values.tcpecho.helm_uninstall | default(false) }}"
+  when: not (values.tcpecho.skip_hdeploy | default(false))
+
+###

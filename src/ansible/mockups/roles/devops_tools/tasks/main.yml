@@ -23,6 +23,7 @@
       - sudo
       - unzip
       - python3-yaml
+      - acl
     update_cache: "{{ values.prod }}"
     install_recommends: no
     state: present

@@ -1,0 +1,27 @@
+---
+# mockups/roles/cert_manager/tasks/main.yml
+
+- name: Here mockups/roles/cert_manager/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: kapply_from_url
+  vars:
+    url: "{{ values.cert_manager.release_url }}"
+    sha: "{{ values.cert_manager.sha }}"
+    dload_name: "cert-manager-2.yaml"
+    kapp_message: "Install cert-manager on the k3s cluster"
+
+- name: Wait for the cert-manager installation to complete
+  command:
+    cmd: "cmctl check api --wait 20s"
+  become_user: "{{ values.config_vars.devops_user }}"
+
+- name: Here mockups/roles/cert_manager/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: kapply_from_template
+  vars:
+    kapp_message: "Install cert-manager cluster issuer for let's encrypt"
+    template: "cluster_issuer.yaml"
+
+###
