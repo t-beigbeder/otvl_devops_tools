@@ -34,6 +34,7 @@
 
 - name: "{{ kapp_message }}"
   block:
+    - debug: var=kapp_message
     - command:
         cmd: "kubectl apply -f {{ kfu_dlv }}/{{ dload_name }}"
       become_user: "{{ otvl.config_vars.devops_user }}"

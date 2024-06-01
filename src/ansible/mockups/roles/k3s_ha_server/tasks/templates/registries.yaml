@@ -1,0 +1,11 @@
+mirrors:
+  "{{ values.ctr.ingress_host }}":
+    endpoint:
+      - "https://{{ values.ctr.ingress_host }}"
+configs:
+  "{{ values.ctr.ingress_host }}":
+    auth:
+      username: "{{ values.ctr.login }}"
+      password: "{{ values.ctr.password }}"
+    tls:
+      insecure_skip_verify: {{ values.ctr.skip_verify | default(false) }}

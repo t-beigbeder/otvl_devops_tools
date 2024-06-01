@@ -30,13 +30,24 @@
   tags:
     - bastion
 
+- hosts: build_group
+  gather_facts: False
+  become: yes
+  roles:
+    - containerd
+    - nerdctl
+    - buildkit
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - build
+
 - hosts: k3s_ha_server_group
   gather_facts: False
   become: yes
   roles:
     - k3s_ha_server
     - nerdctl
-    - buildkit
   vars:
     values: "{{ cbd_values }}"
   tags:
@@ -53,7 +64,17 @@
   tags:
     - k3s_ha
 
-- hosts: k3s-ha-server-0
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/ctr
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - ctr
+
+- hosts: build_group
   gather_facts: False
   become: yes
   roles:
