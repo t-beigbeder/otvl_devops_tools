@@ -1,3 +1,4 @@
+registry_prefix: ""
 image: tcpecho:1.1
 service_port: 32000
 resources:

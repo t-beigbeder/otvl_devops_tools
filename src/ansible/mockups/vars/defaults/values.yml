@@ -72,9 +72,13 @@ default_values:
     apr_credentials: "ctr:"
   tcpecho:
     release: "tcpecho"
+    skip_hdeploy: false
+    helm_uninstall: true
     git:
       repo: "https://github.com/t-beigbeder/otvl_devops_tools"
       version: "main"
   test_nginx:
     release: "test-nginx"
+    skip_hdeploy: false
+    helm_uninstall: true
     ingress_host: test-nginx.example.com

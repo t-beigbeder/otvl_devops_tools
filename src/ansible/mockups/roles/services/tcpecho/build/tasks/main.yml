@@ -19,6 +19,21 @@
 
 - name: Build the service {{ service_name }}
   block:
+    - name: Set insecure-registry flag
+      set_fact:
+        ir_flag: " --insecure-registry"
+      when: values.ctr.skip_verify | default(false)
+    - name: Set insecure-registry flag
+      set_fact:
+        ir_flag: ""
+      when: not values.ctr.skip_verify | default(false)
+    - command:
+        cmd: "nerdctl {{ ir_flag }} login {{ values.ctr.ingress_host }} -u {{ values.ctr.login }} --password-stdin"
+        stdin: "{{ values.ctr.password }}"
+      register: nerdctl_login
+    - debug: var=nerdctl_login.cmd
+    - debug: var=nerdctl_login.stderr_lines
+    - debug: var=nerdctl_login.stdout_lines
     - command:
         cmd: "nerdctl build -t {{ service_name}}:{{ current_item.image_version }} ."
         chdir: "{{ values.config_paths.delivery }}/mockups/git/{{ service_name }}/src/docker/mockups/tcpecho"
@@ -26,5 +41,17 @@
     - debug: var=nerdctl_build_app.cmd
     - debug: var=nerdctl_build_app.stderr_lines
     - debug: var=nerdctl_build_app.stdout_lines
+    - command:
+        cmd: "nerdctl {{ ir_flag }} tag {{ service_name}}:{{ current_item.image_version }} {{ values.ctr.ingress_host }}/{{ service_name}}:{{ current_item.image_version }}"
+      register: nerdctl_tag_app
+    - debug: var=nerdctl_tag_app.cmd
+    - debug: var=nerdctl_tag_app.stderr_lines
+    - debug: var=nerdctl_tag_app.stdout_lines
+    - command:
+        cmd: "nerdctl {{ ir_flag }} push {{ values.ctr.ingress_host }}/{{ service_name}}:{{ current_item.image_version }}"
+      register: nerdctl_push_app
+    - debug: var=nerdctl_push_app.cmd
+    - debug: var=nerdctl_push_app.stderr_lines
+    - debug: var=nerdctl_push_app.stdout_lines
 
 ###

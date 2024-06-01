@@ -33,11 +33,11 @@ def run():
                     name = tag["Value"]
                     if "k3s-ha-bastion" in name:
                         groups = ["bastion_group"]
-                    elif "k3s-ha-build" in name:
-                        groups = ["bastion_controlled_group", "build_group"]
                     elif "k3s-ha-server" in name:
                         groups = ["bastion_controlled_group", "k3s_ha_server_group"]
                         server_count += 1
+                        if server_count == 2:
+                            groups.append("kbuild_group")
                     elif "k3s-ha-node" in name:
                         groups = ["bastion_controlled_group", "k3s_ha_node_group"]
                     else:
