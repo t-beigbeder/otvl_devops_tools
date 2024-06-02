@@ -60,6 +60,17 @@
   shell: "curl -sfL https://get.k3s.io | K3S_TOKEN={{ values.k3s.cluster_secret }} sh -s - server --server https://{{ values.k3s.api_server }}:6443"
   when: k3s_service_st.stat.isreg is not defined and inventory_hostname != groups.k3s_ha_server_group[0]
 
+- name: Configure the k3s private registry
+  template:
+    src: registries.yaml
+    dest: /etc/rancher/k3s/registries.yaml
+
+- name: Restart the k3s.service once registries.yaml delivered
+  systemd:
+    name: k3s.service
+    state: restarted
+  when: k3s_service_st.stat.isreg is not defined
+
 - name: Make k3s cluster config copy readable
   ansible.builtin.copy:
     src: /etc/rancher/k3s/k3s.yaml

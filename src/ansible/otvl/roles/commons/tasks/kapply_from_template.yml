@@ -6,6 +6,7 @@
 
 - name: "{{ kapp_message }}"
   block:
+    - debug: var=kapp_message
     - command:
         cmd: "kubectl apply -f -"
         stdin: "{{ lookup('template', template) }}"

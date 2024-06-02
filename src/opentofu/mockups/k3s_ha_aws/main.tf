@@ -81,16 +81,16 @@ module "sg_k3s_ha_server" {
     from_port          = 80
     to_port            = 80
     protocol           = "tcp"
-    cidr_blocks        = []
+    cidr_blocks        = ["0.0.0.0/0"]
     ipv6_cidr_blocks   = []
-    security_group_ids = [module.sg_k3s_ha_bastion.security_group.id]
+    security_group_ids = []
     }, {
     from_port          = 443
     to_port            = 443
     protocol           = "tcp"
-    cidr_blocks        = []
+    cidr_blocks        = ["0.0.0.0/0"]
     ipv6_cidr_blocks   = []
-    security_group_ids = [module.sg_k3s_ha_bastion.security_group.id]
+    security_group_ids = []
     }, {
     from_port          = 6443
     to_port            = 6443
@@ -98,6 +98,13 @@ module "sg_k3s_ha_server" {
     cidr_blocks        = []
     ipv6_cidr_blocks   = []
     security_group_ids = [module.sg_k3s_ha_bastion.security_group.id]
+    }, {
+    from_port          = 32000
+    to_port            = 32000
+    protocol           = "tcp"
+    cidr_blocks        = ["0.0.0.0/0"]
+    ipv6_cidr_blocks   = []
+    security_group_ids = []
   }]
   egress_allow_all = true
   tags             = {}
@@ -165,6 +172,50 @@ locals {
   ]
 }
 
+module "sg_k3s_ha_lb" {
+  source         = "../../modules/aws/mk_sg"
+  default_vpc_id = module.get_default_subnets.default_vpc.id
+  name           = "k3s_ha_lb"
+  ingress_rules = [{
+    from_port          = 80
+    to_port            = 80
+    protocol           = "tcp"
+    cidr_blocks        = ["0.0.0.0/0"]
+    ipv6_cidr_blocks   = ["::/0"]
+    security_group_ids = []
+    }, {
+    from_port          = 443
+    to_port            = 443
+    protocol           = "tcp"
+    cidr_blocks        = ["0.0.0.0/0"]
+    ipv6_cidr_blocks   = ["::/0"]
+    security_group_ids = []
+    }]
+  egress_rules = [{
+    from_port          = 80
+    to_port            = 80
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_k3s_ha_server.security_group.id]
+    }, {
+    from_port          = 443
+    to_port            = 443
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_k3s_ha_server.security_group.id]
+    }, {
+    from_port          = 32000
+    to_port            = 32000
+    protocol           = "tcp"
+    cidr_blocks        = []
+    ipv6_cidr_blocks   = []
+    security_group_ids = [module.sg_k3s_ha_server.security_group.id]
+  }]
+  tags = {}
+}
+
 resource "aws_lb" "this" {
   name                             = "k3s-ha-lb"
   internal                         = false
@@ -172,7 +223,7 @@ resource "aws_lb" "this" {
   ip_address_type                  = "ipv4"
   enable_cross_zone_load_balancing = true
   subnets                          = module.get_default_subnets.ids
-  security_groups = [module.sg_k3s_ha_server.security_group.id]
+  security_groups                  = [module.sg_k3s_ha_lb.security_group.id]
 }
 
 resource "aws_lb_target_group" "lbtg_80" {
@@ -182,7 +233,7 @@ resource "aws_lb_target_group" "lbtg_80" {
   vpc_id   = module.get_default_subnets.default_vpc.id
   health_check {
     protocol = "TCP"
-    port = 32000
+    port     = 32000
   }
 }
 
@@ -197,7 +248,7 @@ resource "aws_lb_listener" "lbl_80" {
   port              = 80
   protocol          = "TCP"
   default_action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_lb_target_group.lbtg_80.arn
   }
 }
@@ -209,7 +260,7 @@ resource "aws_lb_target_group" "lbtg_443" {
   vpc_id   = module.get_default_subnets.default_vpc.id
   health_check {
     protocol = "TCP"
-    port = 32000
+    port     = 32000
   }
 }
 
@@ -224,7 +275,7 @@ resource "aws_lb_listener" "lbl_443" {
   port              = 443
   protocol          = "TCP"
   default_action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_lb_target_group.lbtg_443.arn
   }
 }

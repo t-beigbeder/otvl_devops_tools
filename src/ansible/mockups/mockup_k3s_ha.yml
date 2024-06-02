@@ -36,11 +36,20 @@
   roles:
     - k3s_ha_server
     - nerdctl
-    - buildkit
   vars:
     values: "{{ cbd_values }}"
   tags:
     - k3s_ha
+
+- hosts: kbuild_group
+  gather_facts: False
+  become: yes
+  roles:
+    - buildkit
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - build
 
 - hosts: bastion_group
   gather_facts: False
@@ -53,7 +62,7 @@
   tags:
     - k3s_ha
 
-- hosts: k3s-ha-server-0
+- hosts: kbuild_group
   gather_facts: False
   become: yes
   roles:

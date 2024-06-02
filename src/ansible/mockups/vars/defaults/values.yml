@@ -36,6 +36,18 @@ default_values:
     #    api_server: k3s-ha-server-0
     #    api_server_ansible_host: k3s-ha-server-0
     default_namespace: "default"
+  containerd:
+    # 1.6.32
+    release_url: "https://github.com/containerd/containerd/releases/download/v1.6.32/containerd-1.6.32-linux-amd64.tar.gz"
+    sha: "7acab4dda6edb7e8e0a6cfc3abd9f323db05a3d92a8a1842de8f6c9e28af501d"
+  runc:
+    # v1.1.12
+    release_url: "https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64"
+    sha: "aadeef400b8f05645768c1476d1023f7875b78f52c7ff1967a6dbce236b8cbd8"
+  cni_plugins:
+    # v1.5.0
+    release_url: "https://github.com/containernetworking/plugins/releases/download/v1.5.0/cni-plugins-linux-amd64-v1.5.0.tgz"
+    sha: "57a18478422cb321370e30a5ee6ce026321289cd9c94353ca697dddd7714f1a5"
   nerdctl:
     # 1.7.5
     release_url: "https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz"
@@ -50,11 +62,23 @@ default_values:
     sha: "af39d0d73641327d921647cf6add447f3dfdc0c431e43820b227ab249e3728d9"
     le_url: "https://acme-v02.api.letsencrypt.org/directory"
     le_email: "acme@example.com"
+  ctr:
+    release: otvl-ctr
+    uid: 3002
+    fs_group: 2002
+    ingress_host: ctr.example.com
+    login: ctrlogin
+    password: ""
+    apr_credentials: "ctr:"
   tcpecho:
     release: "tcpecho"
+    skip_hdeploy: false
+    helm_uninstall: true
     git:
       repo: "https://github.com/t-beigbeder/otvl_devops_tools"
       version: "main"
   test_nginx:
     release: "test-nginx"
+    skip_hdeploy: false
+    helm_uninstall: true
     ingress_host: test-nginx.example.com

@@ -1,0 +1,77 @@
+---
+# mockups/roles/containerd/tasks/main.yml
+
+- name: Install packages for CNI network plugins and build
+  ansible.builtin.apt:
+    pkg:
+      - iptables
+      - git
+    update_cache: "{{ values.prod }}"
+    install_recommends: no
+    state: present
+
+- name: Here mockups/roles/containerd/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ values.containerd.release_url }}"
+    tgz_name: "containerd.5.tgz"
+    sha: "{{ values.containerd.sha }}"
+    binary_name: "containerd"
+    binary_path: "bin"
+    dir_content: true
+    dest_dir_content: "/usr/local"
+
+- name: "Create containerd systemd service file"
+  copy:
+    src: systemd/containerd.service
+    dest: /etc/systemd/system/containerd.service
+    owner: root
+    group: root
+    mode: 0644
+  register: containerd_config
+
+- name: Create and run systemd service for containerd
+  block:
+    - name: Enable containerd systemd service
+      systemd:
+        name: "containerd"
+        enabled: yes
+    - name: Restart containerd systemd service
+      systemd:
+        name: "containerd"
+        state: restarted
+        daemon_reload: yes
+  when: containerd_config.changed
+
+- name: Here mockups/roles/containerd/tasks/main.yml bis
+  include_role:
+    name: commons
+    tasks_from: install_from_url
+  vars:
+    url: "{{ values.runc.release_url }}"
+    dload_name: "runc.1"
+    sha: "{{ values.runc.sha }}"
+    binary_name: "runc"
+
+- name: Create the cni_plugins installation directory
+  file:
+    dest: "/opt/cni/bin"
+    state: directory
+    mode: 0755
+
+- name: Here mockups/roles/containerd/tasks/main.yml ter
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ values.cni_plugins.release_url }}"
+    tgz_name: "cni_plugins.2.tgz"
+    sha: "{{ values.cni_plugins.sha }}"
+    binary_name: "cni_plugins"
+    binary_path: "."
+    dir_content: true
+    dest_dir_content: "/opt/cni/bin"
+
+###

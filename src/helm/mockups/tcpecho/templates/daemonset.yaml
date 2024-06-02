@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: listener
-          image: {{ .Values.image }}
+          image: {{ printf "%s%s" .Values.registry_prefix .Values.image }}
           command: ["socat", "tcp-l:2000,fork", "exec:/bin/cat"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
