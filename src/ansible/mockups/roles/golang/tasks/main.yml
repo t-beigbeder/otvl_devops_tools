@@ -1,0 +1,25 @@
+---
+# mockups/roles/buildkit/tasks/main.yml
+
+- name: Here mockups/roles/golang/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ values.golang.release_url }}"
+    tgz_name: "golang.1.tgz"
+    sha: "{{ values.golang.sha }}"
+    binary_name: "golang"
+    binary_path: "."
+    dir_content: true
+    dest_dir_content: "/usr/local"
+    purge_target: "/usr/local/go"
+
+- name: Create a shell profile to golang path
+  copy:
+    dest: /etc/profile.d/golang-path.sh
+    content: |
+      export PATH=$PATH:/usr/local/go/bin
+
+
+###

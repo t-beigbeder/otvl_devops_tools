@@ -7,7 +7,8 @@
 #   binary_name: extracted file name and/or archive extraction name
 #   binary_path: path in the extracted archive
 #   dir_content: extract binary_path content if var present and true
-#   dest_dir_content: destination path if dir_content if var present (/usr/local/bin)
+#   dest_dir_content: destination path if dir_content present and true and if var present (/usr/local/bin)
+#   purge_target: destination path to purge when update if var present
 
 - name: set delivery directory for downloads
   block:
@@ -45,6 +46,7 @@
     ghr_extr_msg: "Extract {{ ghr_extr }} from {{ tgz_name }}"
     ghr_inst_msg: "Install {{ binary_name }} from {{ ghr_extr_ori }}"
     ghr_inst_dir_msg: "Install {{ ghr_extr }}/{{ binary_path }} to {{ ghr_dest_dir_content }}"
+    ghr_purge_target_msg: "Purge {{ purge_target | default('') }}"
 
 - name: "{{ ghr_get_msg }}"
   ansible.builtin.get_url:
@@ -58,6 +60,12 @@
     dest: "{{ ghr_extr }}"
     state: absent
   when: release_download.changed
+
+- name: "{{ ghr_purge_target_msg }}"
+  file:
+    dest: "{{ purge_target }}"
+    state: directory
+  when: release_download.changed and purge_target | default('')
 
 - name: "{{ ghr_mkextr_msg }}"
   file:

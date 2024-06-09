@@ -1,0 +1,24 @@
+---
+# mockups/roles/k3dev/tasks/main.yml
+
+- name: Create k3s config k3dev
+  file:
+    path: "/root/.k3s"
+    state: directory
+    mode: 0700
+
+- name: Create kube config k3dev
+  file:
+    path: "/root/.kube"
+    state: directory
+    mode: 0700
+
+- name: Install kubectl on the k3dev host
+  include_role:
+    name: commons
+    tasks_from: install_from_url
+  vars:
+    url: "{{ values.kubectl.url }}"
+    dload_name: "kubectl.2"
+    sha: "{{ values.kubectl.sha }}"
+    binary_name: "kubectl"

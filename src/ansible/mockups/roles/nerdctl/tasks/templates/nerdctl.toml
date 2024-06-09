@@ -1,4 +1,4 @@
-{% if 'build_group' in vars.group_names %}
+{% if 'build_group' in vars.group_names or 'k3dev_group' in vars.group_names %}
 address        = "/run/containerd/containerd.sock"
 {% else %}
 address        = "/run/k3s/containerd/containerd.sock"
