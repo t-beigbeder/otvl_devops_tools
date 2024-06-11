@@ -1,17 +1,20 @@
 ---
 # mockups/roles/k3dev/tasks/main.yml
 
-- name: Create k3s config k3dev
-  file:
-    path: "/root/.k3s"
-    state: directory
-    mode: 0700
-
 - name: Create kube config k3dev
   file:
     path: "/root/.kube"
     state: directory
     mode: 0700
+
+- name: Install debian dev packages on the k3dev host
+  ansible.builtin.apt:
+    pkg:
+      - make
+      - git
+    update_cache: "{{ values.prod }}"
+    install_recommends: no
+    state: present
 
 - name: Install kubectl on the k3dev host
   include_role:
@@ -22,3 +25,23 @@
     dload_name: "kubectl.2"
     sha: "{{ values.kubectl.sha }}"
     binary_name: "kubectl"
+
+- name: Checkout git otvl_devops_tools on k3dev once
+  git:
+    repo: "{{ values.config_vars.otvl_devops_tools_repo }}"
+    version: "{{ values.config_vars.otvl_devops_tools_version }}"
+    dest: "/root/locgit/otvl/otvl_devops_tools"
+    depth: 1
+    update: false
+    recursive: no
+    force: no
+
+- name: Checkout git otvl_pub_mockups on k3dev once
+  git:
+    repo: "{{ values.mockups.git.repo }}"
+    version: "{{ values.mockups.git.version }}"
+    dest: "/root/locgit/otvl/otvl_pub_mockups"
+    depth: 1
+    update: false
+    recursive: no
+    force: no

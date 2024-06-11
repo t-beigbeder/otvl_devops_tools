@@ -36,6 +36,7 @@
   roles:
     - k3dev
     - golang
+    - operator_framework
     - containerd
     - nerdctl
     - buildkit
@@ -61,6 +62,16 @@
   roles:
     - k8s_client/configure_k3s
     - cert_manager
+  vars:
+    values: "{{ cbd_values }}"
+  tags:
+    - k3s_simple
+
+- hosts: k3dev_group
+  gather_facts: False
+  become: yes
+  roles:
+    - k3dev/configure_k3s
   vars:
     values: "{{ cbd_values }}"
   tags:

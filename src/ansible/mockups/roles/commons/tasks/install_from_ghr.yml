@@ -64,7 +64,7 @@
 - name: "{{ ghr_purge_target_msg }}"
   file:
     dest: "{{ purge_target }}"
-    state: directory
+    state: absent
   when: release_download.changed and purge_target | default('')
 
 - name: "{{ ghr_mkextr_msg }}"

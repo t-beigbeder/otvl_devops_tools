@@ -4,7 +4,7 @@
 #   url: url
 #   sha: sha256sum of the downloaded file
 #   dload_name: downloaded file name
-#   binary_name: extracted file name
+#   binary_name: installed file name
 
 - name: set delivery directory for downloads
   block:
@@ -39,4 +39,4 @@
     remote_src: true
     dest: "/usr/local/bin/{{ binary_name }}"
     mode: "0755"
-  when: release_download.changed
+  when: release_download.changed or true

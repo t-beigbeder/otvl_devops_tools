@@ -7,7 +7,7 @@
     tasks_from: install_from_ghr
   vars:
     url: "{{ values.golang.release_url }}"
-    tgz_name: "golang.1.tgz"
+    tgz_name: "golang.3.tgz"
     sha: "{{ values.golang.sha }}"
     binary_name: "golang"
     binary_path: "."
