@@ -1,0 +1,12 @@
+apiVersion: otvl.otvl.org/v1beta1
+kind: Bar
+metadata:
+  labels:
+    app.kubernetes.io/name: barsvc
+    app.kubernetes.io/instance: barsvc-sample
+    app.kubernetes.io/part-of: otvl-barsvc
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: otvl-barsvc
+  name: barsvc-sample
+spec:
+  # TODO(user): Add fields here
