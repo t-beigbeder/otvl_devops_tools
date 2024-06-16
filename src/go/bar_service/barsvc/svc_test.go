@@ -8,21 +8,23 @@ import (
 	"net/http"
 	"os"
 	"testing"
-	"time"
 )
 
 func TestBarSvc(t *testing.T) {
 	bs := BarSvc()
 	bars, _ := bs.(*barService)
-	bars.configure(":3000", "sh -c 'echo backup'", "sh -c 'echo restore'")
+	bars.configure(":3000", []string{"sh", "-c", "echo backup"}, []string{"sh", "-c", "echo restore"})
+	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		err := svcctl.UnderControl(context.Background(), bs, 10)
+		err := svcctl.UnderControl(ctx, bs, 10)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 		}
 	}()
-	time.Sleep(2 * time.Second)
 	hc := &http.Client{}
-	hc.Post("http://localhost:3000/exit", echo.MIMEApplicationJSON, nil)
-
+	hc.Post("http://localhost:3000/backup", echo.MIMEApplicationJSON, nil)
+	hc.Post("http://localhost:3000/restore", echo.MIMEApplicationJSON, nil)
+	hc.Get("http://localhost:3000/status")
+	hc.Get("http://localhost:3000/healthz")
+	cancel()
 }

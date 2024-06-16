@@ -2,7 +2,7 @@ package svcctl
 
 import (
 	"context"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,12 +13,12 @@ type ControllableService interface {
 	Name() string
 	Start() error
 	Stop(ctx context.Context) error
-	Logger() echo.Logger
+	Logger() *log.Logger
 }
 
 func UnderControl(ctx context.Context, cs ControllableService, seconds int) error {
 	cs.Logger().Infof("starting service %s control", cs.Name())
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	ctx, cancelSvc := context.WithCancel(ctx)
 	go func() {

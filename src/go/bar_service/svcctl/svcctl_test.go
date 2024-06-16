@@ -2,7 +2,6 @@ package svcctl
 
 import (
 	"context"
-	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"testing"
 	"time"
@@ -10,7 +9,7 @@ import (
 
 type cableForever struct {
 	name   string
-	logger echo.Logger
+	logger *log.Logger
 }
 
 func (c *cableForever) Name() string {
@@ -29,7 +28,7 @@ func (c *cableForever) Stop(ctx context.Context) error {
 	return nil
 }
 
-func (c *cableForever) Logger() echo.Logger {
+func (c *cableForever) Logger() *log.Logger {
 	if c.logger == nil {
 		c.logger = log.New("bar_service")
 	}
