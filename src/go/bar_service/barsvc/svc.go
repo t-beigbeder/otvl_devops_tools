@@ -4,10 +4,10 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"github.com/t-beigbeder/otvl_devops_tools/src/go/bar_service/svcctl"
 	"net/http"
 	"os"
 	"os/exec"
-	"os/signal"
 	"strings"
 	"sync"
 	"time"
@@ -34,6 +34,7 @@ type barService struct {
 	currentStatus, lastOperationStatus string
 	lastOperationDate                  time.Time
 	sync                               sync.Mutex
+	e                                  *echo.Echo
 }
 
 func (bs *barService) configFromEnv() bool {
@@ -51,68 +52,69 @@ func (bs *barService) configFromEnv() bool {
 	}
 	return true
 }
+func (bs *barService) logOutErr(out, err string) {
+	if out != "" {
+		bs.Logger().Info(out)
+	}
+	if err != "" {
+		bs.Logger().Info(err)
+	}
+}
 
-func (bs *barService) Run() bool {
+func (bs *barService) bor(c echo.Context, isRestore bool) error {
+	sCmd := bs.backup
+	if isRestore {
+		sCmd = bs.restore
+	}
+	args := strings.Split(sCmd, " ")
+	cmd := exec.Command(args[0], args[1:]...)
+	var out, ser strings.Builder
+	cmd.Stdout = &out
+	cmd.Stderr = &ser
+	if err := cmd.Run(); err != nil {
+		bs.logOutErr(out.String(), ser.String())
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, "OK")
+}
+
+func (bs *barService) Name() string {
+	return "BackupAndRestoreService"
+}
+
+func (bs *barService) Start() error {
+	bs.Logger().SetLevel(log.INFO)
 	bs.configFromEnv()
-	return true
-}
-
-func RunBarService() bool {
-	return true
-}
-
-func Service() {
-	address, backup, restore := configFromEnv()
-	logOutErr := func(c echo.Context, out, err string) {
-		if out != "" {
-			c.Logger().Printf(out)
-		}
-		if err != "" {
-			c.Logger().Printf(err)
-		}
-	}
-	bar := func(c echo.Context, isRestore bool) error {
-		sCmd := backup
-		if isRestore {
-			sCmd = restore
-		}
-		args := strings.Split(sCmd, " ")
-		cmd := exec.Command(args[0], args[1:]...)
-		var out, ser strings.Builder
-		cmd.Stdout = &out
-		cmd.Stderr = &ser
-		if err := cmd.Run(); err != nil {
-			logOutErr(c, out.String(), ser.String())
-			return c.JSON(http.StatusInternalServerError, err)
-		}
-		return c.JSON(http.StatusOK, "OK")
-	}
-	// Setup
-	e := echo.New()
-	e.Logger.SetLevel(log.INFO)
+	e := bs.e
 	e.POST("/backup", func(c echo.Context) error {
-		return bar(c, false)
+		return bs.bor(c, false)
 	})
 	e.POST("/restore", func(c echo.Context) error {
-		return bar(c, true)
+		return bs.bor(c, true)
 	})
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "OK")
 	})
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
-	// Start server
-	go func() {
-		if err := e.Start(address); err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
-		}
-	}()
-
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
-	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
+	if err := e.Start(bs.address); err != nil && err != http.ErrServerClosed {
+		e.Logger.Fatal("shutting down the server")
 	}
+	return nil
+}
+
+func (bs *barService) Stop(ctx context.Context) error {
+	return bs.e.Shutdown(ctx)
+}
+
+func (bs *barService) Logger() echo.Logger {
+	return bs.e.Logger
+}
+
+func newSvc() svcctl.ControllableService {
+	bs := &barService{e: echo.New()}
+	bs.configFromEnv()
+	return bs
+}
+
+func BarSvc() svcctl.ControllableService {
+	return newSvc()
 }
