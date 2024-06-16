@@ -37,7 +37,7 @@ type barService struct {
 	e                                  *echo.Echo
 }
 
-func (bs *barService) configFromEnv() bool {
+func (bs *barService) configFromEnv() {
 	bs.address = ":3000"
 	bs.backup = "/bin/sh -c /etc/bar/backup.sh"
 	bs.restore = "/bin/sh -c /etc/bar/restore.sh"
@@ -50,8 +50,12 @@ func (bs *barService) configFromEnv() bool {
 	if os.Getenv("BAR_RESTORE") != "" {
 		bs.restore = os.Getenv("BAR_RESTORE")
 	}
-	return true
 }
+
+func (bs *barService) configure(address, backup, restore string) {
+	bs.address, bs.backup, bs.restore = address, backup, restore
+}
+
 func (bs *barService) logOutErr(out, err string) {
 	if out != "" {
 		bs.Logger().Info(out)
@@ -98,6 +102,7 @@ func (bs *barService) Start() error {
 	if err := e.Start(bs.address); err != nil && err != http.ErrServerClosed {
 		e.Logger.Fatal("shutting down the server")
 	}
+	e.Logger.Info("Start done")
 	return nil
 }
 
