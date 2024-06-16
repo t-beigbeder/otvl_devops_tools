@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,6 +27,38 @@ func configFromEnv() (address, backup, restore string) {
 		address = os.Getenv("BAR_RESTORE")
 	}
 	return
+}
+
+type barService struct {
+	address, backup, restore           string
+	currentStatus, lastOperationStatus string
+	lastOperationDate                  time.Time
+	sync                               sync.Mutex
+}
+
+func (bs *barService) configFromEnv() bool {
+	bs.address = ":3000"
+	bs.backup = "/bin/sh -c /etc/bar/backup.sh"
+	bs.restore = "/bin/sh -c /etc/bar/restore.sh"
+	if os.Getenv("BAR_ADDRESS") != "" {
+		bs.address = os.Getenv("BAR_ADDRESS")
+	}
+	if os.Getenv("BAR_BACKUP") != "" {
+		bs.backup = os.Getenv("BAR_BACKUP")
+	}
+	if os.Getenv("BAR_RESTORE") != "" {
+		bs.restore = os.Getenv("BAR_RESTORE")
+	}
+	return true
+}
+
+func (bs *barService) Run() bool {
+	bs.configFromEnv()
+	return true
+}
+
+func RunBarService() bool {
+	return true
 }
 
 func Service() {
