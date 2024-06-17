@@ -15,26 +15,39 @@ import (
 	"time"
 )
 
+type barOperation struct {
+	started   time.Time
+	operation string
+	status    string
+	ended     time.Time
+}
+
 type barService struct {
-	address                            string
-	backup, restore                    []string
-	currentStatus, lastOperationStatus string
-	started                            time.Time
-	ended                              time.Time
-	sync                               sync.Mutex
-	e                                  *echo.Echo
-	logger                             *log.Logger
+	address         string
+	backup, restore []string
+	sync            sync.Mutex
+	e               *echo.Echo
+	logger          *log.Logger
+	ongoing         bool
+	current         barOperation
+	previous        barOperation
+}
+
+type mOperationStatus struct {
+	Started   string `json:"started,omitempty"`
+	Operation string `json:"operation,omitempty"`
+	Status    string `json:"Status,omitempty"`
+	Ended     string `json:"ended,omitempty"`
 }
 
 type mStatus struct {
-	Current       string `json:"current,omitempty"`
-	LastOperation string `json:"lastOperation,omitempty"`
-	Started       string `json:"started,omitempty"`
-	Ended         string `json:"ended,omitempty"`
+	Current  mOperationStatus `json:"current,omitempty"`
+	Previous mOperationStatus `json:"previous,omitempty"`
 }
 
-type mErr struct {
-	msg string `json:"msg,omitempty"`
+type mMsg struct {
+	Err string `json:"error,omitempty"`
+	Msg string `json:"msg,omitempty"`
 }
 
 func (bs *barService) configFromEnv() {
@@ -73,46 +86,66 @@ func (bs *barService) bor(c echo.Context, isRestore bool) error {
 		args = bs.restore
 	}
 	bs.sync.Lock()
-	locked := false
-	if bs.currentStatus == "" {
-		bs.currentStatus = fmt.Sprintf("running %s", strings.Join(args, " "))
-		bs.started = time.Now()
-
-	} else {
-		locked = true
+	ongoing := bs.ongoing
+	if !ongoing {
+		bs.ongoing = true
+		bs.previous = bs.current
+		bs.current = barOperation{}
+		bs.current.operation = strings.Join(args, " ")
+		bs.current.started = time.Now()
 	}
 	bs.sync.Unlock()
-	if locked {
-		return c.JSON(http.StatusOK, &mErr{
-			msg: fmt.Sprintf("operation in progress: %s", bs.currentStatus),
+	if ongoing {
+		return c.JSON(http.StatusOK, &mMsg{
+			Err: fmt.Sprintf("operation in progress: %s", bs.current.operation),
 		})
 	}
-	cmd := exec.Command(args[0], args[1:]...)
-	var out, ser strings.Builder
-	cmd.Stdout = &out
-	cmd.Stderr = &ser
-	if err := cmd.Run(); err != nil {
+	go func() {
+		cmd := exec.Command(args[0], args[1:]...)
+		var out, ser strings.Builder
+		cmd.Stdout = &out
+		cmd.Stderr = &ser
+		if err := cmd.Run(); err != nil {
+			bs.logOutErr(out.String(), ser.String())
+			bs.sync.Lock()
+			defer bs.sync.Unlock()
+			bs.current.ended = time.Now()
+			bs.current.status = fmt.Sprintf("error %v", err)
+			bs.ongoing = false
+			return
+		}
 		bs.logOutErr(out.String(), ser.String())
-		return c.JSON(http.StatusInternalServerError, err)
-	}
-	bs.logOutErr(out.String(), ser.String())
-	return c.JSON(http.StatusOK, "OK")
+		bs.sync.Lock()
+		defer bs.sync.Unlock()
+		bs.current.ended = time.Now()
+		bs.current.status = fmt.Sprintf("")
+		bs.ongoing = false
+	}()
+	return c.JSON(http.StatusOK, &mMsg{
+		Msg: fmt.Sprintf("launched: %s", bs.current.operation),
+	})
 }
 
 func (bs *barService) status(c echo.Context) error {
-	sS := ""
-	if !bs.started.IsZero() {
-		sS = bs.started.UTC().Format("2006-01-02T15:04:05.000")
-	}
-	eS := ""
-	if !bs.ended.IsZero() {
-		eS = bs.ended.UTC().Format("2006-01-02T15:04:05.000")
+	sop := func(op barOperation) mOperationStatus {
+		sS := ""
+		if !op.started.IsZero() {
+			sS = op.started.UTC().Format("2006-01-02T15:04:05.000")
+		}
+		eS := ""
+		if !op.ended.IsZero() {
+			eS = op.ended.UTC().Format("2006-01-02T15:04:05.000")
+		}
+		return mOperationStatus{
+			Started:   sS,
+			Operation: op.operation,
+			Status:    op.status,
+			Ended:     eS,
+		}
 	}
 	status := mStatus{
-		Current:       bs.currentStatus,
-		LastOperation: bs.lastOperationStatus,
-		Started:       sS,
-		Ended:         eS,
+		Current:  sop(bs.current),
+		Previous: sop(bs.previous),
 	}
 	return c.JSON(http.StatusOK, status)
 }
@@ -152,7 +185,12 @@ func (bs *barService) Logger() *log.Logger {
 }
 
 func newSvc() svcctl.ControllableService {
-	bs := &barService{e: echo.New(), logger: log.New("barsvc")}
+	bs := &barService{
+		e:        echo.New(),
+		logger:   log.New("barsvc"),
+		current:  barOperation{},
+		previous: barOperation{},
+	}
 	bs.e.Use(middleware.Logger())
 	bs.configFromEnv()
 	return bs
