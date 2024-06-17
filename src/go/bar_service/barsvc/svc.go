@@ -2,6 +2,7 @@ package barsvc
 
 import (
 	"context"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -18,10 +19,22 @@ type barService struct {
 	address                            string
 	backup, restore                    []string
 	currentStatus, lastOperationStatus string
-	lastOperationDate                  time.Time
+	started                            time.Time
+	ended                              time.Time
 	sync                               sync.Mutex
 	e                                  *echo.Echo
 	logger                             *log.Logger
+}
+
+type mStatus struct {
+	Current       string `json:"current,omitempty"`
+	LastOperation string `json:"lastOperation,omitempty"`
+	Started       string `json:"started,omitempty"`
+	Ended         string `json:"ended,omitempty"`
+}
+
+type mErr struct {
+	msg string `json:"msg,omitempty"`
 }
 
 func (bs *barService) configFromEnv() {
@@ -59,6 +72,21 @@ func (bs *barService) bor(c echo.Context, isRestore bool) error {
 	if isRestore {
 		args = bs.restore
 	}
+	bs.sync.Lock()
+	locked := false
+	if bs.currentStatus == "" {
+		bs.currentStatus = fmt.Sprintf("running %s", strings.Join(args, " "))
+		bs.started = time.Now()
+
+	} else {
+		locked = true
+	}
+	bs.sync.Unlock()
+	if locked {
+		return c.JSON(http.StatusOK, &mErr{
+			msg: fmt.Sprintf("operation in progress: %s", bs.currentStatus),
+		})
+	}
 	cmd := exec.Command(args[0], args[1:]...)
 	var out, ser strings.Builder
 	cmd.Stdout = &out
@@ -69,6 +97,24 @@ func (bs *barService) bor(c echo.Context, isRestore bool) error {
 	}
 	bs.logOutErr(out.String(), ser.String())
 	return c.JSON(http.StatusOK, "OK")
+}
+
+func (bs *barService) status(c echo.Context) error {
+	sS := ""
+	if !bs.started.IsZero() {
+		sS = bs.started.UTC().Format("2006-01-02T15:04:05.000")
+	}
+	eS := ""
+	if !bs.ended.IsZero() {
+		eS = bs.ended.UTC().Format("2006-01-02T15:04:05.000")
+	}
+	status := mStatus{
+		Current:       bs.currentStatus,
+		LastOperation: bs.lastOperationStatus,
+		Started:       sS,
+		Ended:         eS,
+	}
+	return c.JSON(http.StatusOK, status)
 }
 
 func (bs *barService) Name() string {
@@ -85,7 +131,7 @@ func (bs *barService) Start() error {
 		return bs.bor(c, true)
 	})
 	e.GET("/status", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, "OK")
+		return bs.status(c)
 	})
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "OK")

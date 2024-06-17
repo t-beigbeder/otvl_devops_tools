@@ -5,26 +5,41 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/t-beigbeder/otvl_devops_tools/src/go/bar_service/svcctl"
+	"io"
 	"net/http"
-	"os"
+	"strings"
 	"testing"
+	"time"
 )
 
 func TestBarSvc(t *testing.T) {
+	checkResp := func(resp *http.Response, err error) string {
+		if err != nil {
+			t.Fatal(err)
+		}
+		buf := new(strings.Builder)
+		io.Copy(buf, resp.Body)
+		res := fmt.Sprintf("%d %s", resp.StatusCode, buf.String())
+		fmt.Println(res)
+		return res
+	}
 	bs := BarSvc()
 	bars, _ := bs.(*barService)
-	bars.configure(":3000", []string{"sh", "-c", "echo backup"}, []string{"sh", "-c", "echo restore"})
+	bars.configure(":3000", []string{"sh", "-c", "echo backup;sleep 1"}, []string{"sh", "-c", "echo restore"})
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		err := svcctl.UnderControl(ctx, bs, 10)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
+			t.Fatal(err)
 		}
 	}()
+	time.Sleep(100 * time.Millisecond) // server startup
 	hc := &http.Client{}
-	hc.Post("http://localhost:3000/backup", echo.MIMEApplicationJSON, nil)
-	hc.Post("http://localhost:3000/restore", echo.MIMEApplicationJSON, nil)
-	hc.Get("http://localhost:3000/status")
-	hc.Get("http://localhost:3000/healthz")
+	jrs := checkResp(hc.Post("http://localhost:3000/backup", echo.MIMEApplicationJSON, nil))
+	_ = jrs
+	jrs = checkResp(hc.Get("http://localhost:3000/status"))
+	jrs = checkResp(hc.Post("http://localhost:3000/restore", echo.MIMEApplicationJSON, nil))
+	jrs = checkResp(hc.Get("http://localhost:3000/status"))
+	jrs = checkResp(hc.Get("http://localhost:3000/healthz"))
 	cancel()
 }
