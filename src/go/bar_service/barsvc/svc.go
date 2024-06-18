@@ -19,6 +19,8 @@ type barOperation struct {
 	started   time.Time
 	operation string
 	status    string
+	isDone    bool
+	hasError  bool
 	ended     time.Time
 }
 
@@ -36,7 +38,9 @@ type barService struct {
 type mOperationStatus struct {
 	Started   string `json:"started,omitempty"`
 	Operation string `json:"operation,omitempty"`
-	Status    string `json:"Status,omitempty"`
+	Status    string `json:"status,omitempty"`
+	IsDone    bool   `json:"isDone,omitempty"`
+	HasError  bool   `json:"hasError,omitempty"`
 	Ended     string `json:"ended,omitempty"`
 }
 
@@ -111,6 +115,8 @@ func (bs *barService) bor(c echo.Context, isRestore bool) error {
 			defer bs.sync.Unlock()
 			bs.current.ended = time.Now()
 			bs.current.status = fmt.Sprintf("error %v", err)
+			bs.current.hasError = true
+			bs.current.isDone = true
 			bs.ongoing = false
 			return
 		}
@@ -118,7 +124,8 @@ func (bs *barService) bor(c echo.Context, isRestore bool) error {
 		bs.sync.Lock()
 		defer bs.sync.Unlock()
 		bs.current.ended = time.Now()
-		bs.current.status = fmt.Sprintf("")
+		bs.current.status = ""
+		bs.current.isDone = true
 		bs.ongoing = false
 	}()
 	return c.JSON(http.StatusOK, &mMsg{
@@ -140,6 +147,8 @@ func (bs *barService) status(c echo.Context) error {
 			Started:   sS,
 			Operation: op.operation,
 			Status:    op.status,
+			IsDone:    op.isDone,
+			HasError:  op.hasError,
 			Ended:     eS,
 		}
 	}
