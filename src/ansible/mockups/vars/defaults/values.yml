@@ -71,13 +71,13 @@ default_values:
     password: ""
     apr_credentials: "ctr:"
   golang:
-    # 1.21.11
-    release_url: "https://go.dev/dl/go1.21.11.linux-amd64.tar.gz"
-    sha: "54a87a9325155b98c85bc04dc50298ddd682489eb47f486f2e6cb0707554abf0"
-  operator_sdk:
-    # v1.34.2
-    url: https://github.com/operator-framework/operator-sdk/releases/download/v1.34.2/operator-sdk_linux_amd64
-    sha: "90ac1ed961585f16ff60d5187fd29592e5af6db8d074e1db3fde02d4145ff3fd"
+    # 1.22.4
+    release_url: "https://go.dev/dl/go1.22.4.linux-amd64.tar.gz"
+    sha: "ba79d4526102575196273416239cca418a651e049c2b099f3159db85e7bade7d"
+  kubebuilder:
+    # 4.0.0
+    url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v4.0.0/kubebuilder_linux_amd64"
+    sha: "da79077245c0f6d18d4654354837751239b1b7c14ad6deaa14e2e335400fe6f2"
   tcpecho:
     release: "tcpecho"
     skip_hdeploy: false
