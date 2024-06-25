@@ -1,6 +1,6 @@
 # Ansible setup for mockups
 
-## How to run the K3s HA cluster sample on AWS
+## Dev or bastion host
 
     virtualenv venv
     venv/bin/pip install pip-tools
@@ -9,6 +9,9 @@
     venv/bin/pip install -r src/python/requirements-dev.txt
     cp ansible_sample.cfg to ansible.cfg
     . venv/bin/activate
+
+## How to run the K3s HA cluster sample on AWS
+
     # create the ansible inventory
     export AWS_ACCESS_KEY_ID=this
     export AWS_SECRET_ACCESS_KEY=that
@@ -22,6 +25,23 @@
 
 ## How to create a K8s development environment on a single VM
 
-This will create:
+Ansible inventory for a host `k3allhost`
 
-- to be completed
+    all:
+      hosts:
+        dzmk3a:
+      children:
+        k3all_group:
+          hosts:
+            dzmk3a:
+
+Run
+
+    ansible-playbook -i /path/to/inventory src/ansible/mockups/mockups_k3all.yml
+
+This will install a VM with:
+
+- this git repository with its venv
+- kubectl, Helm, opentofu, nerdctl, buildkit
+- K3s single node
+- Golang, kubebuider
