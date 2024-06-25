@@ -44,4 +44,4 @@ This will install a VM with:
 - this git repository with its venv
 - kubectl, Helm, opentofu, nerdctl, buildkit
 - K3s single node
-- Golang, kubebuider
+- Golang, kubebuilder
