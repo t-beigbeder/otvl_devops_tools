@@ -1,0 +1,31 @@
+# permissions for end users to edit bars.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: barsvc-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: otvl-barsvc
+    app.kubernetes.io/part-of: otvl-barsvc
+    app.kubernetes.io/managed-by: kustomize
+  name: barsvc-editor-role
+rules:
+- apiGroups:
+  - otvl.otvl.org
+  resources:
+  - bars
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - otvl.otvl.org
+  resources:
+  - bars/status
+  verbs:
+  - get

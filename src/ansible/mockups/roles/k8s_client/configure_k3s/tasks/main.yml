@@ -9,6 +9,7 @@
       {% for host in groups.k3s_ha_server_group %}
       {{ hostvars[host]['ansible_host'] }} {{ host }}
       {% endfor %}
+  when: "{{ groups.k3s_ha_server_group | default([]) }}"
 
 - name: Configure access to k3s api server
   ansible.builtin.copy:

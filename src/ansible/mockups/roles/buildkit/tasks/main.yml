@@ -7,7 +7,7 @@
     tasks_from: install_from_ghr
   vars:
     url: "{{ values.buildkit.release_url }}"
-    tgz_name: "buildkit.1.tgz"
+    tgz_name: "buildkit.3.tgz"
     sha: "{{ values.buildkit.sha }}"
     binary_name: "buildkit"
     binary_path: "bin"
