@@ -137,7 +137,7 @@
 - name: Copy ssh admin private key on the bastion
   copy:
     src: override/bastion/ssh/id_rsa_admin
-    dest: /home/{{ otvl.config_vars.admin_user }}/.ssh/{{ otvl.config_vars.admin_key }}
+    dest: "{{ otvl.config_vars.admin_home }}/.ssh/{{ otvl.config_vars.admin_key }}"
     owner: "{{ otvl.config_vars.admin_user }}"
     group: "{{ otvl.config_vars.admin_user }}"
     mode: 0600
@@ -145,7 +145,7 @@
 - name: Copy ssh admin public key on the bastion
   copy:
     src: override/bastion/ssh/id_rsa_admin.pub
-    dest: /home/{{ otvl.config_vars.admin_user }}/.ssh/{{ otvl.config_vars.admin_key }}.pub
+    dest: "{{ otvl.config_vars.admin_home }}/.ssh/{{ otvl.config_vars.admin_key }}.pub"
     owner: "{{ otvl.config_vars.admin_user }}"
     group: "{{ otvl.config_vars.admin_user }}"
     mode: 0600
