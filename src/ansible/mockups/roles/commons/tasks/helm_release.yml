@@ -9,11 +9,11 @@
 
 - name: set included vars
   set_fact:
-    hr_lvf: "/home/{{ values.config_vars.devops_user }}/helm_values"
+    hr_lvf: "{{ values.config_vars.devops_home }}/helm_values"
 
 - name: Instantiate the template {{ vf_template_sp }} as a local values file {{ hr_lvf }}
   template:
-    src: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/ansible/mockups/templates/override/helm/{{ vf_template_sp }}"
+    src: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/src/ansible/mockups/templates/override/helm/{{ vf_template_sp }}"
     dest: "{{ hr_lvf }}/{{ release_name }}.yaml"
     owner: "{{ values.config_vars.devops_user }}"
     group: "{{ values.config_vars.devops_user }}"
@@ -23,7 +23,7 @@
   kubernetes.core.helm:
     name: "{{ release_name }}"
     release_namespace: "{{ values.k3s.default_namespace }}"
-    chart_ref: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
+    chart_ref: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
     state: absent
     wait: true
   become_user: "{{ values.config_vars.devops_user }}"
@@ -33,7 +33,7 @@
   kubernetes.core.helm:
     name: "{{ release_name }}"
     release_namespace: "{{ values.k3s.default_namespace }}"
-    chart_ref: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
+    chart_ref: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
     values_files:
       - "{{ hr_lvf }}/{{ release_name }}.yaml"
   become_user: "{{ values.config_vars.devops_user }}"

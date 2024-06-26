@@ -1,0 +1,41 @@
+[
+  {
+    "name": "one",
+    "reqMinDelay": 1,
+    "reqMaxDelay": 1000,
+    "rspMinDelay": 1,
+    "rspMaxDelay": 1000,
+    "minReqDsize": 1000000,
+    "maxReqDzize": 10000000,
+    "minRspDsize": 1000000,
+    "maxRspDzize": 10000000,
+    "maxPending": 2,
+    "runNb": 10
+  },
+  {
+    "name": "two",
+    "reqMinDelay": 1,
+    "reqMaxDelay": 1000,
+    "rspMinDelay": 1,
+    "rspMaxDelay": 1000,
+    "minReqDsize": 1000000,
+    "maxReqDzize": 10000000,
+    "minRspDsize": 1000000,
+    "maxRspDzize": 10000000,
+    "maxPending": 4,
+    "runNb": 20
+  },
+  {
+    "name": "background",
+    "reqMinDelay": 1,
+    "reqMaxDelay": 1000,
+    "rspMinDelay": 1,
+    "rspMaxDelay": 1000,
+    "minReqDsize": 1000,
+    "maxReqDzize": 2000,
+    "minRspDsize": 3000,
+    "maxRspDzize": 4000,
+    "maxPending": 20,
+    "runNb": -1
+  }
+]

@@ -4,6 +4,8 @@ metadata:
   name: {{ .Release.Name }}-proxy-cmap
 data:
   "static-config.yml": |
+    global:
+      sendAnonymousUsage: true
     log:
       level: INFO
     accessLog: {}
@@ -19,7 +21,7 @@ data:
       routers:
 
         to-api-private:
-          rule: "Path(`/api/v2/content/private{n:.*}`,`/api/v2/content/prive{n:.*}`,`/api/v2/html/private{n:.*}`,`/api/v2/html/prive{n:.*}`)"
+          rule: "PathPrefix(`/api/v2/content/private`) || PathPrefix(`/api/v2/content/prive`) || PathPrefix(`/api/v2/html/private`) || PathPrefix(`/api/v2/html/prive`)"
           middlewares:
             - private-basic-auth
           service: api
@@ -35,12 +37,12 @@ data:
           service: api
 
         to-nobot:
-          rule: "(PathPrefix(`/assets/`) || Path(`/favicon.ico`,`/robots.txt`))"
+          rule: "PathPrefix(`/assets/`) || Path(`/favicon.ico`) || Path(`/robots.txt`)"
           priority: 5
           service: app
 
         to-api-html-private:
-          rule: "Path(`/private{n:.*}`,`/prive{n:.*}`) && HeadersRegexp(`User-Agent`, `(otvl_begin|nomoreGooglebot|Bingbot|bingbot|BingPreview|YandexWebmaster|YandexBot|LinkedInBot|PocketParser|Slurp|Baiduspider|Sogou|Exabot|facebot|facebookexternalhit|ia_archiver|DuckDuckBot|WhatsApp|Twitterbot|Applebot|AhrefsBot|PaperLiBot|otvl_end)`)"
+          rule: "(PathPrefix(`/private`) || PathPrefix(`/prive`)) && HeaderRegexp(`User-Agent`, `(otvl_begin|nomoreGooglebot|Bingbot|bingbot|BingPreview|YandexWebmaster|YandexBot|LinkedInBot|PocketParser|Slurp|Baiduspider|Sogou|Exabot|facebot|facebookexternalhit|ia_archiver|DuckDuckBot|WhatsApp|Twitterbot|Applebot|AhrefsBot|PaperLiBot|otvl_end)`)"
           priority: 4
           middlewares:
             - "private-basic-auth"
@@ -48,14 +50,14 @@ data:
           service: api
 
         to-api-html:
-          rule: "HeadersRegexp(`User-Agent`, `(otvl_begin|nomoreGooglebot|Bingbot|bingbot|BingPreview|YandexWebmaster|YandexBot|LinkedInBot|PocketParser|Slurp|Baiduspider|Sogou|Exabot|facebot|facebookexternalhit|ia_archiver|DuckDuckBot|WhatsApp|Twitterbot|Applebot|AhrefsBot|PaperLiBot|otvl_end)`)"
+          rule: "HeaderRegexp(`User-Agent`, `(otvl_begin|nomoreGooglebot|Bingbot|bingbot|BingPreview|YandexWebmaster|YandexBot|LinkedInBot|PocketParser|Slurp|Baiduspider|Sogou|Exabot|facebot|facebookexternalhit|ia_archiver|DuckDuckBot|WhatsApp|Twitterbot|Applebot|AhrefsBot|PaperLiBot|otvl_end)`)"
           priority: 3
           middlewares:
             - "add-api-html"
           service: api
 
         to-private:
-          rule: "Path(`/private{n:.*}`,`/prive{n:.*}`)"
+          rule: "PathPrefix(`/private`) || PathPrefix(`/prive`)"
           priority: 2
           middlewares:
             - "private-basic-auth"

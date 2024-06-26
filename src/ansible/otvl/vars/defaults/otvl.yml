@@ -13,7 +13,9 @@ default_otvl:
     devops_key: id_rsa_devops
     otvl_devops_tools_repo: "https://github.com/t-beigbeder/otvl_devops_tools"
     otvl_devops_tools_version: "main"
-    otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz
+#    otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz
+    otvl_ans_inv_repo: "https://github.com/t-beigbeder/otvl_ans_inv_repo"
+    otvl_ans_inv_version: "main"
   cabri:
     release: "v0.2.14"
     sha: "c0aafb3d0b47dc518d1da9d411fad203edf9288c1f7090eb53eb2442e301f74f"
@@ -21,7 +23,7 @@ default_otvl:
     webapi_user: "remote_cabri_login"
     webapi_password: "remote_cabri_password"
   cabri_sched:
-    image: "tbeigbeder/cabri-sched:v0.2.14"
+    image: "tbeigbeder/cabri-sched:v0.2.16"
   kubectl:
     # https://cdn.dl.k8s.io/release/stable.txt => v1.29.3
     url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
@@ -34,6 +36,9 @@ default_otvl:
     # v3.14.3
     release_url: "https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz"
     sha: "f43e1c3387de24547506ab05d24e5309c0ce0b228c23bd8aa64e9ec4b8206651"
+  k9s:
+    release_url: "https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_Linux_amd64.tar.gz"
+    sha: "33c31bf5feba292b59b8dabe5547cb52ab565521ee5619b52eb4bd4bf226cea3"
   opentofu:
     release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
     sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
@@ -56,7 +61,7 @@ default_otvl:
     release_url: "https://github.com/containernetworking/plugins/releases/download/v1.5.0/cni-plugins-linux-amd64-v1.5.0.tgz"
     sha: "57a18478422cb321370e30a5ee6ce026321289cd9c94353ca697dddd7714f1a5"
   nerdctl:
-    # 1.7.5
+    # 1.7.4
     release_url: "https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz"
     sha: "71aee9d987b7fad0ff2ade50b038ad7e2356324edc02c54045960a3521b3e6a7"
   buildkit:
@@ -78,7 +83,7 @@ default_otvl:
     password: ""
     apr_credentials: "ctr:"
   traefik:
-    image: "traefik:v2.11"
+    image: "traefik:v3.1"
   cabri_services: []
 #    - name: test-rca
 #      skip_hdeploy: true

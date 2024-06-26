@@ -1,0 +1,15 @@
+registry_prefix: ""
+images:
+  netinfo: netinfo:0.1.0
+  traefik: traefik:v2.11
+service_port: 8080
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    cpu: 20m
+    memory: 128Mi
+ingress:
+  enabled: true
+  # host: netinfo.example.com, defaults to <release-name>.example.com

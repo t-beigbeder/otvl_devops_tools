@@ -45,3 +45,7 @@ This will install a VM with:
 - kubectl, Helm, opentofu, nerdctl, buildkit
 - K3s single node
 - Golang, kubebuilder
+- flux
+- k3s cluster with
+  - cert-manager
+  - fluxcd

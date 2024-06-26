@@ -1,0 +1,4 @@
+image: stefanprodan/podinfo:6.7.0
+ingress:
+  enabled: true
+  # host: podinfo.example.com, defaults to <release-name>.example.com

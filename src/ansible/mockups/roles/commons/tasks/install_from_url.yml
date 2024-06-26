@@ -39,4 +39,4 @@
     remote_src: true
     dest: "/usr/local/bin/{{ binary_name }}"
     mode: "0755"
-  when: release_download.changed or true
+  when: release_download.changed

@@ -1,0 +1,16 @@
+---
+# mockups/roles/services/podinfo/tasks/main.yml
+
+- name: Here mockups/roles/services/podinfo/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: helm_release
+  vars:
+    title: "deploying podinfo mockup"
+    chart_sp: "mockups/podinfo"
+    vf_template_sp: "podinfo.yaml"
+    release_name: "{{ values.podinfo.release }}"
+    uninstall: "{{ values.podinfo.helm_uninstall | default(false) }}"
+  when: not (values.podinfo.skip_hdeploy | default(false))
+
+###

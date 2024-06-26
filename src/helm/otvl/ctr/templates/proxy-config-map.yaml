@@ -4,6 +4,8 @@ metadata:
   name: {{ .Release.Name }}-proxy-cmap
 data:
   "static-config.yml": |
+    global:
+      sendAnonymousUsage: true
     log:
       level: INFO
     accessLog:

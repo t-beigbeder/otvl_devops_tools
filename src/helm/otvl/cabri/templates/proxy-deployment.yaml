@@ -18,7 +18,7 @@ spec:
         runAsUser: {{ .Values.uid }}
         runAsGroup: {{ .Values.uid }}
       containers:
-        - name: ctr-proxy
+        - name: cabri-proxy
           image: {{ .Values.images.traefik }}
           command: ["/usr/local/bin/traefik"]
           args: ["--configFile=/traefik/static-config.yml"]

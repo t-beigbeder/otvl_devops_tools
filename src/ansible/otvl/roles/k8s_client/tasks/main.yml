@@ -3,7 +3,7 @@
 
 - name: Create k3s config bastion
   file:
-    path: "/home/{{ otvl.config_vars.devops_user }}/.k3s"
+    path: "{{ otvl.config_vars.devops_home }}/.k3s"
     state: directory
     mode: 0700
     owner: "{{ otvl.config_vars.devops_user }}"
@@ -11,7 +11,7 @@
 
 - name: Create kube config bastion
   file:
-    path: "/home/{{ otvl.config_vars.devops_user }}/.kube"
+    path: "{{ otvl.config_vars.devops_home }}/.kube"
     state: directory
     mode: 0700
     owner: "{{ otvl.config_vars.devops_user }}"
@@ -19,7 +19,7 @@
 
 - name: Create helm local var files
   file:
-    path: "/home/{{ otvl.config_vars.devops_user }}/helm_values"
+    path: "{{ otvl.config_vars.devops_home }}/helm_values"
     state: directory
     mode: 0700
     owner: "{{ otvl.config_vars.devops_user }}"
@@ -56,6 +56,17 @@
     sha: "{{ otvl.helm.sha }}"
     binary_name: "helm"
     binary_path: "linux-amd64"
+
+- name: Install k9s on the bastion host
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.k9s.release_url }}"
+    tgz_name: "k9s.1.tgz"
+    sha: "{{ otvl.k9s.sha }}"
+    binary_name: "k9s"
+    binary_path: "."
 
 - name: Install opentofu on the bastion host
   include_role:

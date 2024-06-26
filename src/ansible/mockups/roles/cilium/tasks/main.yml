@@ -1,0 +1,25 @@
+---
+# mockups/roles/cilium/tasks/main.yml
+
+- name: Check cilium installation
+  command: "cilium status"
+  ignore_errors: true
+  register: cilium_status
+  when: values.k3s.cilium
+
+- name: Install cilium
+  block:
+    - command:
+        cmd: "cilium install --version {{ values.cilium.version }} --set=ipam.operator.clusterPoolIPv4PodCIDRList=10.42.0.0/16 --set kubeProxyReplacement=true --set k8sServiceHost={{ values.k3s.api_server }} --set k8sServicePort=6443"
+      register: cilium
+    - debug: var=cilium.cmd
+    - debug: var=cilium.stderr_lines
+    - debug: var=cilium.stdout_lines
+    - command:
+        cmd: "cilium status --wait --interactive=false"
+  when: values.k3s.cilium and cilium_status.rc != 0
+
+- name: pause to check k3s
+  pause:
+
+###

@@ -39,9 +39,10 @@ ansible.cfg
 .ostestrc
 .osprodrc
 
-# PyCharm
+# jetbrains
 /.idea
 /.run
+/*.iml
 
 # other
 tmp/

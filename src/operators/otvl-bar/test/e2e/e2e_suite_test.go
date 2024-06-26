@@ -27,6 +27,6 @@ import (
 // Run e2e tests using the Ginkgo runner.
 func TestE2E(t *testing.T) {
 	RegisterFailHandler(Fail)
-	fmt.Fprintf(GinkgoWriter, "Starting otvl-barsvc suite\n")
+	fmt.Fprintf(GinkgoWriter, "Starting otvl-bar suite\n")
 	RunSpecs(t, "e2e suite")
 }

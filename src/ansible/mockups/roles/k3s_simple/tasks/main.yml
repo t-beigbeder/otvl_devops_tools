@@ -44,7 +44,7 @@
   register: k3s_service_st
 
 - name: Install the k3s cluster if absent
-  shell: "curl -sfL https://get.k3s.io | sh -"
+  shell: "curl -sfL https://get.k3s.io | sh -s - {{ '--flannel-backend=none --disable-network-policy --disable-kube-proxy --disable servicelb --disable traefik' if values.k3s.cilium }} {{ '--docker' if values.k3s.docker }}"
   when: k3s_service_st.stat.isreg is not defined
 
 - name: Configure the k3s private registry
@@ -74,7 +74,7 @@
 - name: Fetch k3s cluster config for access from localhost
   ansible.builtin.fetch:
     src: "{{ values.config_paths.data }}/otvl/k3s/k3s.yaml"
-    dest: "/home/{{ values.config_vars.devops_user }}/.k3s"
+    dest: "{{ values.config_vars.local_devops_home }}/.k3s"
   vars:
     ansible_become: false
 

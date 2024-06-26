@@ -3,7 +3,7 @@
 
 - name: Configure access to k3s api server
   ansible.builtin.copy:
-    src: "/home/{{ values.config_vars.devops_user }}/.k3s/{{ values.k3s.api_server_ansible_host }}/srv/data/otvl/k3s/k3s.yaml"
+    src: "{{ values.config_vars.devops_home }}/.k3s/{{ values.k3s.api_server_ansible_host }}/srv/data/otvl/k3s/k3s.yaml"
     dest: "/root/.kube/config"
     mode: "0600"
   become: true

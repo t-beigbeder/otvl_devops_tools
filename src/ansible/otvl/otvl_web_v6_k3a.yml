@@ -1,0 +1,86 @@
+- hosts: "*"
+  gather_facts: False
+  tasks:
+    - name: Load default variables
+      include_vars:
+        dir: vars/defaults
+    - name: Combine default with actual otvl config data
+      set_fact:
+        cbd_otvl: "{{ default_otvl | combine(otvl, recursive=True) }}"
+  tags: always
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - devops_tools
+    - cabri_client
+    - k8s_client
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - bastion
+
+- hosts: bastion_controlled_group
+  gather_facts: False
+  become: yes
+  roles:
+    - bastion_controlled
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - bastion
+
+- hosts: k3s_simple_group
+  gather_facts: False
+  become: yes
+  roles:
+    - k3s_simple
+    - nerdctl
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - k3s_simple
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - k8s_client/configure_k3s
+    - cert_manager
+    - buildkit
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - k3s_simple
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/ctr
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - ctr
+
+- hosts: build_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/otvl_web/build
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - services
+
+- hosts: bastion_group
+  gather_facts: False
+  become: yes
+  roles:
+    - services/cabri
+    - services/otvl_web
+  vars:
+    otvl: "{{ cbd_otvl }}"
+  tags:
+    - services
