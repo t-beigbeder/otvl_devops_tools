@@ -74,7 +74,7 @@
 - name: Fetch k3s cluster config for access from localhost
   ansible.builtin.fetch:
     src: "{{ values.config_paths.data }}/otvl/k3s/k3s.yaml"
-    dest: "/home/{{ values.config_vars.devops_user }}/.k3s"
+    dest: "{{ values.config_vars.devops_home }}/.k3s"
   vars:
     ansible_become: false
 

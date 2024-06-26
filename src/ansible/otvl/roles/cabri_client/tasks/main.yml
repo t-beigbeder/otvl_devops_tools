@@ -14,7 +14,7 @@
 
 - name: Create the cabri configuration directory
   file:
-    dest: /home/{{ otvl.config_vars.devops_user }}/.cabri
+    dest: "{{ otvl.config_vars.devops_home }}/.cabri"
     owner: "{{ otvl.config_vars.devops_user }}"
     group: "{{ otvl.config_vars.devops_user }}"
     state: directory
@@ -23,7 +23,7 @@
 - name: Copy cabri clientConfig on the bastion
   copy:
     src: override/bastion/cabri/clientConfig
-    dest: /home/{{ otvl.config_vars.devops_user }}/.cabri/clientConfig
+    dest: "{{ otvl.config_vars.devops_home }}/.cabri/clientConfig"
     owner: "{{ otvl.config_vars.devops_user }}"
     group: "{{ otvl.config_vars.devops_user }}"
     mode: 0640

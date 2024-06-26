@@ -45,45 +45,45 @@
   git:
     repo: "{{ values.config_vars.otvl_devops_tools_repo }}"
     version: "{{ values.config_vars.otvl_devops_tools_version }}"
-    dest: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools"
+    dest: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools"
     depth: 1
     update: false
     recursive: no
     force: no
 
 - name: Create virtualenv otvl_devops_tools/venv
-  command: "virtualenv -p python3 /home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
+  command: "virtualenv -p python3 {{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/venv"
   args:
-    creates: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv"
+    creates: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/venv"
 
 - name: Install requirements in virtualenv otvl_devops_tools/venv
-  command: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/pip install -r /home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/src/python/requirements.txt"
+  command: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/venv/bin/pip install -r {{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/src/python/requirements.txt"
   args:
-    creates: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/venv/bin/ansible-playbook"
+    creates: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/venv/bin/ansible-playbook"
 
 - name: Copy ansible configuration on the bastion
   copy:
     src: override/bastion/ansible/ansible.cfg
-    dest: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_devops_tools/ansible.cfg"
+    dest: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/ansible.cfg"
     owner: "{{ values.config_vars.devops_user }}"
     group: "{{ values.config_vars.devops_user }}"
     mode: 0600
 
 - name: Get stat of ansible inventory checkout
   ansible.builtin.stat:
-    path: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_anprin"
+    path: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_anprin"
   register: otvl_anprin_st
 
 - name: Extract ansible inventory git repository on the bastion once
   unarchive:
     src: "{{ values.config_vars.otvl_ans_inv_local_git_repo_tgz }}"
-    dest: "/home/{{ values.config_vars.devops_user }}"
+    dest: "{{ values.config_vars.devops_home }}"
   when: otvl_anprin_st.stat.isdir is not defined
 
 - name: Checkout git ansible inventory once
   git:
-    repo: "/home/{{ values.config_vars.devops_user }}/otvl_anprin.git"
-    dest: "/home/{{ values.config_vars.devops_user }}/locgit/otvl/otvl_anprin"
+    repo: "{{ values.config_vars.devops_home }}/otvl_anprin.git"
+    dest: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_anprin"
     update: false
     recursive: no
     force: no
@@ -91,7 +91,7 @@
 
 - name: Give files read access to devops user
   ansible.builtin.file:
-    dest: "/home/{{ values.config_vars.devops_user }}"
+    dest: "{{ values.config_vars.devops_home }}"
     recurse: yes
     mode: ugo+rX
 
@@ -104,7 +104,7 @@
 - name: Copy ssh devops private key on the bastion
   copy:
     src: override/bastion/ssh/id_rsa_devops
-    dest: /home/{{ values.config_vars.devops_user }}/.ssh/{{ values.config_vars.devops_key }}
+    dest: "{{ values.config_vars.devops_home }}/.ssh/{{ values.config_vars.devops_key }}"
     owner: "{{ values.config_vars.devops_user }}"
     group: "{{ values.config_vars.devops_user }}"
     mode: 0600
@@ -112,14 +112,14 @@
 - name: Copy ssh devops public key on the bastion
   copy:
     src: override/bastion/ssh/id_rsa_devops.pub
-    dest: /home/{{ values.config_vars.devops_user }}/.ssh/{{ values.config_vars.devops_key }}.pub
+    dest: "{{ values.config_vars.devops_home }}/.ssh/{{ values.config_vars.devops_key }}.pub"
     owner: "{{ values.config_vars.devops_user }}"
     group: "{{ values.config_vars.devops_user }}"
     mode: 0600
 
 - name: Create openstack configuration dir on the bastion
   file:
-    path: /home/{{ values.config_vars.devops_user }}/.config/openstack
+    path: "{{ values.config_vars.devops_home }}/.config/openstack"
     state: directory
     owner: "{{ values.config_vars.devops_user }}"
     group: "{{ values.config_vars.devops_user }}"
@@ -128,7 +128,7 @@
 - name: Copy openstack configuration on the bastion
   copy:
     src: override/bastion/openstack/clouds.yaml
-    dest: /home/{{ values.config_vars.devops_user }}/.config/openstack/clouds.yaml
+    dest: "{{ values.config_vars.devops_home }}/.config/openstack/clouds.yaml"
     owner: "{{ values.config_vars.devops_user }}"
     group: "{{ values.config_vars.devops_user }}"
     mode: 0600

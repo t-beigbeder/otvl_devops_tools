@@ -3,7 +3,7 @@
 
 - name: Create k3s config bastion
   file:
-    path: "/home/{{ values.config_vars.devops_user }}/.k3s"
+    path: "{{ values.config_vars.devops_home }}/.k3s"
     state: directory
     mode: 0700
     owner: "{{ values.config_vars.devops_user }}"
@@ -11,7 +11,7 @@
 
 - name: Create kube config bastion
   file:
-    path: "/home/{{ values.config_vars.devops_user }}/.kube"
+    path: "{{ values.config_vars.devops_home }}/.kube"
     state: directory
     mode: 0700
     owner: "{{ values.config_vars.devops_user }}"
@@ -19,7 +19,7 @@
 
 - name: Create helm local var files
   file:
-    path: "/home/{{ values.config_vars.devops_user }}/helm_values"
+    path: "{{ values.config_vars.devops_home }}/helm_values"
     state: directory
     mode: 0700
     owner: "{{ values.config_vars.devops_user }}"
