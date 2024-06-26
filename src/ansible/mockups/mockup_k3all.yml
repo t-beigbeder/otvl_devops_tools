@@ -17,6 +17,7 @@
     - k8s_client
     - k3s_simple
     - k3all/configure_k3s
+    - cert_manager
     - k3all
     - golang
     - kubebuilder
