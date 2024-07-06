@@ -75,9 +75,9 @@ default_values:
     release_url: "https://go.dev/dl/go1.22.4.linux-amd64.tar.gz"
     sha: "ba79d4526102575196273416239cca418a651e049c2b099f3159db85e7bade7d"
   kubebuilder:
-    # 4.0.0
-    url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v4.0.0/kubebuilder_linux_amd64"
-    sha: "da79077245c0f6d18d4654354837751239b1b7c14ad6deaa14e2e335400fe6f2"
+    # 4.1.0
+    url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v4.1.0/kubebuilder_linux_amd64"
+    sha: "881749712318cc1035067944d8d971546ca5a090e14a52f74f9a33efee758b95"
   tcpecho:
     release: "tcpecho"
     skip_hdeploy: false
