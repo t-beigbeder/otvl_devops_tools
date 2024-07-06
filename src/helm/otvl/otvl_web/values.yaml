@@ -1,6 +1,5 @@
 images:
-  cabri: tbeigbeder/cabri:v0.2.14-rc.1
-  cabri_sched: tbeigbeder/cabri-sched:v0.2.14-rc.1
+  cabri_sched: tbeigbeder/cabri-sched:v0.2.16-rc.1
   traefik: traefik:v2.11
   site_name: otvl-web-sample
   registry_prefix: ""

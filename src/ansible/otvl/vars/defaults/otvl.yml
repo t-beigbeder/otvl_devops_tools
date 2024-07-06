@@ -21,7 +21,7 @@ default_otvl:
     webapi_user: "remote_cabri_login"
     webapi_password: "remote_cabri_password"
   cabri_sched:
-    image: "tbeigbeder/cabri-sched:v0.2.14"
+    image: "tbeigbeder/cabri-sched:v0.2.16"
   kubectl:
     # https://cdn.dl.k8s.io/release/stable.txt => v1.29.3
     url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
