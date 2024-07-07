@@ -5,9 +5,6 @@
 domain: otvl.org
 layout:
 - go.kubebuilder.io/v4
-plugins:
-  manifests.sdk.operatorframework.io/v2: {}
-  scorecard.sdk.operatorframework.io/v2: {}
 projectName: otvl-bar
 repo: github.com/t-beigbeder/otvl_devops_tools/src/operators/otvl-bar
 resources:
