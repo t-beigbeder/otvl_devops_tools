@@ -1,0 +1,18 @@
+# mockups/roles/flux/tasks/main.yml
+
+- name: Install curl for flux installation and git for bootstrap
+  ansible.builtin.apt:
+    pkg:
+      - curl
+      - git
+    install_recommends: no
+    update_cache: "{{ values.prod }}"
+
+- name: Check flux client presence
+  ansible.builtin.stat:
+    path: "/usr/local/bin/flux"
+  register: flux_st
+
+- name: Install the flux client /usr/local/bin/flux if absent
+  shell: "curl -s https://fluxcd.io/install.sh | bash"
+  when: flux_st.stat.isreg is not defined
