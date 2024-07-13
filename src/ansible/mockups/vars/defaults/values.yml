@@ -78,6 +78,9 @@ default_values:
     # 4.1.0
     url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v4.1.0/kubebuilder_linux_amd64"
     sha: "881749712318cc1035067944d8d971546ca5a090e14a52f74f9a33efee758b95"
+  github:
+    user: "noname"
+    token: "notoken"
   tcpecho:
     release: "tcpecho"
     skip_hdeploy: false

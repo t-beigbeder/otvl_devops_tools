@@ -23,6 +23,7 @@
     - kubebuilder
     - nerdctl
     - buildkit
+    - flux
   vars:
     values: "{{ cbd_values }}"
   tags:
