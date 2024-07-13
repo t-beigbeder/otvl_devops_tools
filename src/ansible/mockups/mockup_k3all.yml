@@ -24,6 +24,7 @@
     - nerdctl
     - buildkit
     - flux
+    - flux/cluster
   vars:
     values: "{{ cbd_values }}"
   tags:
