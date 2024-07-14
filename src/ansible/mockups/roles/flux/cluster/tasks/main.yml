@@ -1,4 +1,13 @@
 # mockups/roles/flux/cluster/tasks/main.yml
 
 - name: Install the fluxcd in the cluster
-  shell: "flux bootstrap github --owner={{ values.github.user }} --token={{ values.github.token }} --repository=otvl_flux --branch=main --path=./clusters/{{ values.k3s.api_server_ansible_host }} --personal"
+  block:
+#    - debug: var=values
+    - command:
+        cmd: "flux bootstrap github --owner={{ values.github.user }} --repository={{ values.flux.git_repo }} --branch=main --path=./clusters/{{ values.k3s.api_server_ansible_host }} --personal"
+      environment:
+        GITHUB_TOKEN: "{{ values.github.token }}"
+      register: flbs
+    - debug: var=flbs.cmd
+    - debug: var=flbs.stderr_lines
+    - debug: var=flbs.stdout_lines

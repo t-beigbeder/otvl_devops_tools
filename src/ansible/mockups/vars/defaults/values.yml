@@ -81,6 +81,8 @@ default_values:
   github:
     user: "noname"
     token: "notoken"
+  flux:
+    git_repo: otvl_flux
   tcpecho:
     release: "tcpecho"
     skip_hdeploy: false
