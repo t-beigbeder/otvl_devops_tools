@@ -9,6 +9,16 @@
     install_recommends: no
     update_cache: "{{ values.prod }}"
 
+- name: Check docker presence if needed
+  ansible.builtin.stat:
+    path: "/usr/bin/docker"
+  register: dkb_st
+  when: values.k3s.docker
+
+- name: Install docker runtime and CLI if needed and absent
+  shell: "curl https://releases.rancher.com/install-docker/{{values.k3s.docker_version }}.sh | sh"
+  when: values.k3s.docker and dkb_st.stat.isreg is not defined
+
 - name: Create rancher/k3s configuration directory
   file:
     path: "/etc/rancher/k3s"
@@ -44,7 +54,7 @@
   register: k3s_service_st
 
 - name: Install the k3s cluster if absent
-  shell: "curl -sfL https://get.k3s.io | sh -"
+  shell: "curl -sfL https://get.k3s.io | sh -s - {{ '--docker' if values.k3s.docker }}"
   when: k3s_service_st.stat.isreg is not defined
 
 - name: Configure the k3s private registry

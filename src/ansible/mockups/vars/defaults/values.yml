@@ -33,6 +33,8 @@ default_values:
     cluster_secret: PLEASE_UPDATE_THIS_K3S_TOKEN
     traefik:
       customize: true
+    docker: false
+    docker_version: "26.1.3"
     #    api_server: k3s-ha-server-0
     #    api_server_ansible_host: k3s-ha-server-0
     default_namespace: "default"
