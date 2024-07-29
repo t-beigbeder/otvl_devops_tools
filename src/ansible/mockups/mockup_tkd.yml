@@ -15,6 +15,7 @@
   roles:
     - devops_tools
     - k8s_client
+    - docker
     - k3s_simple
     - k3all/configure_k3s
     - cert_manager
@@ -25,6 +26,7 @@
     - buildkit
     - flux
     - flux/cluster
+    - skaffold
   vars:
     values: "{{ cbd_values }}"
   tags:

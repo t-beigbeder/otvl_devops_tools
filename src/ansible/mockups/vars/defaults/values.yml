@@ -29,12 +29,13 @@ default_values:
   opentofu:
     release_url: "https://github.com/opentofu/opentofu/releases/download/v1.6.2/tofu_1.6.2_linux_amd64.zip"
     sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
+  docker:
+    version: "26.1.3"
   k3s:
     cluster_secret: PLEASE_UPDATE_THIS_K3S_TOKEN
     traefik:
       customize: true
     docker: false
-    docker_version: "26.1.3"
     #    api_server: k3s-ha-server-0
     #    api_server_ansible_host: k3s-ha-server-0
     default_namespace: "default"
@@ -85,6 +86,10 @@ default_values:
     token: "notoken"
   flux:
     git_repo: otvl_flux
+  skaffold:
+    # v2.13.1
+    url: "https://storage.googleapis.com/skaffold/releases/v2.13.1/skaffold-linux-amd64"
+    sha: "a903e1a99d4338747348237220d720c44a0f6f5f965dce17ee05809190239b6f"
   tcpecho:
     release: "tcpecho"
     skip_hdeploy: false

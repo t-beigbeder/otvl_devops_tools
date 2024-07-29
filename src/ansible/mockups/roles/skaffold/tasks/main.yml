@@ -1,3 +1,12 @@
 ---
 # mockups/roles/skaffold/tasks/main.yml
 
+- name: Install skaffold on the k3dev host
+  include_role:
+    name: commons
+    tasks_from: install_from_url
+  vars:
+    url: "{{ values.skaffold.url }}"
+    dload_name: "skaffold.1"
+    sha: "{{ values.skaffold.sha }}"
+    binary_name: "skaffold"

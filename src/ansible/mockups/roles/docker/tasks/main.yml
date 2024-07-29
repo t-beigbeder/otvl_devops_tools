@@ -1,0 +1,18 @@
+---
+# mockups/roles/docker/tasks/main.yml
+
+- name: Install curl for installations
+  ansible.builtin.apt:
+    pkg:
+      - curl
+    install_recommends: no
+    update_cache: "{{ values.prod }}"
+
+- name: Check docker presence
+  ansible.builtin.stat:
+    path: "/usr/bin/docker"
+  register: dkb_st
+
+- name: Install docker runtime and CLI if absent
+  shell: "curl https://releases.rancher.com/install-docker/{{values.docker.version }}.sh | sh"
+  when: dkb_st.stat.isreg is not defined
