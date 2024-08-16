@@ -73,21 +73,32 @@
   ansible.builtin.stat:
     path: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_anprin"
   register: otvl_anprin_st
+  when: values.config_vars.otvl_ans_inv_local_git_repo_tgz is defined
 
 - name: Extract ansible inventory git repository on the bastion once
   unarchive:
     src: "{{ values.config_vars.otvl_ans_inv_local_git_repo_tgz }}"
     dest: "{{ values.config_vars.devops_home }}"
-  when: otvl_anprin_st.stat.isdir is not defined
+  when: otvl_anprin_st.stat.isdir is not defined and values.config_vars.otvl_ans_inv_local_git_repo_tgz is defined
 
-- name: Checkout git ansible inventory once
+- name: Checkout git ansible inventory from local repo once
   git:
     repo: "{{ values.config_vars.devops_home }}/otvl_anprin.git"
     dest: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_anprin"
     update: false
     recursive: no
     force: no
-  when: otvl_anprin_st.stat.isdir is not defined
+  when: otvl_anprin_st.stat.isdir is not defined and values.config_vars.otvl_ans_inv_local_git_repo_tgz is defined
+
+- name: Checkout git ansible inventory from remote repo once
+  git:
+    repo: "{{ values.config_vars.otvl_ans_inv_repo }}"
+    dest: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_anprin.remote"
+    version: "{{ values.config_vars.otvl_ans_inv_version }}"
+    update: false
+    recursive: no
+    force: no
+  when: values.config_vars.otvl_ans_inv_local_git_repo_tgz is not defined
 
 - name: Give files read access to devops user
   ansible.builtin.file:

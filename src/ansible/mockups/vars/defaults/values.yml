@@ -13,7 +13,9 @@ default_values:
     devops_key: id_rsa_devops
     otvl_devops_tools_repo: "https://github.com/t-beigbeder/otvl_devops_tools"
     otvl_devops_tools_version: "main"
-    otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz
+#    otvl_ans_inv_local_git_repo_tgz: /path/to/gitbare/otvl_anprin.git.tar.gz
+    otvl_ans_inv_repo: "https://github.com/t-beigbeder/otvl_ans_inv_repo"
+    otvl_ans_inv_version: "main"
   kubectl:
     # https://cdn.dl.k8s.io/release/stable.txt => v1.29.3
     url: "https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl"
