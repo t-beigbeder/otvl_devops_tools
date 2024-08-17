@@ -93,7 +93,7 @@
 - name: Checkout git ansible inventory from remote repo once
   git:
     repo: "{{ values.config_vars.otvl_ans_inv_repo }}"
-    dest: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_anprin.remote"
+    dest: "{{ values.config_vars.devops_home }}/locgit/otvl/otvl_anprin"
     version: "{{ values.config_vars.otvl_ans_inv_version }}"
     update: false
     recursive: no

@@ -104,6 +104,11 @@ default_values:
     skip_hdeploy: false
     helm_uninstall: true
     ingress_host: test-nginx.example.com
+  podinfo:
+    release: "podinfo"
+    skip_hdeploy: false
+    helm_uninstall: true
+    ingress_host: podinfo.example.com
   mockups:
     git:
       repo: "https://github.com/t-beigbeder/otvl_pub_mockups"
