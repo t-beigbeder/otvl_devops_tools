@@ -6,6 +6,6 @@ spec:
   selector:
     app.kubernetes.io/name: {{ .Release.Name }}
   ports:
-    - name: "wev-port"
-      port: 8080
+    - name: "pi-port"
+      port: 9898
       protocol: TCP
