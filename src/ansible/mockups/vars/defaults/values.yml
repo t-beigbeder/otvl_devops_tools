@@ -36,11 +36,18 @@ default_values:
     sha: "18277462e0ded513e47fb3e041911dfd14f4ad3721d53ee2f0c709fa810b8cf0"
   docker:
     version: "26.1.3"
+  cilium:
+    version: "1.16.1"
+    cli:
+      # v0.16.15
+      url: "https://github.com/cilium/cilium-cli/releases/download/v0.16.15/cilium-linux-amd64.tar.gz"
+      sha: "20a5296a9eca3aa50ad9bfa061805b5f332df9d25829f2fd34ecd42d0bf26caf"
   k3s:
     cluster_secret: PLEASE_UPDATE_THIS_K3S_TOKEN
     traefik:
       customize: true
     docker: false
+    cilium: false
     #    api_server: k3s-ha-server-0
     #    api_server_ansible_host: k3s-ha-server-0
     default_namespace: "default"
