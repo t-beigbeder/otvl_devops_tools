@@ -15,9 +15,10 @@
   roles:
 #    - devops_tools
 #    - k8s_client
-#    - cilium
+    - cilium/cli
     - k3s_simple
-#    - k3all/configure_k3s
+    - k3all/configure_k3s
+    - cilium
 #    - cert_manager
 #    - k3all
 #    - golang

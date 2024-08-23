@@ -47,22 +47,6 @@
   shell: "curl -sfL https://get.k3s.io | sh -s - {{ '--flannel-backend=none --disable-network-policy' if values.k3s.cilium }} {{ '--docker' if values.k3s.docker }}"
   when: k3s_service_st.stat.isreg is not defined
 
-- name: Install cilium
-  block:
-    - debug: var=kapp_message
-    - command:
-        cmd: "cilium install --version {{ values.cilium.version }}"
-      environment:
-        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-      register: cilium
-    - debug: var=cilium.cmd
-    - debug: var=cilium.stderr_lines
-    - debug: var=cilium.stdout_lines
-  when: values.k3s.cilium
-
-- name: pause to check k3s
-  pause:
-
 - name: Configure the k3s private registry
   template:
     src: registries.yaml

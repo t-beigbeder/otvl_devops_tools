@@ -1,0 +1,15 @@
+---
+# mockups/roles/cilium/cli/tasks/main.yml
+
+- name: Install cilium CLI on the bastion host
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ values.cilium.cli.url }}"
+    tgz_name: "cilium.1.tgz"
+    sha: "{{ values.cilium.cli.sha }}"
+    binary_name: "cilium"
+    binary_path: "."
+
+###
