@@ -18,16 +18,16 @@
     - cilium/cli
     - k3s_simple
     - k3all/configure_k3s
-    - cilium
-#    - cert_manager
-#    - k3all
-#    - golang
+#    - cilium
+    - cert_manager
+    - k3all
+    - golang
 #    - kubebuilder
-#    - nerdctl
-#    - buildkit
+    - nerdctl
+    - buildkit
 #    - flux
 #    - flux/cluster
-#    - services/podinfo
+    - services/podinfo
   vars:
     values: "{{ cbd_values }}"
   tags:

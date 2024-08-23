@@ -3,7 +3,6 @@
 
 - name: Install cilium
   block:
-    - debug: var=kapp_message
     - command:
         cmd: "cilium install --version {{ values.cilium.version }}"
       register: cilium
@@ -12,7 +11,7 @@
     - debug: var=cilium.stdout_lines
   when: values.k3s.cilium
 
-- name: pause to check k3s
+- name: pause to check k3s # cilium status --wait --interactive=false
   pause:
 
 ###
