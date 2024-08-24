@@ -18,7 +18,7 @@
     - cilium/cli
     - k3s_simple
     - k3all/configure_k3s
-#    - cilium
+    - cilium
     - cert_manager
     - k3all
     - golang

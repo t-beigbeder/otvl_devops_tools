@@ -44,7 +44,7 @@
   register: k3s_service_st
 
 - name: Install the k3s cluster if absent
-  shell: "curl -sfL https://get.k3s.io | sh -s - {{ '--flannel-backend=none --disable-network-policy' if values.k3s.cilium }} {{ '--docker' if values.k3s.docker }}"
+  shell: "curl -sfL https://get.k3s.io | sh -s - {{ '--flannel-backend=none --disable-network-policy --disable-kube-proxy --disable servicelb --disable traefik' if values.k3s.cilium }} {{ '--docker' if values.k3s.docker }}"
   when: k3s_service_st.stat.isreg is not defined
 
 - name: Configure the k3s private registry

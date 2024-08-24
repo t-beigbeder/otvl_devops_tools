@@ -1,17 +1,25 @@
 ---
 # mockups/roles/cilium/tasks/main.yml
 
+- name: Check cilium installation
+  command: "cilium status"
+  ignore_errors: true
+  register: cilium_status
+  when: values.k3s.cilium
+
 - name: Install cilium
   block:
     - command:
-        cmd: "cilium install --version {{ values.cilium.version }}"
+        cmd: "cilium install --version {{ values.cilium.version }} --set kubeProxyReplacement=true"
       register: cilium
     - debug: var=cilium.cmd
     - debug: var=cilium.stderr_lines
     - debug: var=cilium.stdout_lines
-  when: values.k3s.cilium
+    - command:
+        cmd: "cilium status --wait --interactive=false"
+  when: values.k3s.cilium and cilium_status.rc != 0
 
-- name: pause to check k3s # cilium status --wait --interactive=false
+- name: pause to check k3s
   pause:
 
 ###
