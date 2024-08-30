@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-proxy-cmap
+data:
+  "static-config.yml": |
+    log:
+      level: INFO
+    accessLog: {}
+    providers:
+      file:
+        filename: /traefik/dynamic-conf.yml
+        watch: true
+    entryPoints:
+      web:
+        address: ':3000'
+
+  "dynamic-conf.yml": |
+    http:
+      routers:
+        to-api:
+          rule: "PathPrefix(`/`)"
+          service: ni
+      services:
+        "ni":
+          loadBalancer:
+            servers:
+              - url: "http://{{ .Release.Name }}:8080"

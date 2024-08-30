@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}
+  replicas: 1
+  template:
+    metadata:
+      name: {{ .Release.Name }}
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}
+    spec:
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+      containers:
+        - name: netinfo
+          image: {{ .Values.images.netinfo }}
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            periodSeconds: 60
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            periodSeconds: 60
+            httpGet:
+              path: /readyz
+              port: 8080
