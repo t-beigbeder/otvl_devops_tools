@@ -22,10 +22,6 @@
     - golang
     - kubebuilder
     - nerdctl
-    - buildkit
-    - flux
-    - flux/cluster
-    - services/podinfo
   vars:
     values: "{{ cbd_values }}"
   tags:
