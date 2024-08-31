@@ -22,6 +22,7 @@
     - golang
     - kubebuilder
     - nerdctl
+    - buildkit
   vars:
     values: "{{ cbd_values }}"
   tags:
