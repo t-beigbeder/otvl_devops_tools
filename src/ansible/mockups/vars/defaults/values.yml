@@ -64,7 +64,7 @@ default_values:
     release_url: "https://github.com/containernetworking/plugins/releases/download/v1.5.0/cni-plugins-linux-amd64-v1.5.0.tgz"
     sha: "57a18478422cb321370e30a5ee6ce026321289cd9c94353ca697dddd7714f1a5"
   nerdctl:
-    # 1.7.5
+    # 1.7.4
     release_url: "https://github.com/containerd/nerdctl/releases/download/v1.7.4/nerdctl-1.7.4-linux-amd64.tar.gz"
     sha: "71aee9d987b7fad0ff2ade50b038ad7e2356324edc02c54045960a3521b3e6a7"
   buildkit:
