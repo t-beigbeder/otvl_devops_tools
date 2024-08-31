@@ -80,7 +80,7 @@ default_otvl:
     password: ""
     apr_credentials: "ctr:"
   traefik:
-    image: "traefik:v2.11"
+    image: "traefik:v3.1"
   cabri_services: []
 #    - name: test-rca
 #      skip_hdeploy: true
