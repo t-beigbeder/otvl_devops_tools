@@ -10,6 +10,7 @@
 - name: set included vars
   set_fact:
     hr_lvf: "{{ otvl.config_vars.devops_home }}/helm_values"
+    hr_lcc: "{{ otvl.config_vars.devops_home }}/helm_charts_cache"
 
 - name: Instantiate the template {{ vf_template_sp }} as a local values file {{ hr_lvf }}
   template:
@@ -19,11 +20,17 @@
     group: "{{ otvl.config_vars.devops_user }}"
     mode: 0600
 
+- name: Synchronize the chart {{ chart_sp }} to the cache
+  copy:
+    src: "{{ otvl.config_vars.local_devops_home }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}/"
+    dest: "{{ hr_lcc }}/{{ chart_sp }}/"
+    force: true
+
 - name: Uninstall {{ title }}
   kubernetes.core.helm:
     name: "{{ release_name }}"
     release_namespace: "{{ otvl.k3s.default_namespace }}"
-    chart_ref: "{{ otvl.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
+    chart_ref: "{{ hr_lcc }}/{{ chart_sp }}"
     state: absent
     wait: true
   become_user: "{{ otvl.config_vars.devops_user }}"
@@ -33,7 +40,7 @@
   kubernetes.core.helm:
     name: "{{ release_name }}"
     release_namespace: "{{ otvl.k3s.default_namespace }}"
-    chart_ref: "{{ otvl.config_vars.devops_home }}/locgit/otvl/otvl_devops_tools/src/helm/{{ chart_sp }}"
+    chart_ref: "{{ hr_lcc }}/{{ chart_sp }}"
     values_files:
       - "{{ hr_lvf }}/{{ release_name }}.yaml"
   become_user: "{{ otvl.config_vars.devops_user }}"

@@ -57,6 +57,17 @@
     binary_name: "helm"
     binary_path: "linux-amd64"
 
+- name: Install k9s on the bastion host
+  include_role:
+    name: commons
+    tasks_from: install_from_ghr
+  vars:
+    url: "{{ otvl.k9s.release_url }}"
+    tgz_name: "k9s.1.tgz"
+    sha: "{{ otvl.k9s.sha }}"
+    binary_name: "k9s"
+    binary_path: "."
+
 - name: Install opentofu on the bastion host
   include_role:
     name: commons

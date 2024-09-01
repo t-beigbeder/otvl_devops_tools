@@ -25,6 +25,14 @@
     owner: "{{ values.config_vars.devops_user }}"
     group: "{{ values.config_vars.devops_user }}"
 
+- name: Create helm local charts cache from the ansible client
+  file:
+    path: "{{ values.config_vars.devops_home }}/helm_charts_cache"
+    state: directory
+    mode: 0700
+    owner: "{{ values.config_vars.devops_user }}"
+    group: "{{ values.config_vars.devops_user }}"
+
 - name: Install kubectl on the bastion host
   include_role:
     name: commons
