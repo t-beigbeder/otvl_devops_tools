@@ -1,0 +1,15 @@
+[
+  {
+    "name": "delays",
+    "reqMinDelay": 1,
+    "reqMaxDelay": 10,
+    "rspMinDelay": 10,
+    "rspMaxDelay": 100,
+    "minReqDsize": 500,
+    "maxReqDzize": 0,
+    "minRspDsize": 1000,
+    "maxRspDzize": 0,
+    "maxPending": 100,
+    "runNb": 10000
+  }
+]
