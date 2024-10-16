@@ -10,3 +10,5 @@ using profiles for
 
 Load profiles are applied in parallel.
 Background loads may also be applied, they run until all non-background are finished.
+
+The test is used to compare HTTP/1.1 and HTTP/3 performances in various conditions.
