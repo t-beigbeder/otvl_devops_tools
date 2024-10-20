@@ -1,0 +1,15 @@
+[
+  {
+    "name": "large",
+    "reqMinDelay": 1,
+    "reqMaxDelay": 0,
+    "rspMinDelay": 1,
+    "rspMaxDelay": 0,
+    "minReqDsize": 1000000,
+    "maxReqDzize": 10000000,
+    "minRspDsize": 1000000,
+    "maxRspDzize": 10000000,
+    "maxPending": 50,
+    "runNb": 200
+  }
+]
