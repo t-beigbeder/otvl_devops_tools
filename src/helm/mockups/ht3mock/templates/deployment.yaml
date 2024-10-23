@@ -30,3 +30,11 @@ spec:
             periodSeconds: 60
             tcpSocket:
               port: 9443
+          volumeMounts:
+            - mountPath: "/tmp"
+              name: tls-ht3svr
+              readOnly: true
+      volumes:
+        - name: tls-ht3svr
+          secret:
+            secretName: ht3svr
