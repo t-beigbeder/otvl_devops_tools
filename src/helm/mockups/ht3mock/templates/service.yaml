@@ -9,5 +9,5 @@ spec:
   ports:
     - name: "tcp-port"
       port: 9443
-      protocol: TCP
+      protocol: UDP
       nodePort: 30443
