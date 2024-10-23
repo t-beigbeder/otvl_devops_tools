@@ -1,0 +1,11 @@
+registry_prefix: ""
+images:
+  ht3mock: ht3mock:0.1
+  traefik: traefik:v3.1
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    cpu: 20m
+    memory: 128Mi
