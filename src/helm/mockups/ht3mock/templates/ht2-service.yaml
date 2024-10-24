@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ht2-{{ .Release.Name }}
+spec:
+  selector:
+    app.kubernetes.io/name: ht2-{{ .Release.Name }}
+  ports:
+    - name: "tcp-port"
+      port: 9443
+      protocol: TCP
