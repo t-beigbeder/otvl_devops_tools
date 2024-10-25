@@ -9,13 +9,14 @@ spec:
   type: NodePort
   ports:
     - name: "udp-port"
-      nodePort: {{ .Values.service.nodePort.port3 }}
+      nodePort: {{ .Values.service.port3 }}
       protocol: UDP
       port: 9443
 {{- else }}
   type: LoadBalancer
   ports:
     - name: "udp-port"
-      port: 9443
+      port: {{ .Values.service.port3 }}
+      targetPort: 9443
       protocol: UDP
 {{- end }}

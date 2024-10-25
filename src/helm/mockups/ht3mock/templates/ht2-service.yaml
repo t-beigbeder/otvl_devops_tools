@@ -9,13 +9,14 @@ spec:
   type: NodePort
   ports:
     - name: "tcp-port"
-      nodePort: {{ .Values.service.nodePort.port2 }}
+      nodePort: {{ .Values.service.port2 }}
       protocol: TCP
       port: 9443
 {{- else }}
   type: LoadBalancer
   ports:
     - name: "tcp-port"
-      port: 9443
+      port: {{ .Values.service.port2 }}
+      targetPort: 9443
       protocol: TCP
 {{- end }}

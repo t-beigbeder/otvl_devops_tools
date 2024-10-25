@@ -5,8 +5,8 @@ images:
 service:
   nodePort:
     enabled: true
-    port2: 30243
-    port3: 30343
+  port2: 30243
+  port3: 30343
 resources:
   requests:
     cpu: 10m
