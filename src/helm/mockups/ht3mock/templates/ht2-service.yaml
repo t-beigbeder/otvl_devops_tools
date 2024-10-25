@@ -5,8 +5,17 @@ metadata:
 spec:
   selector:
     app.kubernetes.io/name: h2-{{ .Release.Name }}
+{{- if .Values.service.nodePort.enabled }}
+  type: NodePort
+  ports:
+    - name: "tcp-port"
+      nodePort: {{ .Values.service.nodePort.port2 }}
+      protocol: TCP
+      port: 9443
+{{- else }}
   type: LoadBalancer
   ports:
     - name: "tcp-port"
       port: 9443
       protocol: TCP
+{{- end }}
