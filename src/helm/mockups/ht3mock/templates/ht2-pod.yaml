@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: ht2-{{ .Release.Name }}
+  name: h2-{{ .Release.Name }}
   labels:
-    app.kubernetes.io/name: ht2-{{ .Release.Name }}
+    app.kubernetes.io/name: h2-{{ .Release.Name }}
 spec:
   containers:
   - command:
