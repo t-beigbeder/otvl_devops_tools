@@ -19,11 +19,11 @@ func RunServer(config *Config, logger *slog.Logger) error {
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		bytesRead, err := io.Copy(io.Discard, request.Body)
 		if err != nil || (request.ContentLength != -1 && bytesRead != request.ContentLength) {
+			writer.WriteHeader(http.StatusInternalServerError)
 			logger.Debug("HandleFunc: copy from", slog.Int64("bytesRead", bytesRead), util.ErrAttr(err))
 			writer.Write(
 				[]byte(fmt.Sprintf("bytesRead %d err %v ContentLength %d",
 					bytesRead, err, request.ContentLength)))
-			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		patName := request.FormValue("name")
@@ -33,11 +33,11 @@ func RunServer(config *Config, logger *slog.Logger) error {
 		delay := time.Duration(msDelay) * time.Millisecond
 		logger.Debug("HandleFunc: sleep", slog.String("name", patName), slog.String("pos", pos), slog.Int64("bytesRead", bytesRead), slog.Int64("dSize", dSize), slog.Duration("delay", delay))
 		time.Sleep(delay)
+		writer.WriteHeader(http.StatusOK)
 		bf := util.NewRandGenerator(int(dSize), logger)
 		n, err := io.Copy(writer, bf)
 		if err != nil {
 			logger.Debug("HandleFunc: copy to", slog.Int64("n", n), util.ErrAttr(err))
-			writer.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		logger.Debug("HandleFunc: done", slog.Int("dSize", int(dSize)), slog.Duration("delay", delay))

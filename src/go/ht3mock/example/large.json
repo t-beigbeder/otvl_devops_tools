@@ -9,7 +9,7 @@
     "maxReqDzize": 10000000,
     "minRspDsize": 1000000,
     "maxRspDzize": 10000000,
-    "maxPending": 50,
-    "runNb": 200
+    "maxPending": 20,
+    "runNb": 50
   }
 ]
