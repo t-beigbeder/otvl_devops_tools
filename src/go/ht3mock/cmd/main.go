@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"pri_ht3mok/pkg/htmok"
+	"ht3mock/pkg/ht3mock"
 )
 
 func main() {
@@ -17,16 +17,16 @@ func main() {
 	listen := flag.String("lh", "0.0.0.0", "server listen address, defaults to 0.0.0.0")
 	server := flag.String("sh", "localhost", "server address for client, defaults to localhost")
 	isH2 := flag.Bool("h2", false, "run in HTTPS/2 and not HTTP/3, defaults to false")
-	cert := flag.String("cf", "/tmp/htmok.cert", "server certificate file, defaults to /tmp/htmok.cert")
-	key := flag.String("kf", "/tmp/htmok.key", "server key file, defaults to /tmp/htmok.key")
-	ccert := flag.String("ccf", "/tmp/htmok.cert", "client certificate file, optional")
+	cert := flag.String("cf", "/tmp/ht3mock.cert", "server certificate file, defaults to /tmp/ht3mock.cert")
+	key := flag.String("kf", "/tmp/ht3mock.key", "server key file, defaults to /tmp/ht3mock.key")
+	ccert := flag.String("ccf", "/tmp/ht3mock.cert", "client certificate file, optional")
 	unsafe := flag.Bool("ut", false, "disable client TLS certificate checking, defaults to false")
 	isServer := flag.Bool("svr", false, "run the server only, defaults to false")
 	isClient := flag.Bool("cli", false, "run the client only, defaults to false")
 	isDebug := flag.Bool("dbg", false, "logs debug")
 	flag.Parse()
-	pat := &htmok.WlPattern{}
-	pats := make([]htmok.WlPattern, 0)
+	pat := &ht3mock.WlPattern{}
+	pats := make([]ht3mock.WlPattern, 0)
 	_ = pats
 	if configFile != nil && *configFile != "" {
 		cd, err := os.ReadFile(*configFile)
@@ -52,7 +52,7 @@ func main() {
 		exErr(err)
 	}
 	logger.Debug("main: we are in debug mode", slog.String("config", string(marshal)))
-	config := &htmok.Config{
+	config := &ht3mock.Config{
 		Port:       *port,
 		ListenHost: *listen,
 		ServerHost: *server,
@@ -66,7 +66,7 @@ func main() {
 	started := time.Now()
 	done := make(chan interface{})
 	if !*isClient {
-		err = htmok.RunServer(config, logger)
+		err = ht3mock.RunServer(config, logger)
 		if err != nil {
 			exErr(err)
 		}
@@ -75,7 +75,7 @@ func main() {
 		}
 	}
 	if !*isServer {
-		if err := htmok.RunClient(config, logger); err != nil {
+		if err := ht3mock.RunClient(config, logger); err != nil {
 			close(done)
 			exErr(err)
 		}

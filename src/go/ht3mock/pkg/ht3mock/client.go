@@ -1,17 +1,17 @@
-package htmok
+package ht3mock
 
 import (
 	"errors"
 	"fmt"
+	"ht3mock/pkg/util"
 	"io"
 	"log/slog"
 	"net/http"
-	"pri_ht3mok/pkg/util"
 	"sort"
 	"sync"
 	"time"
 
-	"github.com/quic-go/quic-go"
+	quic "github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3"
 )
 

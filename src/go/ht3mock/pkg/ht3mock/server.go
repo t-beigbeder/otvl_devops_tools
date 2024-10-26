@@ -1,4 +1,4 @@
-package htmok
+package ht3mock
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"pri_ht3mok/pkg/util"
+	"ht3mock/pkg/util"
 
 	"github.com/quic-go/quic-go/http3"
 )
