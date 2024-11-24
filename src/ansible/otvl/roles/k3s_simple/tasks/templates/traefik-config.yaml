@@ -4,6 +4,7 @@ metadata:
   name: traefik
   namespace: kube-system
 spec:
+  # https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yamlq
   valuesContent: |-
     persistence:
       enabled: true
@@ -19,3 +20,6 @@ spec:
           port: websecure
           # enable cert-manager to bypass redirection during http challenge
           priority: 1000
+        transport:
+          respondingTimeouts:
+            idleTimeout: 180
