@@ -1,0 +1,1 @@
+# Bootstrap for a k8s cluster on openstack
