@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: h3-{{ .Release.Name }}
+spec:
+  selector:
+    app.kubernetes.io/name: h3-{{ .Release.Name }}
+{{- if .Values.service.nodePort.enabled }}
+  type: NodePort
+  ports:
+    - name: "udp-port"
+      nodePort: {{ .Values.service.port3 }}
+      protocol: UDP
+      port: 9443
+{{- else }}
+  type: LoadBalancer
+  ports:
+    - name: "udp-port"
+      port: {{ .Values.service.port3 }}
+      targetPort: 9443
+      protocol: UDP
+{{- end }}

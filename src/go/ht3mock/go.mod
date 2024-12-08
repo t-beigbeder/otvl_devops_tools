@@ -1,10 +1,8 @@
-module pri_ht3mok
+module ht3mock
 
-go 1.22
+go 1.22.4
 
-//replace github.com/quic-go/quic-go => /root/locgit/foss/quic-go-dir/quic-go
-
-require github.com/quic-go/quic-go v0.47.0
+require github.com/quic-go/quic-go v0.48.1
 
 require (
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect

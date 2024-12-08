@@ -1,0 +1,16 @@
+---
+# mockups/roles/services/ht3mock/tasks/main.yml
+
+- name: Here mockups/roles/services/ht3mock/tasks/main.yml
+  include_role:
+    name: commons
+    tasks_from: helm_release
+  vars:
+    title: "deploying ht3mock mockup"
+    chart_sp: "mockups/ht3mock"
+    vf_template_sp: "ht3mock.yaml"
+    release_name: "{{ values.ht3mock.release }}"
+    uninstall: "{{ values.ht3mock.helm_uninstall | default(false) }}"
+  when: not (values.ht3mock.skip_hdeploy | default(false))
+
+###

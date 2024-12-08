@@ -102,6 +102,8 @@ default_values:
     # v2.13.1
     url: "https://storage.googleapis.com/skaffold/releases/v2.13.1/skaffold-linux-amd64"
     sha: "a903e1a99d4338747348237220d720c44a0f6f5f965dce17ee05809190239b6f"
+  traefik:
+    image: "traefik:v3.1"
   tcpecho:
     release: "tcpecho"
     skip_hdeploy: false
@@ -119,6 +121,15 @@ default_values:
     skip_hdeploy: false
     helm_uninstall: true
     ingress_host: podinfo.example.com
+  ht3mock:
+    release: "ht3mock"
+    skip_hdeploy: false
+    helm_uninstall: true
+    ingress_host: ht3mock.example.com
+    git:
+      repo: "https://github.com/t-beigbeder/otvl_devops_tools"
+      version: "main"
+    image: "ht3mock:0.1"
   mockups:
     git:
       repo: "https://github.com/t-beigbeder/otvl_pub_mockups"

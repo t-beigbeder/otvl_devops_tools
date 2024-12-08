@@ -1,0 +1,57 @@
+---
+# mockups/roles/services/ht3mock/build/tasks/main.yml
+
+- name: Set service name and item
+  set_fact:
+    service_name: "ht3mock"
+    current_item: "{{ values.ht3mock }}"
+
+- name: Checkout the git project containing mockups for {{ service_name }}
+  git:
+    repo: "{{ current_item.git.repo }}"
+    dest: "{{ values.config_paths.delivery }}/mockups/git/{{ service_name }}"
+    version: "{{ current_item.git.version }}"
+    update: true
+    recursive: no
+    force: yes
+  register: mockups_git_checkout
+  when: current_item.dev_build_dir is not defined
+
+- name: Build the service {{ service_name }}
+  block:
+    - name: Set insecure-registry flag
+      set_fact:
+        ir_flag: " --insecure-registry"
+      when: values.ctr.skip_verify | default(false)
+    - name: Set insecure-registry flag
+      set_fact:
+        ir_flag: ""
+      when: not values.ctr.skip_verify | default(false)
+    - command:
+        cmd: "nerdctl {{ ir_flag }} login {{ values.ctr.ingress_host }} -u {{ values.ctr.login }} --password-stdin"
+        stdin: "{{ values.ctr.password }}"
+      register: nerdctl_login
+    - debug: var=nerdctl_login.cmd
+    - debug: var=nerdctl_login.stderr_lines
+    - debug: var=nerdctl_login.stdout_lines
+    - command:
+        cmd: "nerdctl build -t {{ service_name}}:{{ current_item.image_version }} ."
+        chdir: "{{ values.config_paths.delivery }}/mockups/git/{{ service_name }}/src/go/ht3mock"
+      register: nerdctl_build_app
+    - debug: var=nerdctl_build_app.cmd
+    - debug: var=nerdctl_build_app.stderr_lines
+    - debug: var=nerdctl_build_app.stdout_lines
+    - command:
+        cmd: "nerdctl {{ ir_flag }} tag {{ service_name}}:{{ current_item.image_version }} {{ values.ctr.ingress_host }}/{{ service_name}}:{{ current_item.image_version }}"
+      register: nerdctl_tag_app
+    - debug: var=nerdctl_tag_app.cmd
+    - debug: var=nerdctl_tag_app.stderr_lines
+    - debug: var=nerdctl_tag_app.stdout_lines
+    - command:
+        cmd: "nerdctl {{ ir_flag }} push {{ values.ctr.ingress_host }}/{{ service_name}}:{{ current_item.image_version }}"
+      register: nerdctl_push_app
+    - debug: var=nerdctl_push_app.cmd
+    - debug: var=nerdctl_push_app.stderr_lines
+    - debug: var=nerdctl_push_app.stdout_lines
+
+###

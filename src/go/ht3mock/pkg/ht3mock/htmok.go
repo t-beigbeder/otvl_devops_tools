@@ -1,4 +1,4 @@
-package htmok
+package ht3mock
 
 const defaultName = "default"
 const defaultDelay = 1

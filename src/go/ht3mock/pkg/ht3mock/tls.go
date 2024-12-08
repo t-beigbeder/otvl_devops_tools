@@ -1,4 +1,4 @@
-package htmok
+package ht3mock
 
 import (
 	"crypto/tls"

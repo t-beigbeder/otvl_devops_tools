@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: h2-{{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: h2-{{ .Release.Name }}
+spec:
+  containers:
+  - command:
+    - /app/ht3mock
+    - -svr
+    - -cf
+    - /tmp/tls.crt
+    - -kf
+    - /tmp/tls.key
+    - -h2
+    image: {{ .Values.images.ht3mock }}
+    name: svr
+    ports:
+    - containerPort: 9443
+      protocol: TCP
+    volumeMounts:
+    - mountPath: /tmp
+      name: tls-ht3svr
+      readOnly: true
+  securityContext:
+    fsGroup: 65532
+    runAsGroup: 65532
+    runAsUser: 65532
+  volumes:
+  - name: tls-ht3svr
+    secret:
+      defaultMode: 420
+      secretName: ht3svr
