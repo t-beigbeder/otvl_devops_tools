@@ -1,0 +1,81 @@
+ext_net_name    = "Ext-Net"
+loc_net_name    = "otvl-net"
+loc_net_cidr    = "172.24.0.0/28"
+ssh_key_name    = "otvl-devops-key"
+ssh_pub         = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDi9hMeHKwGxPD+XMyeGoXp6dPNv3i667uEJbjZ4GNfGM4IsF3UAp/xxCO4i+Ga08y9+RriGZYG/Nce1lsUaDVr3KzvMBmS2rXq+5WSoZsPgvJwRDnl0CvdhSMhNg9UjMAKwn/gmmRr1F400ddeH+FZZ+1aAzLTmzVWscfkmkNyiCfxG1TaKuzJUgxuXMQhAyI6lMPNvPglIGcaaVGxtAHTVNtvPRtmAYtzgUoqmwNIFCeXkWa1s2Ti7hyRICuis5v5w5ZSoMYNN+7uN2GdcnPAUbwpRsqnBXkM7bDv6xDClNVKHPhYGfDi64qG/oSCCswWyvJWNBfNyB1slLxuNPmfd4kJIv9A9eYHDNbXRSGPJwkllx6Dn2n5An5ASaP5TaDNzo7g+LTIX+jqhUS3wpNy2JMX5QnCZvam4nrpW/CLbfiit/VQEZyzMQkWWjHDDipaShQo3QotI0TCQduV+NAyJOdTat7lhZS4TTvYMyyB20DqXUy3SkpXO7e/DPsBzVRlibOf/THT4PzwSBJ+qqWbIqRIGw43WQphPCuIjDImcHKevaEsJ/AKRMeSAFYTzQEjsWqHoXldDNl5z9YhYHf0Tb55XannI23n3XUk0V0u4a7mSVRBPIfF9IS+FN1rIGBCySmOWT2bLbNEjboSVnRCbOZN9vd6yF1R/bS9FSZf/Q=="
+bastion_sg_name = "otvl-bastion-sg"
+ext_sg_name     = "otvl-ext-sg"
+instances_attrs = [
+  {
+    name        = "ovhb6"
+    groups      = "bastion_group"
+    otvl_meta   = ""
+    ip_v4       = "172.24.0.4"
+    image_name  = "Debian 12"
+    flavor_name = "d2-2"
+  },
+  {
+    name        = "ovhk6"
+    hostname    = "ovhk6"
+    groups      = ""
+    otvl_meta   = ""
+    ip_v4       = "172.24.0.5"
+    image_name  = "Debian 12"
+    flavor_name = "d2-2"
+  }
+]
+instance_user_data = <<-EOF
+      #cloud-config
+      write_files:
+      - content: |
+          #!/bin/sh
+          git_repo="https://github.com/t-beigbeder/otvl_devops_tools"
+          git_branch="bdev1"
+          git_local="/root/clinit/otvl_devops_tools"
+          echo `date`: command $0 is starting
+          apt-get update && \
+            apt-get install -y --no-install-recommends virtualenv libudev1 ifupdown git jq curl fail2ban && \
+            mkdir -p /root/clinit && \
+            cd /root/clinit && \
+            rm -rf $git_local && \
+            git clone $git_repo -b $git_branch && \
+            cd $git_local && \
+            chmod 700 src/shell/otvl/otvl_cloud_init_from_git.sh && \
+            src/shell/otvl/otvl_cloud_init_from_git.sh && \
+            echo `date`: command $0 is exiting || exit 1
+          exit 0
+        path: /root/bin/otvl_cloud_init.sh
+        owner: root:root
+        permissions: '0750'
+      - content: |
+          172.24.0.4 ovhb6-loc
+          172.24.0.5 ovhk6-loc
+        path: /root/clinit/etc_loc_hosts
+        owner: root:root
+        permissions: '0640'
+      - content: |
+          networks:
+            - key: Ext-Net
+              cidr:
+              prefix:
+              host_ip:
+            - key: local
+              cidr: 172.24.0.0/28
+              prefix: 172.25.0.
+              host_ip: to_be_changed
+        path: /srv/otvl/iaas/config/network_config_base.yml
+        owner: root:root
+        permissions: '0640'
+      - content: |
+          # created by otvl_network_configurator
+          domain openstacklocal
+          search openstacklocal
+          nameserver 213.186.33.99
+        path: /srv/otvl/iaas/data/resolv.conf.reference
+        owner: root:root
+        permissions: '0640'
+
+      runcmd:
+      - [ /root/bin/otvl_cloud_init.sh ]
+
+  EOF
