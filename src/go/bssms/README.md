@@ -5,6 +5,16 @@ How to provide secrets to a cloud-init booting server with minimal interception 
 For instance:
 
 - gitops: git/registry secret, sops secret
+- basic deployment: web server TLS certificate private key, service account password 
+
+## Architecture
+
+### Actors
+
+- Secrets Provisioner: runs aside IaC provisioner tool, can be integrated as OpenTofu provider,
+trustfully sends secrets to Secrets Installer and instructions for the later to install them
+- Secrets Installer: run by cloud init, the installer receives secrets and instructions from  
+- Proxy Service: securely connect both
 
 ## Protocol:
 

@@ -10,3 +10,8 @@ output "ext_ports" {
   value = module.instances.ext_ports
   description = "The ext ports"
 }
+output "instances" {
+    sensitive = true
+    value = module.instances.instances
+    description = "The instances"
+}
