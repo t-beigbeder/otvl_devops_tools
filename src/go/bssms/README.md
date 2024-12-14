@@ -7,34 +7,36 @@ For instance:
 - gitops: git/registry secret, sops secret
 - basic deployment: web server TLS certificate private key, service account password 
 
-## Architecture
+## Design
 
 ### Actors
 
-- Secrets Provisioner: runs aside IaC provisioner tool, can be integrated as OpenTofu provider,
-trustfully sends secrets to Secrets Installer and instructions for the later to install them
-- Secrets Installer: run by cloud init, the installer receives secrets and instructions from  
+- Secrets Provisioner: runs aside IaC provisioner tool,
+e.g. could be integrated as OpenTofu provider,
+trustfully sends secrets to Secrets Installer and instructions for the latter to install them
+- Secrets Installer: run by cloud init,
+the installer receives secrets and instructions from Provisioner
 - Proxy Service: securely connect both
 
-## Protocol:
+### How security risks are addressed
 
-- provider (QUIC):
-  - P1 - initiate temporary pub/pri key-pair for each booting server's uuid/IP, 
-  send temporary pri key/IP to service, keep pub secret
-  - P2 - encrypt secrets with temporary pub key, send to service,
-  not before B1 occurred (see below)
+MITM attacks exist and the actors are possibly dealing
+with root secrets and cloud resources.
+Bssms security is a kind of tradeoff between keeping it simple and remaining reasonably secure.
 
-- booting server (HTTPS):
-  - B1 - looping get temporary pri key
-  - B2 - looping get encrypted secrets
-  
-- service:
-  - on P1: keep state(uuid/IP) = temporary pri key
-  - on P2 before B1: remove related data
-  - on timeout before B1: remove related data
-  - on B2 before B1: remove related data
-  - on B1: check IP (spoofing not possible with modern TCP), returns temporary pri key
-  - on P2: keep state(uuid/IP) = encrypted secrets, remove state(uuid/IP) = temporary pri key
-  - on timeout before B2: remove related data
-  - on B2: check IP, returns encrypted secrets
-  - on short timeout after B2: remove related data
+The Provisioner must not send secrets to an untrusted Installer.
+The Installer must provide to the Provisioner various unique identity properties
+that the Provisioner knows from another channel thanks to the IaC provisioning tool
+(e.g. server uuid, mac and IP addresses).
+This is what a human operator would do.
+
+The Installer must not install secrets or execute instructions from an untrusted Provisioner.
+This information is encrypted by the Provisioner using a temporary public key only known by it.
+The corresponding private key is provided to the Installer with cloud-init.
+The Installer is kept alive for a short period of time.
+
+The Installer also communicates with the Provisioner using its temporary public key
+provided with cloud-init.
+
+The Proxy Service acts as a pass through between the Provisioners and the Installers.
+The information exchanged is encrypted with secret keys that are unknown to the Proxy Service.
