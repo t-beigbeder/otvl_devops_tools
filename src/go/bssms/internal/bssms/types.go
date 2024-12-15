@@ -1,6 +1,10 @@
 package bssms
 
-import "github.com/urfave/cli/v2"
+import (
+	"github.com/urfave/cli/v2"
+	"net"
+	"strconv"
+)
 
 type ProvisionerConfig struct {
 	UnsafeTls    bool
@@ -21,10 +25,23 @@ func GetInstallerConfig(cc *cli.Context) *InstallerConfig {
 }
 
 type ProxyConfig struct {
-	UnsafeTls     bool
-	ListenAddress string
+	UnsafeTls  bool
+	ListenAddr string
 }
 
 func GetProxyConfig(cc *cli.Context) *ProxyConfig {
 	return cc.App.Metadata["config"].(*ProxyConfig)
+}
+
+func GetIPPort(addr string) (net.IP, int, error) {
+	is, ps, err := net.SplitHostPort(addr)
+	if err != nil {
+		return nil, 0, err
+	}
+	i := net.ParseIP(is)
+	p, err := strconv.ParseInt(ps, 10, 16)
+	if err != nil {
+		return nil, 0, err
+	}
+	return i, int(p), nil
 }

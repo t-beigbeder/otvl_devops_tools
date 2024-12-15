@@ -2,6 +2,8 @@ package main
 
 import (
 	"bssms/internal/bssms"
+	"bssms/internal/provisioner"
+	"bssms/internal/proxy"
 	"github.com/urfave/cli/v2"
 	"log"
 	"net"
@@ -40,8 +42,8 @@ func getPrCmd() *cli.Command {
 		},
 		Action: func(cc *cli.Context) error {
 			config := bssms.GetProvisionerConfig(cc)
-			_ = config
-			return nil
+			err := provisioner.RunProvisioner(config)
+			return err
 		},
 	}
 }
@@ -94,14 +96,14 @@ func getPxCmd() *cli.Command {
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "pxa",
+				Name:     "la",
 				Required: true,
-				Usage:    "listen address: 'host:port' or 'ip:port'",
-				Action: func(cc *cli.Context, hp string) error {
-					if _, _, err := net.SplitHostPort(hp); err != nil {
+				Usage:    "listen address: ':port' or 'ip:port'",
+				Action: func(cc *cli.Context, addr string) error {
+					if _, _, err := bssms.GetIPPort(addr); err != nil {
 						return err
 					}
-					bssms.GetProxyConfig(cc).ListenAddress = hp
+					bssms.GetProxyConfig(cc).ListenAddr = addr
 					return nil
 				},
 			},
@@ -116,8 +118,7 @@ func getPxCmd() *cli.Command {
 		},
 		Action: func(cc *cli.Context) error {
 			config := bssms.GetProxyConfig(cc)
-			_ = config
-			return nil
+			return proxy.RunProxy(config)
 		},
 	}
 }
