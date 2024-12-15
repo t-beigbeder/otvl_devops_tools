@@ -8,6 +8,8 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"github.com/go-acme/lego/v4/challenge/http01"
+	"github.com/go-acme/lego/v4/lego"
 	"math/big"
 	"time"
 )
@@ -47,7 +49,10 @@ func SelfSigned(host string) (*tls.Certificate, error) {
 		return nil, err
 	}
 	certPem := bytes.Buffer{}
-	pem.Encode(&certPem, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
+	err = pem.Encode(&certPem, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
+	if err != nil {
+		return nil, err
+	}
 	privBytes, err := x509.MarshalPKCS8PrivateKey(priv)
 	if err != nil {
 		return nil, err
@@ -58,4 +63,12 @@ func SelfSigned(host string) (*tls.Certificate, error) {
 	}
 	cert, err := tls.X509KeyPair(certPem.Bytes(), keyPem.Bytes())
 	return &cert, err
+}
+
+func AcmeCert(domain string) {
+	client, err := lego.NewClient(config)
+	err = client.Challenge.SetHTTP01Provider(http01.NewProviderServer("", "5002"))
+}
+func GetUnsafeTlsConfigClient() *tls.Config {
+	return &tls.Config{InsecureSkipVerify: true, Certificates: nil}
 }
