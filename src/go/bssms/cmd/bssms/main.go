@@ -107,6 +107,15 @@ func getPxCmd() *cli.Command {
 					return nil
 				},
 			},
+			&cli.StringFlag{
+				Name:     "host",
+				Required: true,
+				Usage:    "host for the certificate",
+				Action: func(cc *cli.Context, host string) error {
+					bssms.GetProxyConfig(cc).Host = host
+					return nil
+				},
+			},
 			&cli.BoolFlag{
 				Name:  "ut",
 				Usage: "UnsafeTls",

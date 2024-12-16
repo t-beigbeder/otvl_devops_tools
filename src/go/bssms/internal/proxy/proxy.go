@@ -3,11 +3,16 @@ package proxy
 import (
 	"bssms/internal/bssms"
 	"bssms/internal/qutils"
+	"bssms/internal/tlsutils"
 	"context"
 )
 
 func RunProxy(config *bssms.ProxyConfig) error {
-	ln, err := qutils.GetQuicListener(config.ListenAddr)
+	cert, err := tlsutils.SelfSigned(config.Host)
+	if err != nil {
+		return err
+	}
+	ln, err := qutils.GetQuicListener(config.ListenAddr, cert, bssms.BssmsAlpn)
 	if err != nil {
 		return err
 	}

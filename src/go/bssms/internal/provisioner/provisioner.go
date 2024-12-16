@@ -11,7 +11,7 @@ func RunProvisioner(config *bssms.ProvisionerConfig) error {
 	// FIXME: 2024/12/15 17:43:20 CRYPTO_ERROR 0x170 (remote): tls: unrecognized name
 	// https://github.com/alta/insecure
 	// https://github.com/FiloSottile/mkcert
-	conn, err := qutils.GetQuicConn(config.ProxyAddress)
+	conn, err := qutils.GetQuicConn(config.ProxyAddress, bssms.BssmsAlpn)
 	if err != nil {
 		return err
 	}

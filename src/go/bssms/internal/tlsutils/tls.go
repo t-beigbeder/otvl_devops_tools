@@ -63,6 +63,6 @@ func SelfSigned(host string) (*tls.Certificate, error) {
 	return &cert, err
 }
 
-func GetUnsafeTlsConfigClient() *tls.Config {
-	return &tls.Config{InsecureSkipVerify: true, Certificates: nil}
+func GetUnsafeTlsConfigClient(alpn string) *tls.Config {
+	return &tls.Config{InsecureSkipVerify: true, Certificates: nil, NextProtos: []string{alpn}}
 }

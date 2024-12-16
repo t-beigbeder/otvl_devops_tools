@@ -6,6 +6,8 @@ import (
 	"strconv"
 )
 
+const BssmsAlpn = "x-otvl-bssms-v0.1"
+
 type ProvisionerConfig struct {
 	UnsafeTls    bool
 	ProxyAddress string
@@ -27,6 +29,7 @@ func GetInstallerConfig(cc *cli.Context) *InstallerConfig {
 type ProxyConfig struct {
 	UnsafeTls  bool
 	ListenAddr string
+	Host       string
 }
 
 func GetProxyConfig(cc *cli.Context) *ProxyConfig {

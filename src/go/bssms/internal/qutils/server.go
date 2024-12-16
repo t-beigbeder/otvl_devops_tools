@@ -7,7 +7,7 @@ import (
 	"net"
 )
 
-func GetQuicListener(addr string) (*quic.Listener, error) {
+func GetQuicListener(addr string, cert *tls.Certificate, alpn string) (*quic.Listener, error) {
 	ip, port, err := bssms.GetIPPort(addr)
 	if err != nil {
 		return nil, err
@@ -18,8 +18,8 @@ func GetQuicListener(addr string) (*quic.Listener, error) {
 	}
 	qc := quic.Config{}
 	tc := tls.Config{
-		Certificates:       nil,  // TODO: configure it
-		InsecureSkipVerify: true, // TODO: configure it
+		Certificates: []tls.Certificate{*cert},
+		NextProtos:   []string{alpn},
 	}
 	return quic.Listen(udpConn, &tc, &qc)
 }
