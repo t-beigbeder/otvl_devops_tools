@@ -4,17 +4,40 @@ import (
 	"bssms/internal/bssms"
 	"bssms/internal/qutils"
 	"fmt"
+	"github.com/quic-go/quic-go"
+	"golang.org/x/net/context"
+	"io"
 	"os"
 )
 
-func RunProvisioner(config *bssms.ProvisionerConfig) error {
-	// FIXME: 2024/12/15 17:43:20 CRYPTO_ERROR 0x170 (remote): tls: unrecognized name
-	// https://github.com/alta/insecure
-	// https://github.com/FiloSottile/mkcert
+func provision(config *bssms.ProvisionerConfig, stream quic.Stream) error {
+	_, err := stream.Write([]byte(bssms.ProvisionerHello))
+	if err != nil {
+		return err
+	}
+	buf := make([]byte, 128)
+	_, err = io.ReadFull(stream, buf)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "provision received %v\n", buf)
+	_, err = stream.Write([]byte(bssms.MsgClose))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Run(config *bssms.ProvisionerConfig) error {
 	conn, err := qutils.GetQuicConn(config.ProxyAddress, bssms.BssmsAlpn)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "RunProvisioner %v", conn)
-	return nil
+	defer conn.CloseWithError(0, "")
+	stream, err := conn.OpenStreamSync(context.Background())
+	if err != nil {
+		return err
+	}
+	defer stream.Close()
+	return provision(config, stream)
 }

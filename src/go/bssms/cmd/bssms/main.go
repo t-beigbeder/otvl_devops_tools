@@ -42,7 +42,7 @@ func getPrCmd() *cli.Command {
 		},
 		Action: func(cc *cli.Context) error {
 			config := bssms.GetProvisionerConfig(cc)
-			err := provisioner.RunProvisioner(config)
+			err := provisioner.Run(config)
 			return err
 		},
 	}

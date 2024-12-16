@@ -6,7 +6,11 @@ import (
 	"strconv"
 )
 
-const BssmsAlpn = "x-otvl-bssms-v0.1"
+const (
+	BssmsAlpn        = "x-otvl-bssms-v0.1"
+	ProvisionerHello = "PrHello"
+	MsgClose         = "Close"
+)
 
 type ProvisionerConfig struct {
 	UnsafeTls    bool
