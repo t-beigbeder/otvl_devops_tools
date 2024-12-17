@@ -3,10 +3,10 @@ package provisioner
 import (
 	"bssms/internal/bssms"
 	"bssms/internal/qutils"
+	"bufio"
 	"fmt"
 	"github.com/quic-go/quic-go"
 	"golang.org/x/net/context"
-	"io"
 	"os"
 )
 
@@ -15,13 +15,15 @@ func provision(config *bssms.ProvisionerConfig, stream quic.Stream) error {
 	if err != nil {
 		return err
 	}
-	buf := make([]byte, 128)
-	_, err = io.ReadFull(stream, buf)
+	rs := bufio.NewReaderSize(stream, bssms.CtrlMsgMaxLn)
+	cmd, err := rs.ReadString('\n')
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "provision received %v\n", buf)
-	_, err = stream.Write([]byte(bssms.MsgClose))
+	if cmd != bssms.ProxyHello {
+		return fmt.Errorf("invalid protocol command %s", cmd)
+	}
+	_, err = stream.Write([]byte(bssms.ApplicationClose))
 	if err != nil {
 		return err
 	}
@@ -38,6 +40,7 @@ func Run(config *bssms.ProvisionerConfig) error {
 	if err != nil {
 		return err
 	}
+	fmt.Fprintf(os.Stderr, "sid %v\n", stream.StreamID())
 	defer stream.Close()
 	return provision(config, stream)
 }

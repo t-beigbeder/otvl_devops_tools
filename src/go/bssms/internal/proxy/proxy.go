@@ -4,33 +4,46 @@ import (
 	"bssms/internal/bssms"
 	"bssms/internal/qutils"
 	"bssms/internal/tlsutils"
+	"bufio"
 	"context"
 	"fmt"
 	"github.com/quic-go/quic-go"
 	"os"
 )
 
-func handle(config *bssms.ProxyConfig, cnc quic.Connection) error {
-	stream, err := cnc.AcceptStream(context.Background())
+func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
+	stream, err := conn.AcceptStream(context.Background())
 	if err != nil {
 		return err
 	}
 	defer stream.Close()
-	buf := make([]byte, 128)
-	_, err = stream.Read(buf)
-	if err != nil {
-		return err
+	rs := bufio.NewReaderSize(stream, bssms.CtrlMsgMaxLn)
+	var (
+		opened  bool
+		closing bool
+		cmd     string
+	)
+	for !closing && err == nil {
+		cmd, err = rs.ReadString('\n')
+		if err != nil {
+			break
+		}
+		fmt.Fprintf(os.Stderr, "handle %s", cmd)
+		if !opened && (cmd == bssms.ProvisionerHello || cmd == bssms.InstallerHello) {
+			opened = true
+			_, err = stream.Write([]byte(bssms.ProxyHello + "\n"))
+			if err != nil {
+				break
+			}
+			continue
+		}
+		if opened && cmd == bssms.ApplicationClose {
+			closing = true
+			continue
+		}
+		err = fmt.Errorf("invalid protocol command %s", cmd)
 	}
-	_, err = stream.Write(buf)
-	if err != nil {
-		return err
-	}
-	_, err = stream.Read(buf)
-	if err != nil {
-		return err
-	}
-	fmt.Fprintf(os.Stderr, "handle stop\n")
-	return nil
+	return err
 }
 
 func RunProxy(config *bssms.ProxyConfig) error {
@@ -43,18 +56,18 @@ func RunProxy(config *bssms.ProxyConfig) error {
 		return err
 	}
 	for {
-		cnc, err := ln.Accept(context.TODO())
+		conn, err := ln.Accept(context.TODO())
 		if err != nil {
 			return err
 		}
-		go func(cnc quic.Connection) {
-			if err := handle(config, cnc); err != nil {
+		go func(conn quic.Connection) {
+			if err := handle(config, conn); err != nil {
 				fmt.Fprintf(os.Stderr, "connection error %v\n", err)
-				cnc.CloseWithError(1, fmt.Sprintf("connection error %v", err))
+				conn.CloseWithError(1, fmt.Sprintf("connection error %v", err))
 			} else {
-				cnc.CloseWithError(0, "")
+				conn.CloseWithError(0, "")
 			}
-		}(cnc)
-		defer cnc.CloseWithError(0, "")
+		}(conn)
+		defer conn.CloseWithError(0, "")
 	}
 }

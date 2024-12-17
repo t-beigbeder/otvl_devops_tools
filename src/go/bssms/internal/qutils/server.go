@@ -4,6 +4,7 @@ import (
 	"bssms/internal/bssms"
 	"crypto/tls"
 	"github.com/quic-go/quic-go"
+	"github.com/quic-go/quic-go/qlog"
 	"net"
 )
 
@@ -16,7 +17,7 @@ func GetQuicListener(addr string, cert *tls.Certificate, alpn string) (*quic.Lis
 	if err != nil {
 		return nil, err
 	}
-	qc := quic.Config{}
+	qc := quic.Config{Tracer: qlog.DefaultConnectionTracer}
 	tc := tls.Config{
 		Certificates: []tls.Certificate{*cert},
 		NextProtos:   []string{alpn},
