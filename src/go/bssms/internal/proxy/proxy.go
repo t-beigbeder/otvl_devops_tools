@@ -56,14 +56,17 @@ func RunProxy(config *bssms.ProxyConfig) error {
 		return err
 	}
 	for {
-		conn, err := ln.Accept(context.TODO())
+		conn, err := ln.Accept(context.Background())
 		if err != nil {
 			return err
 		}
 		go func(conn quic.Connection) {
 			if err := handle(config, conn); err != nil {
-				fmt.Fprintf(os.Stderr, "connection error %v\n", err)
-				conn.CloseWithError(1, fmt.Sprintf("connection error %v", err))
+				if ae, ok := err.(*quic.ApplicationError); !ok || ae.ErrorCode != 0 {
+					fmt.Fprintf(os.Stderr, "connection error %v\n", err)
+					conn.CloseWithError(1, fmt.Sprintf("connection error %v", err))
+					return
+				}
 			} else {
 				conn.CloseWithError(0, "")
 			}
