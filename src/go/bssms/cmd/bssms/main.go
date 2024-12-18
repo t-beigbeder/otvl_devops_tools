@@ -10,6 +10,18 @@ import (
 	"os"
 )
 
+func getProvisionerConfig(cc *cli.Context) *bssms.ProvisionerConfig {
+	return cc.App.Metadata["config"].(*bssms.ProvisionerConfig)
+}
+
+func getInstallerConfig(cc *cli.Context) *bssms.InstallerConfig {
+	return cc.App.Metadata["config"].(*bssms.InstallerConfig)
+}
+
+func getProxyConfig(cc *cli.Context) *bssms.ProxyConfig {
+	return cc.App.Metadata["config"].(*bssms.ProxyConfig)
+}
+
 func getPrCmd() *cli.Command {
 	return &cli.Command{
 		Name:        "pr",
@@ -27,7 +39,7 @@ func getPrCmd() *cli.Command {
 					if _, _, err := net.SplitHostPort(hp); err != nil {
 						return err
 					}
-					bssms.GetProvisionerConfig(cc).ProxyAddress = hp
+					getProvisionerConfig(cc).ProxyAddress = hp
 					return nil
 				},
 			},
@@ -35,13 +47,13 @@ func getPrCmd() *cli.Command {
 				Name:  "ut",
 				Usage: "UnsafeTls",
 				Action: func(cc *cli.Context, b bool) error {
-					bssms.GetProvisionerConfig(cc).UnsafeTls = b
+					getProvisionerConfig(cc).UnsafeTls = b
 					return nil
 				},
 			},
 		},
 		Action: func(cc *cli.Context) error {
-			config := bssms.GetProvisionerConfig(cc)
+			config := getProvisionerConfig(cc)
 			err := provisioner.Run(config)
 			return err
 		},
@@ -65,7 +77,7 @@ func getInCmd() *cli.Command {
 					if _, _, err := net.SplitHostPort(hp); err != nil {
 						return err
 					}
-					bssms.GetInstallerConfig(cc).ProxyAddress = hp
+					getInstallerConfig(cc).ProxyAddress = hp
 					return nil
 				},
 			},
@@ -73,13 +85,13 @@ func getInCmd() *cli.Command {
 				Name:  "ut",
 				Usage: "UnsafeTls",
 				Action: func(cc *cli.Context, b bool) error {
-					bssms.GetInstallerConfig(cc).UnsafeTls = b
+					getInstallerConfig(cc).UnsafeTls = b
 					return nil
 				},
 			},
 		},
 		Action: func(cc *cli.Context) error {
-			config := bssms.GetInstallerConfig(cc)
+			config := getInstallerConfig(cc)
 			_ = config
 			return nil
 		},
@@ -103,7 +115,7 @@ func getPxCmd() *cli.Command {
 					if _, _, err := bssms.GetIPPort(addr); err != nil {
 						return err
 					}
-					bssms.GetProxyConfig(cc).ListenAddr = addr
+					getProxyConfig(cc).ListenAddr = addr
 					return nil
 				},
 			},
@@ -112,7 +124,7 @@ func getPxCmd() *cli.Command {
 				Required: true,
 				Usage:    "host for the certificate",
 				Action: func(cc *cli.Context, host string) error {
-					bssms.GetProxyConfig(cc).Host = host
+					getProxyConfig(cc).Host = host
 					return nil
 				},
 			},
@@ -120,13 +132,13 @@ func getPxCmd() *cli.Command {
 				Name:  "ut",
 				Usage: "UnsafeTls",
 				Action: func(cc *cli.Context, b bool) error {
-					bssms.GetProxyConfig(cc).UnsafeTls = b
+					getProxyConfig(cc).UnsafeTls = b
 					return nil
 				},
 			},
 		},
 		Action: func(cc *cli.Context) error {
-			config := bssms.GetProxyConfig(cc)
+			config := getProxyConfig(cc)
 			return proxy.RunProxy(config)
 		},
 	}
