@@ -64,5 +64,5 @@ func SelfSigned(host string) (*tls.Certificate, error) {
 }
 
 func GetUnsafeTlsConfigClient(alpn string) *tls.Config {
-	return &tls.Config{InsecureSkipVerify: true, Certificates: nil, NextProtos: []string{alpn}}
+	return &tls.Config{ServerName: "unsafe-host", InsecureSkipVerify: true, Certificates: nil, NextProtos: []string{alpn}}
 }

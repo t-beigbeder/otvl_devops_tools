@@ -20,6 +20,8 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 	rs := bufio.NewReaderSize(stream, bssms.CtrlMsgMaxLn)
 	var (
 		opened  bool
+		isPr    bool
+		isIn    bool
 		closing bool
 		cmd     string
 	)
@@ -31,6 +33,8 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		fmt.Fprintf(os.Stderr, "handle %s", cmd)
 		if !opened && (cmd == bssms.ProvisionerHello || cmd == bssms.InstallerHello) {
 			opened = true
+			isPr = cmd == bssms.ProvisionerHello
+			isIn = cmd == bssms.InstallerHello
 			_, err = stream.Write([]byte(bssms.ProxyHello + "\n"))
 			if err != nil {
 				break
@@ -40,6 +44,14 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		if opened && cmd == bssms.ApplicationClose {
 			closing = true
 			continue
+		}
+		if opened {
+			if isPr {
+				err = handlePrCmd(config, stream, cmd)
+			}
+			if isIn {
+				err = handleInCmd(config, stream, cmd)
+			}
 		}
 		err = fmt.Errorf("invalid protocol command %s", cmd)
 	}
