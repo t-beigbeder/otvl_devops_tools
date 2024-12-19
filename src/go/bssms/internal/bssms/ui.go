@@ -13,6 +13,7 @@ type ProvisionerConfig struct {
 type InstallerConfig struct {
 	UnsafeTls    bool
 	ProxyAddress string
+	Installable
 }
 
 type ProxyConfig struct {

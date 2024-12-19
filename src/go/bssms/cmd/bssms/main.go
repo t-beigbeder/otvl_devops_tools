@@ -18,7 +18,7 @@ func getInstallerConfig(cc *cli.Context) *bssms.InstallerConfig {
 	return cc.App.Metadata["config"].(*bssms.InstallerConfig)
 }
 
-func getProxyConfig(cc *cli.Context) *bssms.ProxyConfig {
+func GetProxyConfig(cc *cli.Context) *bssms.ProxyConfig {
 	return cc.App.Metadata["config"].(*bssms.ProxyConfig)
 }
 
@@ -81,6 +81,33 @@ func getInCmd() *cli.Command {
 					return nil
 				},
 			},
+			&cli.StringFlag{
+				Name:     "uuid",
+				Required: true,
+				Usage:    "host server uuid",
+				Action: func(cc *cli.Context, s string) error {
+					getInstallerConfig(cc).ServerUuid = s
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:     "mac",
+				Required: true,
+				Usage:    "host mac address",
+				Action: func(cc *cli.Context, s string) error {
+					getInstallerConfig(cc).MacAddress = s
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:     "ip",
+				Required: true,
+				Usage:    "host ip address used with proxy",
+				Action: func(cc *cli.Context, s string) error {
+					getInstallerConfig(cc).IPAddress = s
+					return nil
+				},
+			},
 			&cli.BoolFlag{
 				Name:  "ut",
 				Usage: "UnsafeTls",
@@ -115,7 +142,7 @@ func getPxCmd() *cli.Command {
 					if _, _, err := bssms.GetIPPort(addr); err != nil {
 						return err
 					}
-					getProxyConfig(cc).ListenAddr = addr
+					GetProxyConfig(cc).ListenAddr = addr
 					return nil
 				},
 			},
@@ -124,7 +151,7 @@ func getPxCmd() *cli.Command {
 				Required: true,
 				Usage:    "host for the certificate",
 				Action: func(cc *cli.Context, host string) error {
-					getProxyConfig(cc).Host = host
+					GetProxyConfig(cc).Host = host
 					return nil
 				},
 			},
@@ -132,13 +159,13 @@ func getPxCmd() *cli.Command {
 				Name:  "ut",
 				Usage: "UnsafeTls",
 				Action: func(cc *cli.Context, b bool) error {
-					getProxyConfig(cc).UnsafeTls = b
+					GetProxyConfig(cc).UnsafeTls = b
 					return nil
 				},
 			},
 		},
 		Action: func(cc *cli.Context) error {
-			config := getProxyConfig(cc)
+			config := GetProxyConfig(cc)
 			return proxy.RunProxy(config)
 		},
 	}

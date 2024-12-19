@@ -1,13 +1,7 @@
 package bssms
 
 type Installable struct {
-	ServerUuid string
-	MacAddress string
-	IPAddress  string
-}
-
-type InstallHost struct {
-	Installable
-	PrivateKey string
-	PrPubKey   string
+	ServerUuid string `json:"serverUuid,omitempty"`
+	MacAddress string `json:"macAddress,omitempty"`
+	IPAddress  string `json:"IPAddress,omitempty"`
 }
