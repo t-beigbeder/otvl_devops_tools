@@ -40,3 +40,13 @@ provided with cloud-init.
 
 The Proxy Service acts as a pass through between the Provisioners and the Installers.
 The information exchanged is encrypted with secret keys that are unknown to the Proxy Service.
+
+### Provisioning workflow
+
+- Some tool generates temporary key pairs for each installed host
+- Some IaC tool launches the hosts installation, providing them their temporary private key
+in their cloud-init data
+- The following steps are performed in parallel
+  - Installed host run the Installer which connects to the Proxy
+  - The Provisioner connects to the Proxy and listens from it about Installer new connections.
+  For each known Installer, it sends the latter required secrets
