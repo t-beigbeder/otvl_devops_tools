@@ -2,6 +2,7 @@ package provisioner
 
 import (
 	"bssms/internal/bssms"
+	"github.com/stretchr/testify/assert"
 	"path/filepath"
 	"testing"
 )
@@ -32,5 +33,5 @@ func TestStoreAndLoadInstallHosts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_ = ihs2
+	assert.Equal(t, tihs, ihs2)
 }

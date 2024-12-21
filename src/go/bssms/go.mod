@@ -6,6 +6,7 @@ toolchain go1.22.4
 
 require (
 	github.com/quic-go/quic-go v0.48.2
+	github.com/stretchr/testify v1.9.0
 	github.com/urfave/cli/v2 v2.27.5
 	golang.org/x/net v0.30.0
 	gopkg.in/yaml.v3 v3.0.1
