@@ -27,22 +27,30 @@ func getPr0Cmd() *cli.Command {
 		Name:        "pr0",
 		Description: "provisioner, phase #0",
 		Before: func(cc *cli.Context) error {
-			cc.App.Metadata["ss"] = &bssms.ProvisionerConfig{}
+			cc.App.Metadata["hns"] = []string{}
+			cc.App.Metadata["cd"] = ""
 			return nil
 		},
 		Flags: []cli.Flag{
 			&cli.StringSliceFlag{
 				Name:  "hosts",
-				Usage: "proxy address: 'host:port' or 'ip:port'",
-				Action: func(cc *cli.Context, ss []string) error {
-					cc.App.Metadata["ss"] = ss
+				Usage: "names of hosts to be installed",
+				Action: func(cc *cli.Context, hns []string) error {
+					cc.App.Metadata["hns"] = hns
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:  "cd",
+				Usage: "configuration directory, defaults to .conf/.bssms",
+				Action: func(cc *cli.Context, cd string) error {
+					cc.App.Metadata["cd"] = cd
 					return nil
 				},
 			},
 		},
 		Action: func(cc *cli.Context) error {
-			config := getProvisionerConfig(cc)
-			err := provisioner.Run(config)
+			err := provisioner.RunPhase0(cc.App.Metadata["cd"].(string), cc.App.Metadata["hns"].([]string))
 			return err
 		},
 	}

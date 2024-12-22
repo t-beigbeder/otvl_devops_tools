@@ -24,6 +24,7 @@ func GetConfigDir(optConfigDir string) (string, error) {
 		create = true
 	} else {
 		cd = filepath.Join(common.SystemConfigDir(), ".bssms")
+		create = true
 	}
 	ok, err = common.CheckDir(cd, create, all, 0o700)
 	if err != nil {

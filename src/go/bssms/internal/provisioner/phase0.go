@@ -1,11 +1,22 @@
 package provisioner
 
-import "bssms/internal/bssms"
+import (
+	"bssms/internal/bssms"
+	"bssms/internal/common"
+)
 
-func RunPhase0(ss []string) error {
+func RunPhase0(optConfigDir string, ss []string) error {
 	var ihs []InstallHost
 	for _, s := range ss {
-		ihs = append(ihs, InstallHost{Installable: bssms.Installable{Name: s}})
+		pub, pri, err := common.NewKeyPair()
+		if err != nil {
+			return err
+		}
+		ihs = append(ihs, InstallHost{
+			Installable: bssms.Installable{Name: s},
+			PubKey:      pub,
+			PrivateKey:  pri,
+		})
 	}
-
+	return StoreInstallHosts(optConfigDir, ihs)
 }

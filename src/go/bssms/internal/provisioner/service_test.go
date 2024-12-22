@@ -3,7 +3,6 @@ package provisioner
 import (
 	"bssms/internal/bssms"
 	"github.com/stretchr/testify/assert"
-	"path/filepath"
 	"testing"
 )
 
@@ -24,12 +23,12 @@ func TestStoreAndLoadInstallHosts(t *testing.T) {
 			PubKey:     "pubk2",
 		},
 	}
-	p := filepath.Join(t.TempDir(), "t.yaml")
-	err := StoreInstallHosts(p, tihs)
+	td := t.TempDir()
+	err := StoreInstallHosts(td, tihs)
 	if err != nil {
 		t.Fatal(err)
 	}
-	ihs2, err := LoadInstallHosts(p)
+	ihs2, err := LoadInstallHosts(td)
 	if err != nil {
 		t.Fatal(err)
 	}

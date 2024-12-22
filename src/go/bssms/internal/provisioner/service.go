@@ -3,6 +3,7 @@ package provisioner
 import (
 	"bssms/internal/bssms"
 	"bssms/internal/common"
+	"path/filepath"
 )
 
 type ProvisionerHost struct {
@@ -15,14 +16,30 @@ type InstallHost struct {
 	PubKey            string `json:"pubKey,omitempty" yaml:"pubKey,omitempty"`
 }
 
-func LoadInstallHosts(path string) ([]InstallHost, error) {
+func ihfPath(optConfigDir string) (string, error) {
+	r, err := bssms.GetConfigDir(optConfigDir)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(r, "installHosts.yaml"), nil
+}
+
+func LoadInstallHosts(optConfigDir string) ([]InstallHost, error) {
+	p, err := ihfPath(optConfigDir)
+	if err != nil {
+		return nil, err
+	}
 	var ihs = []InstallHost{}
-	if err := common.YamlLoad(path, &ihs); err != nil {
+	if err := common.YamlLoad(p, &ihs); err != nil {
 		return nil, err
 	}
 	return ihs, nil
 }
 
-func StoreInstallHosts(path string, ihs []InstallHost) error {
-	return common.YamlStore(path, ihs)
+func StoreInstallHosts(optConfigDir string, ihs []InstallHost) error {
+	p, err := ihfPath(optConfigDir)
+	if err != nil {
+		return err
+	}
+	return common.YamlStore(p, ihs)
 }

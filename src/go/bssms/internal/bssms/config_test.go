@@ -14,4 +14,6 @@ func TestGetConfigDir(t *testing.T) {
 	assert.Equal(t, common.AsInterfaceSlice(td+"/cd", nil), common.AsInterfaceSlice(GetConfigDir(td+"/cd")))
 	common.Putenv(BssmsPathEnv, td+"/bp")
 	assert.Equal(t, common.AsInterfaceSlice(td+"/bp", nil), common.AsInterfaceSlice(GetConfigDir("")))
+	common.Delenv(BssmsPathEnv)
+	assert.Equal(t, common.AsInterfaceSlice(common.Getenv("HOME")+"/.config/.bssms", nil), common.AsInterfaceSlice(GetConfigDir("")))
 }
