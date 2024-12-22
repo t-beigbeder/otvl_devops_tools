@@ -6,6 +6,8 @@ toolchain go1.22.4
 
 require (
 	filippo.io/age v1.2.1
+	github.com/gophercloud/gophercloud/v2 v2.4.0
+	github.com/lrstanley/go-bogon v1.0.0
 	github.com/quic-go/quic-go v0.48.2
 	github.com/stretchr/testify v1.9.0
 	github.com/urfave/cli/v2 v2.27.5
