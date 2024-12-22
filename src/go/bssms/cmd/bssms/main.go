@@ -22,6 +22,32 @@ func GetProxyConfig(cc *cli.Context) *bssms.ProxyConfig {
 	return cc.App.Metadata["config"].(*bssms.ProxyConfig)
 }
 
+func getPr0Cmd() *cli.Command {
+	return &cli.Command{
+		Name:        "pr0",
+		Description: "provisioner, phase #0",
+		Before: func(cc *cli.Context) error {
+			cc.App.Metadata["ss"] = &bssms.ProvisionerConfig{}
+			return nil
+		},
+		Flags: []cli.Flag{
+			&cli.StringSliceFlag{
+				Name:  "hosts",
+				Usage: "proxy address: 'host:port' or 'ip:port'",
+				Action: func(cc *cli.Context, ss []string) error {
+					cc.App.Metadata["ss"] = ss
+					return nil
+				},
+			},
+		},
+		Action: func(cc *cli.Context) error {
+			config := getProvisionerConfig(cc)
+			err := provisioner.Run(config)
+			return err
+		},
+	}
+}
+
 func getPrCmd() *cli.Command {
 	return &cli.Command{
 		Name:        "pr",
@@ -176,6 +202,7 @@ func main() {
 		Name:  "bssms",
 		Usage: "use one subcommand",
 		Commands: []*cli.Command{
+			getPr0Cmd(),
 			getPrCmd(),
 			getInCmd(),
 			getPxCmd(),
