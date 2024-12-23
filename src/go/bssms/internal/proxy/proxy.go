@@ -6,6 +6,7 @@ import (
 	"bssms/internal/tlsutils"
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/quic-go/quic-go"
 	"os"
@@ -59,6 +60,10 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 }
 
 func RunProxy(config *bssms.ProxyConfig) error {
+	ctx := config.Ctx
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	cert, err := tlsutils.SelfSigned(config.Host)
 	if err != nil {
 		return err
@@ -74,7 +79,8 @@ func RunProxy(config *bssms.ProxyConfig) error {
 		}
 		go func(conn quic.Connection) {
 			if err := handle(config, conn); err != nil {
-				if ae, ok := err.(*quic.ApplicationError); !ok || ae.ErrorCode != 0 {
+				var ae *quic.ApplicationError
+				if !errors.As(err, &ae) || ae.ErrorCode != 0 {
 					fmt.Fprintf(os.Stderr, "connection error %v\n", err)
 					conn.CloseWithError(1, fmt.Sprintf("connection error %v", err))
 					return

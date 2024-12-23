@@ -1,16 +1,31 @@
 package bssms
 
 import (
+	"golang.org/x/net/context"
 	"net"
 	"strconv"
 )
 
+type BaseConfig struct {
+	Ctx context.Context
+}
+
+func (bc *BaseConfig) SetContext(ctx context.Context) {
+	bc.Ctx = ctx
+}
+
+type ContextSetter interface {
+	SetContext(ctx context.Context)
+}
+
 type ProvisionerConfig struct {
+	BaseConfig
 	UnsafeTls    bool
 	ProxyAddress string
 }
 
 type InstallerConfig struct {
+	BaseConfig
 	UnsafeTls    bool
 	ProxyAddress string
 	IPAddress    string
@@ -18,6 +33,7 @@ type InstallerConfig struct {
 }
 
 type ProxyConfig struct {
+	BaseConfig
 	UnsafeTls  bool
 	ListenAddr string
 	Host       string
