@@ -22,6 +22,27 @@ func GetProxyConfig(cc *cli.Context) *bssms.ProxyConfig {
 	return cc.App.Metadata["config"].(*bssms.ProxyConfig)
 }
 
+func getPrFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringSliceFlag{
+			Name:  "hosts",
+			Usage: "names of hosts to be installed",
+			Action: func(cc *cli.Context, hns []string) error {
+				cc.App.Metadata["hns"] = hns
+				return nil
+			},
+		},
+		&cli.StringFlag{
+			Name:  "cd",
+			Usage: "configuration directory, defaults to .conf/.bssms",
+			Action: func(cc *cli.Context, cd string) error {
+				cc.App.Metadata["cd"] = cd
+				return nil
+			},
+		},
+	}
+}
+
 func getPr0Cmd() *cli.Command {
 	return &cli.Command{
 		Name:        "pr0",
@@ -31,24 +52,7 @@ func getPr0Cmd() *cli.Command {
 			cc.App.Metadata["cd"] = ""
 			return nil
 		},
-		Flags: []cli.Flag{
-			&cli.StringSliceFlag{
-				Name:  "hosts",
-				Usage: "names of hosts to be installed",
-				Action: func(cc *cli.Context, hns []string) error {
-					cc.App.Metadata["hns"] = hns
-					return nil
-				},
-			},
-			&cli.StringFlag{
-				Name:  "cd",
-				Usage: "configuration directory, defaults to .conf/.bssms",
-				Action: func(cc *cli.Context, cd string) error {
-					cc.App.Metadata["cd"] = cd
-					return nil
-				},
-			},
-		},
+		Flags: getPrFlags(),
 		Action: func(cc *cli.Context) error {
 			err := provisioner.RunPhase0(cc.App.Metadata["cd"].(string), cc.App.Metadata["hns"].([]string))
 			return err
@@ -56,7 +60,47 @@ func getPr0Cmd() *cli.Command {
 	}
 }
 
+func getPr2Cmd() *cli.Command {
+	return &cli.Command{
+		Name:        "pr2",
+		Description: "provisioner, phase #2",
+		Before: func(cc *cli.Context) error {
+			cc.App.Metadata["hns"] = []string{}
+			cc.App.Metadata["cd"] = ""
+			return nil
+		},
+		Flags: getPrFlags(),
+		Action: func(cc *cli.Context) error {
+			err := provisioner.RunPhase2(cc.App.Metadata["cd"].(string))
+			return err
+		},
+	}
+}
+
 func getPrCmd() *cli.Command {
+	prf := getPrFlags()
+	prf = append(prf, []cli.Flag{
+		&cli.StringFlag{
+			Name:     "pxa",
+			Required: true,
+			Usage:    "proxy address: 'host:port' or 'ip:port'",
+			Action: func(cc *cli.Context, hp string) error {
+				if _, _, err := net.SplitHostPort(hp); err != nil {
+					return err
+				}
+				getProvisionerConfig(cc).ProxyAddress = hp
+				return nil
+			},
+		},
+		&cli.BoolFlag{
+			Name:  "ut",
+			Usage: "UnsafeTls",
+			Action: func(cc *cli.Context, b bool) error {
+				getProvisionerConfig(cc).UnsafeTls = b
+				return nil
+			},
+		},
+	}...)
 	return &cli.Command{
 		Name:        "pr",
 		Description: "provisioner",
@@ -64,28 +108,7 @@ func getPrCmd() *cli.Command {
 			cc.App.Metadata["config"] = &bssms.ProvisionerConfig{}
 			return nil
 		},
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "pxa",
-				Required: true,
-				Usage:    "proxy address: 'host:port' or 'ip:port'",
-				Action: func(cc *cli.Context, hp string) error {
-					if _, _, err := net.SplitHostPort(hp); err != nil {
-						return err
-					}
-					getProvisionerConfig(cc).ProxyAddress = hp
-					return nil
-				},
-			},
-			&cli.BoolFlag{
-				Name:  "ut",
-				Usage: "UnsafeTls",
-				Action: func(cc *cli.Context, b bool) error {
-					getProvisionerConfig(cc).UnsafeTls = b
-					return nil
-				},
-			},
-		},
+		Flags: prf,
 		Action: func(cc *cli.Context) error {
 			config := getProvisionerConfig(cc)
 			err := provisioner.Run(config)
@@ -211,6 +234,7 @@ func main() {
 		Usage: "use one subcommand",
 		Commands: []*cli.Command{
 			getPr0Cmd(),
+			getPr2Cmd(),
 			getPrCmd(),
 			getInCmd(),
 			getPxCmd(),

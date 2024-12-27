@@ -8,11 +8,6 @@ import (
 	"time"
 )
 
-//func runTentative(cer bssms.ContextSetter, f func(bssms.ContextSetter) error) error {
-//	f(context.Background())
-//	return nil
-//}
-
 func RunProxy(t *testing.T) (context.CancelFunc, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	config := bssms.ProxyConfig{
@@ -21,7 +16,6 @@ func RunProxy(t *testing.T) (context.CancelFunc, error) {
 		ListenAddr: ":9443",
 		Host:       "localhost",
 	}
-	//runTentative(&config, proxy.RunProxy)
 	var bgErr error
 	go func() {
 		err := proxy.RunProxy(&config)
