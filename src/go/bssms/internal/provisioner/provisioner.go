@@ -26,7 +26,7 @@ func provision(stream quic.Stream, ihs []InstallHost) error {
 		if err != nil {
 			return fmt.Errorf(fmt.Sprintf("installable %s: %v", ih.Name, err))
 		}
-		_, err = stream.Write([]byte(bssms.ProvisionerInstallable))
+		_, err = stream.Write([]byte(fmt.Sprintf(bssms.ProvisionerInstallable, len(bs))))
 		if err != nil {
 			return err
 		}

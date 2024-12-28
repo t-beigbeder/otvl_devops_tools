@@ -53,6 +53,10 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 			if isIn {
 				err = handleInCmd(config, stream, cmd)
 			}
+			if err != nil {
+				break
+			}
+			continue
 		}
 		err = fmt.Errorf("invalid protocol command %s", cmd)
 	}

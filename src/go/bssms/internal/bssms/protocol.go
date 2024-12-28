@@ -4,7 +4,7 @@ const (
 	BssmsAlpn              = "x-otvl-bssms-v0.1"
 	CtrlMsgMaxLn           = 128
 	ProvisionerHello       = "PrHello\n"
-	ProvisionerInstallable = "PrInstallable\n"
+	ProvisionerInstallable = "PrInstallable\n%04x\n"
 	InstallerHello         = "InHello\n"
 	ProxyHello             = "PxHello\n"
 	ApplicationClose       = "AppClose\n"
