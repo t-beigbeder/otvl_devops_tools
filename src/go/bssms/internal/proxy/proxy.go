@@ -81,7 +81,7 @@ func RunProxy(config *bssms.ProxyConfig) error {
 			if err := handle(config, conn); err != nil {
 				var ae *quic.ApplicationError
 				if !errors.As(err, &ae) || ae.ErrorCode != 0 {
-					getLogger().Error("connection error", err)
+					getLogger().Error("connection error", "err", err)
 					conn.CloseWithError(1, fmt.Sprintf("connection error %v", err))
 					return
 				}

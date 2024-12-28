@@ -11,7 +11,7 @@ func TestRunPhase2(t *testing.T) {
 	if err := RunPhase0(td, []string{"tbst6", "hst2"}); err != nil {
 		t.Fatal(err)
 	}
-	err := RunPhase2(td)
+	err := RunPhase2(td, []string{})
 	if err != nil {
 		return
 	}

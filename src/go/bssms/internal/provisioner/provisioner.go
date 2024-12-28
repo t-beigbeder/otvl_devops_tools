@@ -8,7 +8,7 @@ import (
 	"github.com/quic-go/quic-go"
 )
 
-func provision(config *bssms.ProvisionerConfig, stream quic.Stream) error {
+func provision(stream quic.Stream, ihs []InstallHost) error {
 	_, err := stream.Write([]byte(bssms.ProvisionerHello))
 	if err != nil {
 		return err
@@ -21,6 +21,20 @@ func provision(config *bssms.ProvisionerConfig, stream quic.Stream) error {
 	if cmd != bssms.ProxyHello {
 		return fmt.Errorf("invalid protocol command %s", cmd)
 	}
+	for _, ih := range ihs {
+		bs, err := ih.Installable.AsJson()
+		if err != nil {
+			return fmt.Errorf(fmt.Sprintf("installable %s: %v", ih.Name, err))
+		}
+		_, err = stream.Write([]byte(bssms.ProvisionerInstallable))
+		if err != nil {
+			return err
+		}
+		_, err = stream.Write(bs)
+		if err != nil {
+			return err
+		}
+	}
 	_, err = stream.Write([]byte(bssms.ApplicationClose))
 	if err != nil {
 		return err
@@ -28,7 +42,7 @@ func provision(config *bssms.ProvisionerConfig, stream quic.Stream) error {
 	return nil
 }
 
-func Run(config *bssms.ProvisionerConfig) error {
+func run(config *bssms.ProvisionerConfig, ihs []InstallHost) error {
 	conn, err := qutils.GetQuicConn(config.ProxyAddress, bssms.BssmsAlpn)
 	if err != nil {
 		return err
@@ -40,5 +54,13 @@ func Run(config *bssms.ProvisionerConfig) error {
 	}
 	getLogger().Info("OpenStreamSync", "sid", stream.StreamID())
 	defer stream.Close()
-	return provision(config, stream)
+	return provision(stream, ihs)
+}
+
+func Run(config *bssms.ProvisionerConfig, optConfigDir string, ss []string) error {
+	ihs, err := LoadFilteredInstallHosts(optConfigDir, ss)
+	if err != nil {
+		return err
+	}
+	return run(config, ihs)
 }

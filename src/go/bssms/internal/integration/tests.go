@@ -5,6 +5,8 @@ import (
 	"bssms/internal/proxy"
 	"fmt"
 	"golang.org/x/net/context"
+	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -37,4 +39,12 @@ func RunProxy(t *testing.T) (context.CancelFunc, error) {
 		return nil, bgErr
 	}
 	return cancel, nil
+}
+
+func GetTestDataDir() string {
+	_, thisFile, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("path discovery")
+	}
+	return filepath.Join(filepath.Dir(thisFile), "testdata")
 }

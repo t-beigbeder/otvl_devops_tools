@@ -33,4 +33,19 @@ func TestStoreAndLoadInstallHosts(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.Equal(t, tihs, ihs2)
+	ihs3, err := LoadFilteredInstallHosts(td, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, tihs, ihs3)
+	ihs4, err := LoadFilteredInstallHosts(td, []string{"ih2", "ih1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, tihs, ihs4)
+	ihs5, err := LoadFilteredInstallHosts(td, []string{"ih2"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, tihs[1:2], ihs5)
 }

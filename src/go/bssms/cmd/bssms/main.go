@@ -71,7 +71,7 @@ func getPr2Cmd() *cli.Command {
 		},
 		Flags: getPrFlags(),
 		Action: func(cc *cli.Context) error {
-			err := provisioner.RunPhase2(cc.App.Metadata["cd"].(string))
+			err := provisioner.RunPhase2(cc.App.Metadata["cd"].(string), cc.App.Metadata["hns"].([]string))
 			return err
 		},
 	}
@@ -106,12 +106,14 @@ func getPrCmd() *cli.Command {
 		Description: "provisioner",
 		Before: func(cc *cli.Context) error {
 			cc.App.Metadata["config"] = &bssms.ProvisionerConfig{}
+			cc.App.Metadata["hns"] = []string{}
+			cc.App.Metadata["cd"] = ""
 			return nil
 		},
 		Flags: prf,
 		Action: func(cc *cli.Context) error {
 			config := getProvisionerConfig(cc)
-			err := provisioner.Run(config)
+			err := provisioner.Run(config, cc.App.Metadata["cd"].(string), cc.App.Metadata["hns"].([]string))
 			return err
 		},
 	}

@@ -4,10 +4,10 @@ import (
 	"bssms/internal/bssms"
 )
 
-func RunPhase2(optConfigDir string) error {
+func RunPhase2(optConfigDir string, ss []string) error {
 	var ihs0, ihs1, ihs2 []InstallHost
 	var err error
-	if ihs0, err = LoadInstallHosts(optConfigDir); err != nil {
+	if ihs0, err = LoadFilteredInstallHosts(optConfigDir, ss); err != nil {
 		return err
 	}
 	if ihs1, err = GetOSServers(); err != nil {
