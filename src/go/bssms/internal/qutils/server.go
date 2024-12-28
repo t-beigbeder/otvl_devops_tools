@@ -3,14 +3,13 @@ package qutils
 import (
 	"bssms/internal/bssms"
 	"crypto/tls"
-	"fmt"
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/qlog"
+	"log/slog"
 	"net"
-	"os"
 )
 
-func GetQuicListener(addr string, cert *tls.Certificate, alpn string) (*quic.Listener, error) {
+func GetQuicListener(addr string, cert *tls.Certificate, alpn string, logger *slog.Logger) (*quic.Listener, error) {
 	ip, port, err := bssms.GetIPPort(addr)
 	if err != nil {
 		return nil, err
@@ -24,7 +23,7 @@ func GetQuicListener(addr string, cert *tls.Certificate, alpn string) (*quic.Lis
 		Certificates: []tls.Certificate{*cert},
 		NextProtos:   []string{alpn},
 		GetConfigForClient: func(info *tls.ClientHelloInfo) (*tls.Config, error) {
-			fmt.Fprintf(os.Stderr, "connection from client %+v\n", info)
+			logger.Info("connection", "ServerName", info.ServerName, "SupportedProtos", info.SupportedProtos)
 			return nil, nil
 		},
 	}

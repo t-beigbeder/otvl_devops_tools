@@ -10,12 +10,11 @@ type BaseConfig struct {
 	Ctx context.Context
 }
 
-func (bc *BaseConfig) SetContext(ctx context.Context) {
-	bc.Ctx = ctx
-}
-
-type ContextSetter interface {
-	SetContext(ctx context.Context)
+func (bc *BaseConfig) GetContext() context.Context {
+	if bc.Ctx == nil {
+		return context.Background()
+	}
+	return bc.Ctx
 }
 
 type ProvisionerConfig struct {

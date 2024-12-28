@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/quic-go/quic-go"
-	"os"
 )
 
 func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
@@ -18,6 +17,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		return err
 	}
 	defer stream.Close()
+	getLogger().Info("AcceptStream", "sid", stream.StreamID())
 	rs := bufio.NewReaderSize(stream, bssms.CtrlMsgMaxLn)
 	var (
 		opened  bool
@@ -31,7 +31,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		if err != nil {
 			break
 		}
-		fmt.Fprintf(os.Stderr, "handle %s", cmd)
+		getLogger().Info("handle", "cmd", cmd)
 		if !opened && (cmd == bssms.ProvisionerHello || cmd == bssms.InstallerHello) {
 			opened = true
 			isPr = cmd == bssms.ProvisionerHello
@@ -68,7 +68,7 @@ func RunProxy(config *bssms.ProxyConfig) error {
 	if err != nil {
 		return err
 	}
-	ln, err := qutils.GetQuicListener(config.ListenAddr, cert, bssms.BssmsAlpn)
+	ln, err := qutils.GetQuicListener(config.ListenAddr, cert, bssms.BssmsAlpn, getLogger())
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func RunProxy(config *bssms.ProxyConfig) error {
 			if err := handle(config, conn); err != nil {
 				var ae *quic.ApplicationError
 				if !errors.As(err, &ae) || ae.ErrorCode != 0 {
-					fmt.Fprintf(os.Stderr, "connection error %v\n", err)
+					getLogger().Error("connection error", err)
 					conn.CloseWithError(1, fmt.Sprintf("connection error %v", err))
 					return
 				}
@@ -90,5 +90,6 @@ func RunProxy(config *bssms.ProxyConfig) error {
 			}
 		}(conn)
 		defer conn.CloseWithError(0, "")
+		getLogger().Info("Accept", "RemoteAddr", conn.RemoteAddr())
 	}
 }

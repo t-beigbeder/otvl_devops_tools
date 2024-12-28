@@ -6,8 +6,6 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/quic-go/quic-go"
-	"golang.org/x/net/context"
-	"os"
 )
 
 func provision(config *bssms.ProvisionerConfig, stream quic.Stream) error {
@@ -36,11 +34,11 @@ func Run(config *bssms.ProvisionerConfig) error {
 		return err
 	}
 	defer conn.CloseWithError(0, "")
-	stream, err := conn.OpenStreamSync(context.Background())
+	stream, err := conn.OpenStreamSync(config.GetContext())
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "sid %v\n", stream.StreamID())
+	getLogger().Info("OpenStreamSync", "sid", stream.StreamID())
 	defer stream.Close()
 	return provision(config, stream)
 }
