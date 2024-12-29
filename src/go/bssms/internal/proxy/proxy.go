@@ -46,17 +46,19 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 			closing = true
 			continue
 		}
-		getLogger().Debug("handle", "opened", opened, "isPr", isPr, "isIn", isIn)
 		if opened {
-			getLogger().Debug("opened", "isPr", isPr, "isIn", isIn)
 			if isPr {
-				err = handlePrCmd(rs, cmd)
+				ins, err := handlePrCmd(rs, cmd)
+				if err != nil {
+					break
+				}
+				_ = ins
 			}
 			if isIn {
 				err = handleInCmd(config, stream, cmd)
-			}
-			if err != nil {
-				break
+				if err != nil {
+					break
+				}
 			}
 			continue
 		}
@@ -70,10 +72,6 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 }
 
 func RunProxy(config *bssms.ProxyConfig) error {
-	ctx := config.Ctx
-	if ctx == nil {
-		ctx = context.Background()
-	}
 	cert, err := tlsutils.SelfSigned(config.Host)
 	if err != nil {
 		return err
@@ -83,7 +81,7 @@ func RunProxy(config *bssms.ProxyConfig) error {
 		return err
 	}
 	for {
-		conn, err := ln.Accept(context.Background())
+		conn, err := ln.Accept(config.GetContext())
 		if err != nil {
 			return err
 		}

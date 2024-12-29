@@ -5,6 +5,7 @@ import (
 	"bssms/internal/common"
 	"bssms/internal/qutils"
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/quic-go/quic-go"
 )
@@ -36,7 +37,11 @@ func provision(stream quic.Stream, ihs []InstallHost) error {
 	}
 	cmd, err = rs.ReadString('\n')
 	if err != nil {
-		return err
+		var ae *quic.ApplicationError
+		if !errors.As(err, &ae) || !ae.Remote || ae.ErrorCode != 0 {
+			return err
+		}
+		return nil
 	}
 	if cmd != bssms.ProxyBye {
 		return fmt.Errorf("invalid protocol command %s", cmd)
