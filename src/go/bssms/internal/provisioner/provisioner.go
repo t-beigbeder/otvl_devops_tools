@@ -2,6 +2,7 @@ package provisioner
 
 import (
 	"bssms/internal/bssms"
+	"bssms/internal/common"
 	"bssms/internal/qutils"
 	"bufio"
 	"fmt"
@@ -21,27 +22,24 @@ func provision(stream quic.Stream, ihs []InstallHost) error {
 	if cmd != bssms.ProxyHello {
 		return fmt.Errorf("invalid protocol command %s", cmd)
 	}
+	ins := []bssms.Installable{}
 	for _, ih := range ihs {
-		bs, err := ih.Installable.AsJson()
-		if err != nil {
-			return fmt.Errorf(fmt.Sprintf("installable %s: %v", ih.Name, err))
-		}
-		_, err = stream.Write([]byte(bssms.ProvisionerInstallable))
-		if err != nil {
-			return err
-		}
-		_, err = stream.Write([]byte(fmt.Sprintf("%d\n", len(bs))))
-		if err != nil {
-			return err
-		}
-		_, err = stream.Write(bs)
-		if err != nil {
-			return err
-		}
+		ins = append(ins, ih.Installable)
+	}
+	err = common.WriteCommandToStream(stream, bssms.ProvisionerInstallables, ihs)
+	if err != nil {
+		return err
 	}
 	_, err = stream.Write([]byte(bssms.ApplicationClose))
 	if err != nil {
 		return err
+	}
+	cmd, err = rs.ReadString('\n')
+	if err != nil {
+		return err
+	}
+	if cmd != bssms.ProxyBye {
+		return fmt.Errorf("invalid protocol command %s", cmd)
 	}
 	return nil
 }

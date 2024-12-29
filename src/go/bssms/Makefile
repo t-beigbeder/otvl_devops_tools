@@ -5,3 +5,6 @@ help:	## show this help
 .PHONY: test
 test:	## go test the application
 	go test ./...
+.PHONY: build
+build:	## go test the application
+	go build ./...

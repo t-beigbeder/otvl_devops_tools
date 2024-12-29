@@ -36,7 +36,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 			opened = true
 			isPr = cmd == bssms.ProvisionerHello
 			isIn = cmd == bssms.InstallerHello
-			_, err = stream.Write([]byte(bssms.ProxyHello + "\n"))
+			_, err = stream.Write([]byte(bssms.ProxyHello))
 			if err != nil {
 				break
 			}
@@ -62,6 +62,10 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		}
 		err = fmt.Errorf("invalid protocol command %s", cmd)
 	}
+	if err != nil {
+		return err
+	}
+	_, err = stream.Write([]byte(bssms.ProxyBye))
 	return err
 }
 
