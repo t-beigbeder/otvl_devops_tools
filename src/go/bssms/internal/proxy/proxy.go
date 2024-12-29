@@ -46,9 +46,11 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 			closing = true
 			continue
 		}
+		getLogger().Debug("handle", "opened", opened, "isPr", isPr, "isIn", isIn)
 		if opened {
+			getLogger().Debug("opened", "isPr", isPr, "isIn", isIn)
 			if isPr {
-				err = handlePrCmd(config, stream, cmd)
+				err = handlePrCmd(rs, cmd)
 			}
 			if isIn {
 				err = handleInCmd(config, stream, cmd)

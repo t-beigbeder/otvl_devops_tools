@@ -1,9 +1,12 @@
 package common
 
-import "log/slog"
+import (
+	"log/slog"
+	"os"
+)
 
 func GetLogger() *slog.Logger {
-	return slog.Default()
+	return slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
 }
 
 func GetLoggerFor(app string) *slog.Logger {
