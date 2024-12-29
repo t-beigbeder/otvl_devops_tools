@@ -48,7 +48,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		}
 		if opened {
 			if isPr {
-				ins, err := handlePrCmd(rs, cmd)
+				ins, err := handlePrCmd(stream, cmd)
 				if err != nil {
 					break
 				}

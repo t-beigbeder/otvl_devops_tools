@@ -10,13 +10,17 @@ import (
 	"github.com/quic-go/quic-go"
 )
 
-func provision(stream quic.Stream, ihs []InstallHost) error {
-	_, err := stream.Write([]byte(bssms.ProvisionerHello))
+func install(cStream quic.Stream, in bssms.Installable) error {
+	return nil
+}
+
+func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
+	_, err := cStream.Write([]byte(bssms.ProvisionerHello))
 	if err != nil {
 		return err
 	}
-	rs := bufio.NewReaderSize(stream, bssms.CtrlMsgMaxLn)
-	cmd, err := rs.ReadString('\n')
+	csr := bufio.NewReaderSize(cStream, bssms.CtrlMsgMaxLn)
+	cmd, err := csr.ReadString('\n')
 	if err != nil {
 		return err
 	}
@@ -27,15 +31,23 @@ func provision(stream quic.Stream, ihs []InstallHost) error {
 	for _, ih := range ihs {
 		ins = append(ins, ih.Installable)
 	}
-	err = common.WriteCommandToStream(stream, bssms.ProvisionerInstallables, ihs)
+	err = common.WriteCommandToStream(cStream, bssms.ProvisionerInstallables, ihs)
 	if err != nil {
 		return err
 	}
-	_, err = stream.Write([]byte(bssms.ApplicationClose))
+	esr := bufio.NewReaderSize(eStream, bssms.CtrlMsgMaxLn)
+	for i := 0; i < len(ins); i++ {
+		in := bssms.Installable{}
+		if err = common.ReadJsonFromStream(esr, &in); err != nil {
+			return err
+		}
+		install(cStream, in)
+	}
+	_, err = cStream.Write([]byte(bssms.ApplicationClose))
 	if err != nil {
 		return err
 	}
-	cmd, err = rs.ReadString('\n')
+	cmd, err = csr.ReadString('\n')
 	if err != nil {
 		var ae *quic.ApplicationError
 		if !errors.As(err, &ae) || !ae.Remote || ae.ErrorCode != 0 {
@@ -55,13 +67,19 @@ func run(config *bssms.ProvisionerConfig, ihs []InstallHost) error {
 		return err
 	}
 	defer conn.CloseWithError(0, "")
-	stream, err := conn.OpenStreamSync(config.GetContext())
+	cStream, err := conn.OpenStreamSync(config.GetContext())
 	if err != nil {
 		return err
 	}
-	getLogger().Info("OpenStreamSync", "sid", stream.StreamID())
-	defer stream.Close()
-	return provision(stream, ihs)
+	getLogger().Info("OpenStreamSync", "cSid", cStream.StreamID())
+	defer cStream.Close()
+	eStream, err := conn.OpenStreamSync(config.GetContext())
+	if err != nil {
+		return err
+	}
+	getLogger().Info("OpenStreamSync", "eSid", eStream.StreamID())
+	defer eStream.Close()
+	return provision(cStream, eStream, ihs)
 }
 
 func Run(config *bssms.ProvisionerConfig, optConfigDir string, ss []string) error {
