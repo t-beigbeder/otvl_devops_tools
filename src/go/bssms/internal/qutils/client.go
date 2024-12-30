@@ -13,7 +13,10 @@ func GetQuicConn(addr string, alpn string) (quic.Connection, error) {
 	defer cancel()
 	conn, err := quic.DialAddr(ctx, addr,
 		tlsutils.GetUnsafeTlsConfigClient(alpn), // TODO: configure TLS
-		&quic.Config{Tracer: qlog.DefaultConnectionTracer},
+		&quic.Config{
+			KeepAlivePeriod: 20 * time.Second,
+			Tracer:          qlog.DefaultConnectionTracer,
+		},
 	)
 	return conn, err
 }

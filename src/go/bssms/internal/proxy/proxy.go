@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"bssms/internal/bssms"
+	"bssms/internal/common"
 	"bssms/internal/qutils"
 	"bssms/internal/tlsutils"
 	"bufio"
@@ -18,7 +19,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 	}
 	defer stream.Close()
 	getLogger().Info("AcceptStream", "sid", stream.StreamID())
-	rs := bufio.NewReaderSize(stream, bssms.CtrlMsgMaxLn)
+	rs := bufio.NewReaderSize(stream, common.CtrlMsgMaxLn)
 	var (
 		opened  bool
 		isPr    bool
@@ -42,7 +43,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 			}
 			continue
 		}
-		if opened && cmd == bssms.ApplicationClose {
+		if opened && cmd == bssms.ApplicationBye {
 			closing = true
 			continue
 		}
@@ -50,7 +51,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 			if isPr {
 				ins, err := handlePrCmd(stream, cmd)
 				if err != nil {
-					break
+					break // FIXME forever
 				}
 				_ = ins
 			}

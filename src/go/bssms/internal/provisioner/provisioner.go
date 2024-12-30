@@ -4,9 +4,6 @@ import (
 	"bssms/internal/bssms"
 	"bssms/internal/common"
 	"bssms/internal/qutils"
-	"bufio"
-	"errors"
-	"fmt"
 	"github.com/quic-go/quic-go"
 )
 
@@ -15,48 +12,29 @@ func install(cStream quic.Stream, in bssms.Installable) error {
 }
 
 func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
-	_, err := cStream.Write([]byte(bssms.ProvisionerHello))
+	err := common.WriteCommandToStream(cStream, bssms.ProvisionerHello, nil, bssms.ProxyHello)
 	if err != nil {
 		return err
-	}
-	csr := bufio.NewReaderSize(cStream, bssms.CtrlMsgMaxLn)
-	cmd, err := csr.ReadString('\n')
-	if err != nil {
-		return err
-	}
-	if cmd != bssms.ProxyHello {
-		return fmt.Errorf("invalid protocol command %s", cmd)
 	}
 	ins := []bssms.Installable{}
 	for _, ih := range ihs {
 		ins = append(ins, ih.Installable)
 	}
-	err = common.WriteCommandToStream(cStream, bssms.ProvisionerInstallables, ihs)
+	err = common.WriteCommandToStream(cStream, bssms.ProvisionerInstallables, ihs, "")
 	if err != nil {
 		return err
 	}
-	esr := bufio.NewReaderSize(eStream, bssms.CtrlMsgMaxLn)
-	for i := 0; i < len(ins); i++ {
-		in := bssms.Installable{}
-		if err = common.ReadJsonFromStream(esr, &in); err != nil {
-			return err
-		}
-		install(cStream, in)
-	}
-	_, err = cStream.Write([]byte(bssms.ApplicationClose))
+	// esr := bufio.NewReaderSize(eStream, common.CtrlMsgMaxLn)
+	//for i := 0; i < len(ins); i++ {
+	//	in := bssms.Installable{}
+	//	if err = common.ReadJsonFromStream(esr, &in); err != nil {
+	//		return err
+	//	}
+	//	install(cStream, in)
+	//}
+	err = common.WriteCommandToStream(cStream, bssms.ApplicationBye, nil, bssms.ProxyBye)
 	if err != nil {
 		return err
-	}
-	cmd, err = csr.ReadString('\n')
-	if err != nil {
-		var ae *quic.ApplicationError
-		if !errors.As(err, &ae) || !ae.Remote || ae.ErrorCode != 0 {
-			return err
-		}
-		return nil
-	}
-	if cmd != bssms.ProxyBye {
-		return fmt.Errorf("invalid protocol command %s", cmd)
 	}
 	return nil
 }

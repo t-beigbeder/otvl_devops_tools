@@ -8,7 +8,10 @@ import (
 	"strconv"
 )
 
-const CtrlDataMaxLn = 8192
+const (
+	CtrlMsgMaxLn  = 128
+	CtrlDataMaxLn = 8192
+)
 
 func ReadJsonFromStream(streamReader *bufio.Reader, v any) error {
 	sln, err := streamReader.ReadString('\n')
@@ -36,22 +39,40 @@ func ReadJsonFromStream(streamReader *bufio.Reader, v any) error {
 	return nil
 }
 
-func WriteCommandToStream(stream io.ReadWriter, cmd string, v any) error {
-	bs, err := json.Marshal(v)
-	if err != nil {
-		return err
+func WriteCommandToStream(stream io.ReadWriter, cmd string, payload any, ans string) error {
+	var (
+		bs  []byte
+		err error
+	)
+	if payload != nil {
+		bs, err = json.Marshal(payload)
+		if err != nil {
+			return err
+		}
 	}
 	_, err = stream.Write([]byte(cmd))
 	if err != nil {
 		return err
 	}
-	_, err = stream.Write([]byte(fmt.Sprintf("%d\n", len(bs))))
-	if err != nil {
-		return err
+	if bs != nil {
+		_, err = stream.Write([]byte(fmt.Sprintf("%d\n", len(bs))))
+		if err != nil {
+			return err
+		}
+		_, err = stream.Write(bs)
+		if err != nil {
+			return err
+		}
 	}
-	_, err = stream.Write(bs)
-	if err != nil {
-		return err
+	if ans != "" {
+		csr := bufio.NewReaderSize(stream, CtrlMsgMaxLn)
+		cmd, err := csr.ReadString('\n')
+		if err != nil {
+			return err
+		}
+		if cmd != ans {
+			return fmt.Errorf("invalid protocol command %s", cmd)
+		}
 	}
 	return nil
 }
