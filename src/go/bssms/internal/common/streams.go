@@ -13,8 +13,8 @@ const (
 	CtrlDataMaxLn = 8192
 )
 
-func ReadJsonFromStream(streamReader *bufio.Reader, v any) error {
-	sln, err := streamReader.ReadString('\n')
+func ReadJsonFromStream(sbr *bufio.Reader, v any) error {
+	sln, err := sbr.ReadString('\n')
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func ReadJsonFromStream(streamReader *bufio.Reader, v any) error {
 		return fmt.Errorf("received data length %d > %d", ln, CtrlDataMaxLn)
 	}
 	js := make([]byte, ln)
-	rln, err := io.ReadFull(streamReader, js)
+	rln, err := io.ReadFull(sbr, js)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func ReadJsonFromStream(streamReader *bufio.Reader, v any) error {
 	return nil
 }
 
-func WriteCommandToStream(stream io.ReadWriter, cmd string, payload any, ans string) error {
+func WriteCommandToStream(sbr *bufio.Reader, sw io.Writer, cmd string, payload any, ans string) error {
 	var (
 		bs  []byte
 		err error
@@ -50,23 +50,22 @@ func WriteCommandToStream(stream io.ReadWriter, cmd string, payload any, ans str
 			return err
 		}
 	}
-	_, err = stream.Write([]byte(cmd))
+	_, err = sw.Write([]byte(cmd))
 	if err != nil {
 		return err
 	}
 	if bs != nil {
-		_, err = stream.Write([]byte(fmt.Sprintf("%d\n", len(bs))))
+		_, err = sw.Write([]byte(fmt.Sprintf("%d\n", len(bs))))
 		if err != nil {
 			return err
 		}
-		_, err = stream.Write(bs)
+		_, err = sw.Write(bs)
 		if err != nil {
 			return err
 		}
 	}
 	if ans != "" {
-		csr := bufio.NewReaderSize(stream, CtrlMsgMaxLn)
-		cmd, err := csr.ReadString('\n')
+		cmd, err := sbr.ReadString('\n')
 		if err != nil {
 			return err
 		}

@@ -4,6 +4,7 @@ import (
 	"bssms/internal/bssms"
 	"bssms/internal/common"
 	"bssms/internal/qutils"
+	"bufio"
 	"github.com/quic-go/quic-go"
 )
 
@@ -12,7 +13,8 @@ func install(cStream quic.Stream, in bssms.Installable) error {
 }
 
 func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
-	err := common.WriteCommandToStream(cStream, bssms.ProvisionerHello, nil, bssms.ProxyHello)
+	sbr := bufio.NewReaderSize(cStream, common.CtrlDataMaxLn)
+	err := common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerHello, nil, bssms.ProxyHello)
 	if err != nil {
 		return err
 	}
@@ -20,7 +22,7 @@ func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
 	for _, ih := range ihs {
 		ins = append(ins, ih.Installable)
 	}
-	err = common.WriteCommandToStream(cStream, bssms.ProvisionerInstallables, ihs, "")
+	err = common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerInstallables, ihs, "")
 	if err != nil {
 		return err
 	}
@@ -32,7 +34,7 @@ func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
 	//	}
 	//	install(cStream, in)
 	//}
-	err = common.WriteCommandToStream(cStream, bssms.ApplicationBye, nil, bssms.ProxyBye)
+	err = common.WriteCommandToStream(sbr, cStream, bssms.ApplicationBye, nil, bssms.ProxyBye)
 	if err != nil {
 		return err
 	}

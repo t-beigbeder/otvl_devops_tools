@@ -13,22 +13,24 @@ import (
 )
 
 func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
-	stream, err := conn.AcceptStream(context.Background())
-	if err != nil {
-		return err
-	}
-	defer stream.Close()
-	getLogger().Info("AcceptStream", "sid", stream.StreamID())
-	rs := bufio.NewReaderSize(stream, common.CtrlMsgMaxLn)
 	var (
+		cStream quic.Stream
+		err     error
 		opened  bool
 		isPr    bool
 		isIn    bool
 		closing bool
 		cmd     string
 	)
+	cStream, err = conn.AcceptStream(context.Background())
+	if err != nil {
+		return err
+	}
+	defer cStream.Close()
+	getLogger().Info("AcceptStream", "sid", cStream.StreamID())
+	sbr := bufio.NewReaderSize(cStream, common.CtrlDataMaxLn)
 	for !closing && err == nil {
-		cmd, err = rs.ReadString('\n')
+		cmd, err = sbr.ReadString('\n')
 		if err != nil {
 			break
 		}
@@ -37,7 +39,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 			opened = true
 			isPr = cmd == bssms.ProvisionerHello
 			isIn = cmd == bssms.InstallerHello
-			_, err = stream.Write([]byte(bssms.ProxyHello))
+			_, err = cStream.Write([]byte(bssms.ProxyHello))
 			if err != nil {
 				break
 			}
@@ -49,14 +51,15 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		}
 		if opened {
 			if isPr {
-				ins, err := handlePrCmd(stream, cmd)
+				var ins []bssms.Installable
+				ins, err = handlePrCmd(sbr, cmd)
 				if err != nil {
-					break // FIXME forever
+					break
 				}
 				_ = ins
 			}
 			if isIn {
-				err = handleInCmd(config, stream, cmd)
+				err = handleInCmd(config, cStream, cmd)
 				if err != nil {
 					break
 				}
@@ -68,7 +71,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 	if err != nil {
 		return err
 	}
-	_, err = stream.Write([]byte(bssms.ProxyBye))
+	_, err = cStream.Write([]byte(bssms.ProxyBye))
 	return err
 }
 
