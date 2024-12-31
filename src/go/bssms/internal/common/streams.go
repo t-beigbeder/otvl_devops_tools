@@ -3,9 +3,12 @@ package common
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/quic-go/quic-go"
 	"io"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -67,11 +70,38 @@ func WriteCommandToStream(sbr *bufio.Reader, sw io.Writer, cmd string, payload a
 	if ans != "" {
 		cmd, err := sbr.ReadString('\n')
 		if err != nil {
-			return err
+			var ae *quic.ApplicationError
+			if !errors.As(err, &ae) || !ae.Remote || ae.ErrorCode != 0 || !strings.Contains(ans, "Bye") {
+				return err
+			}
+			return nil
 		}
 		if cmd != ans {
 			return fmt.Errorf("invalid protocol command %s", cmd)
 		}
 	}
 	return nil
+}
+
+func WriteByeCommandToStream(sbr *bufio.Reader, sw io.Writer, cmd string, ans string) (string, error) {
+	var (
+		cmdr string
+		err  error
+	)
+	_, err = sw.Write([]byte(cmd))
+	if err != nil {
+		return "", err
+	}
+	cmdr, err = sbr.ReadString('\n')
+	if err != nil {
+		var ae *quic.ApplicationError
+		if !errors.As(err, &ae) || !ae.Remote || ae.ErrorCode != 0 {
+			return "", err
+		}
+		return "", nil
+	}
+	if cmdr != ans {
+		return "", fmt.Errorf("invalid protocol command %s", cmdr)
+	}
+	return cmdr, nil
 }

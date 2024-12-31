@@ -13,9 +13,12 @@ func install(cStream quic.Stream, in bssms.Installable) error {
 }
 
 func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
+	var (
+		err  error
+		rcmd string
+	)
 	sbr := bufio.NewReaderSize(cStream, common.CtrlDataMaxLn)
-	err := common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerHello, nil, bssms.ProxyHello)
-	if err != nil {
+	if err = common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerHello, nil, bssms.ProxyHello); err != nil {
 		return err
 	}
 	ins := []bssms.Installable{}
@@ -34,9 +37,13 @@ func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
 	//	}
 	//	install(cStream, in)
 	//}
-	err = common.WriteCommandToStream(sbr, cStream, bssms.ApplicationBye, nil, bssms.ProxyBye)
+
+	rcmd, err = common.WriteByeCommandToStream(sbr, cStream, bssms.ApplicationBye, bssms.ProxyBye)
 	if err != nil {
 		return err
+	}
+	if rcmd == "" {
+		getLogger().Info("provision: remote closed connection")
 	}
 	return nil
 }

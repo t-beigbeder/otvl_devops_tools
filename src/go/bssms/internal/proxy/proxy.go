@@ -21,6 +21,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		isIn    bool
 		closing bool
 		cmd     string
+		ins     []bssms.Installable
 	)
 	cStream, err = conn.AcceptStream(context.Background())
 	if err != nil {
@@ -51,12 +52,11 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 		}
 		if opened {
 			if isPr {
-				var ins []bssms.Installable
-				ins, err = handlePrCmd(sbr, cmd)
+				err = handlePrCmd(sbr, cmd, &ins)
 				if err != nil {
 					break
 				}
-				_ = ins
+				getLogger().Debug("handlePrCmd", "ins", ins)
 			}
 			if isIn {
 				err = handleInCmd(config, cStream, cmd)
@@ -97,6 +97,7 @@ func RunProxy(config *bssms.ProxyConfig) error {
 					conn.CloseWithError(1, fmt.Sprintf("connection error %v", err))
 					return
 				}
+				getLogger().Info("application error", "err", err)
 			} else {
 				conn.CloseWithError(0, "")
 			}

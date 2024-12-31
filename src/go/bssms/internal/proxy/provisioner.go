@@ -7,14 +7,15 @@ import (
 	"fmt"
 )
 
-func handlePrCmd(sbr *bufio.Reader, cmd string) ([]bssms.Installable, error) {
+func handlePrCmd(sbr *bufio.Reader, cmd string, ins *[]bssms.Installable) error {
 	if cmd != bssms.ProvisionerInstallables {
-		return nil, fmt.Errorf("unknown command %s", cmd)
+		return fmt.Errorf("unknown command %s", cmd)
 	}
-	ins := []bssms.Installable{}
-	if err := common.ReadJsonFromStream(sbr, &ins); err != nil {
-		return nil, err
+	if *ins != nil {
+		return fmt.Errorf("provisioner already sent %d installables", len(*ins))
 	}
-	getLogger().Debug("handlePrCmd", "ins", ins)
-	return ins, nil
+	if err := common.ReadJsonFromStream(sbr, ins); err != nil {
+		return err
+	}
+	return nil
 }
