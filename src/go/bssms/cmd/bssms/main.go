@@ -2,6 +2,7 @@ package main
 
 import (
 	"bssms/internal/bssms"
+	"bssms/internal/installer"
 	"bssms/internal/provisioner"
 	"bssms/internal/proxy"
 	"github.com/urfave/cli/v2"
@@ -178,8 +179,8 @@ func getInCmd() *cli.Command {
 		},
 		Action: func(cc *cli.Context) error {
 			config := getInstallerConfig(cc)
-			_ = config
-			return nil
+			err := installer.Run(config)
+			return err
 		},
 	}
 }

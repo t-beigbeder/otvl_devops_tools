@@ -1,4 +1,4 @@
-package bssms
+package installer
 
 import "bssms/internal/bssms"
 
