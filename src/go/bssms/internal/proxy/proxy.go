@@ -9,10 +9,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/quic-go/quic-go"
 )
 
-func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
+func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) error {
+	cid := uuid.New().String()
 	var (
 		cStream quic.Stream
 		err     error
@@ -41,6 +43,10 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection) error {
 			isPr = cmd == bssms.ProvisionerHello
 			isIn = cmd == bssms.InstallerHello
 			_, err = cStream.Write([]byte(bssms.ProxyHello))
+			if err != nil {
+				break
+			}
+			err = lner.addConnection(cid, conn, isPr, isIn)
 			if err != nil {
 				break
 			}
@@ -80,17 +86,23 @@ func RunProxy(config *bssms.ProxyConfig) error {
 	if err != nil {
 		return err
 	}
-	ln, err := qutils.GetQuicListener(config.ListenAddr, cert, bssms.BssmsAlpn, getLogger())
+	qln, err := qutils.GetQuicListener(config.ListenAddr, cert, bssms.BssmsAlpn, getLogger())
 	if err != nil {
 		return err
 	}
+	lner, err := makeListener(config.GetContext())
+	if err != nil {
+		return err
+	}
+	defer lner.close()
 	for {
-		conn, err := ln.Accept(config.GetContext())
+		conn, err := qln.Accept(config.GetContext())
 		if err != nil {
+			getLogger().Error("accept", "err", err)
 			return err
 		}
 		go func(conn quic.Connection) {
-			if err := handle(config, conn); err != nil {
+			if err := handle(config, conn, lner); err != nil {
 				var ae *quic.ApplicationError
 				if !errors.As(err, &ae) || ae.ErrorCode != 0 {
 					getLogger().Error("connection error", "err", err)

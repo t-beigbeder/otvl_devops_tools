@@ -6,13 +6,14 @@ import (
 	"bssms/internal/qutils"
 	"bufio"
 	"github.com/quic-go/quic-go"
+	"golang.org/x/net/context"
 )
 
 func install(cStream quic.Stream, in bssms.Installable) error {
 	return nil
 }
 
-func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
+func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, ihs []InstallHost) error {
 	var (
 		err  error
 		rcmd string
@@ -29,14 +30,20 @@ func provision(cStream, eStream quic.Stream, ihs []InstallHost) error {
 	if err != nil {
 		return err
 	}
-	// esr := bufio.NewReaderSize(eStream, common.CtrlMsgMaxLn)
-	//for i := 0; i < len(ins); i++ {
-	//	in := bssms.Installable{}
-	//	if err = common.ReadJsonFromStream(esr, &in); err != nil {
-	//		return err
-	//	}
-	//	install(cStream, in)
-	//}
+	eStream, err := conn.AcceptStream(ctx)
+	if err != nil {
+		return err
+	}
+	defer eStream.Close()
+	getLogger().Info("AcceptStream", "eSid", cStream.StreamID())
+	esr := bufio.NewReaderSize(eStream, common.CtrlMsgMaxLn)
+	for i := 0; i < len(ins); i++ {
+		in := bssms.Installable{}
+		if err = common.ReadJsonFromStream(esr, &in); err != nil {
+			return err
+		}
+		install(cStream, in)
+	}
 
 	rcmd, err = common.WriteByeCommandToStream(sbr, cStream, bssms.ApplicationBye, bssms.ProxyBye)
 	if err != nil {
@@ -60,13 +67,7 @@ func run(config *bssms.ProvisionerConfig, ihs []InstallHost) error {
 	}
 	getLogger().Info("OpenStreamSync", "cSid", cStream.StreamID())
 	defer cStream.Close()
-	eStream, err := conn.OpenStreamSync(config.GetContext())
-	if err != nil {
-		return err
-	}
-	getLogger().Info("OpenStreamSync", "eSid", eStream.StreamID())
-	defer eStream.Close()
-	return provision(cStream, eStream, ihs)
+	return provision(config.GetContext(), conn, cStream, ihs)
 }
 
 func Run(config *bssms.ProvisionerConfig, optConfigDir string, ss []string) error {
