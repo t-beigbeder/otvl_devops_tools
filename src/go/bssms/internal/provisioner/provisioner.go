@@ -5,8 +5,8 @@ import (
 	"bssms/internal/common"
 	"bssms/internal/qutils"
 	"bufio"
+	"context"
 	"github.com/quic-go/quic-go"
-	"golang.org/x/net/context"
 )
 
 func install(cStream quic.Stream, in bssms.Installable) error {
@@ -36,7 +36,7 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 	}
 	defer eStream.Close()
 	getLogger().Info("AcceptStream", "eSid", cStream.StreamID())
-	esr := bufio.NewReaderSize(eStream, common.CtrlMsgMaxLn)
+	esr := bufio.NewReaderSize(eStream, common.CtrlDataMaxLn)
 	for i := 0; i < len(ins); i++ {
 		in := bssms.Installable{}
 		if err = common.ReadJsonFromStream(esr, &in); err != nil {

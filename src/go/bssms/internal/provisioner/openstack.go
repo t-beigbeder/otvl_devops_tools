@@ -2,12 +2,12 @@ package provisioner
 
 import (
 	"bssms/internal/bssms"
+	"context"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/lrstanley/go-bogon"
 	_ "github.com/lrstanley/go-bogon"
-	"golang.org/x/net/context"
 	"net"
 	"os"
 )

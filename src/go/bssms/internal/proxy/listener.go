@@ -3,8 +3,8 @@ package proxy
 import (
 	"bssms/internal/common"
 	"bufio"
+	"context"
 	"github.com/quic-go/quic-go"
-	"golang.org/x/net/context"
 	"sync"
 )
 

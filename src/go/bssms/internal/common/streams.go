@@ -12,29 +12,39 @@ import (
 )
 
 const (
-	CtrlMsgMaxLn  = 128
 	CtrlDataMaxLn = 8192
 )
 
-func ReadJsonFromStream(sbr *bufio.Reader, v any) error {
+func ReadBytesFromStream(sbr *bufio.Reader) ([]byte, error) {
 	sln, err := sbr.ReadString('\n')
 	if err != nil {
-		return err
+		return nil, err
 	}
 	ln, err := strconv.ParseInt(sln[0:len(sln)-1], 10, 64)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if ln > CtrlDataMaxLn {
-		return fmt.Errorf("received data length %d > %d", ln, CtrlDataMaxLn)
+		return nil, fmt.Errorf("received data length %d > %d", ln, CtrlDataMaxLn)
 	}
-	js := make([]byte, ln)
-	rln, err := io.ReadFull(sbr, js)
+	bs := make([]byte, ln)
+	rln, err := io.ReadFull(sbr, bs)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if int64(rln) != ln {
-		return fmt.Errorf("read data length %d != %d", rln, ln)
+		return nil, fmt.Errorf("read data length %d != %d", rln, ln)
+	}
+	return bs, nil
+}
+
+func ReadJsonFromStream(sbr *bufio.Reader, v any) error {
+	var (
+		js  []byte
+		err error
+	)
+	if js, err = ReadBytesFromStream(sbr); err != nil {
+		return err
 	}
 	if err = json.Unmarshal(js, v); err != nil {
 		return err

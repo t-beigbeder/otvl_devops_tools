@@ -1,7 +1,7 @@
 package bssms
 
 import (
-	"golang.org/x/net/context"
+	"context"
 	"net"
 	"strconv"
 )
@@ -27,7 +27,6 @@ type InstallerConfig struct {
 	BaseConfig
 	UnsafeTls    bool
 	ProxyAddress string
-	IPAddress    string
 	Installable
 }
 

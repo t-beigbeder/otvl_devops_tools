@@ -3,8 +3,8 @@ package integration
 import (
 	"bssms/internal/bssms"
 	"bssms/internal/proxy"
+	"context"
 	"fmt"
-	"golang.org/x/net/context"
 	"path/filepath"
 	"runtime"
 	"testing"

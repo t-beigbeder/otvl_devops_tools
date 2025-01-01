@@ -6,25 +6,21 @@ import (
 	"bssms/internal/qutils"
 	"bufio"
 	"github.com/quic-go/quic-go"
-	"golang.org/x/net/context"
 )
 
 func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.Stream) error {
 	var (
-		err  error
-		rcmd string
+		err    error
+		rcmd   string
+		prData []byte
 	)
 	sbr := bufio.NewReaderSize(cStream, common.CtrlDataMaxLn)
-	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerHello, nil, bssms.ProxyHello); err != nil {
-		return err
-	}
 	in := bssms.Installable{
-		Name:       "",
-		ServerUuid: "",
-		MacAddress: "",
+		ServerUuid: config.ServerUuid,
+		MacAddress: config.MacAddress,
+		IPAddress:  config.IPAddress,
 	}
-	err = common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerInstallables, in, "")
-	if err != nil {
+	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerHello, in, bssms.ProxyHello); err != nil {
 		return err
 	}
 	eStream, err := conn.AcceptStream(config.GetContext())
@@ -33,21 +29,17 @@ func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.S
 	}
 	defer eStream.Close()
 	getLogger().Info("AcceptStream", "eSid", cStream.StreamID())
-	esr := bufio.NewReaderSize(eStream, common.CtrlMsgMaxLn)
-	for i := 0; i < len(ins); i++ {
-		in := bssms.Installable{}
-		if err = common.ReadJsonFromStream(esr, &in); err != nil {
-			return err
-		}
-		install(cStream, in)
+	esr := bufio.NewReaderSize(eStream, common.CtrlDataMaxLn)
+	if prData, err = common.ReadBytesFromStream(esr); err != nil {
+		return err
 	}
-
+	getLogger().Debug("install", "prDataLen", len(prData))
 	rcmd, err = common.WriteByeCommandToStream(sbr, cStream, bssms.ApplicationBye, bssms.ProxyBye)
 	if err != nil {
 		return err
 	}
 	if rcmd == "" {
-		getLogger().Info("provision: remote closed connection")
+		getLogger().Info("install: remote closed connection")
 	}
 	return nil
 }

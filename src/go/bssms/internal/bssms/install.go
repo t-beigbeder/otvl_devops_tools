@@ -6,4 +6,5 @@ type Installable struct {
 	MacAddress   string `json:"macAddress,omitempty" yaml:"macAddress,omitempty"`
 	IPExtAddress string `json:"IPExtAddress,omitempty" yaml:"IPExtAddress,omitempty"`
 	IPIntAddress string `json:"IPIntAddress,omitempty" yaml:"IPIntAddress,omitempty"`
+	IPAddress    string `json:"IPAddress,omitempty" yaml:"IPAddress,omitempty"`
 }

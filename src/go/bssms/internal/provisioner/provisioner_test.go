@@ -3,8 +3,8 @@ package provisioner
 import (
 	"bssms/internal/bssms"
 	"bssms/internal/integration"
+	"context"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/context"
 	"path/filepath"
 	"testing"
 	"time"
