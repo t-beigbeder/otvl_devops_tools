@@ -2,28 +2,40 @@ package integration
 
 import (
 	"bssms/internal/bssms"
+	"bssms/internal/installer"
+	"bssms/internal/provisioner"
 	"bssms/internal/proxy"
 	"context"
 	"fmt"
 	"path/filepath"
 	"runtime"
-	"testing"
 	"time"
 )
 
 const (
 	ProxyHost = "localhost"
-	ProxyPort = "9443"
 )
 
-func ProxyAddress() string { return fmt.Sprintf("%s:%s", ProxyHost, ProxyPort) }
+func ProxyAddress(proxyPort string) string { return fmt.Sprintf("%s:%s", ProxyHost, proxyPort) }
 
-func RunProxy(t *testing.T) (context.CancelFunc, error) {
+func GetTestDataDir() string {
+	_, thisFile, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("path discovery")
+	}
+	return filepath.Join(filepath.Dir(thisFile), "testdata")
+}
+
+func GetIhs(dataFile string) ([]provisioner.InstallHost, error) {
+	return provisioner.LoadYamlInstallHosts(filepath.Join(GetTestDataDir(), dataFile))
+}
+
+func RunTestProxy(proxyPort string) (context.CancelFunc, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	config := bssms.ProxyConfig{
 		BaseConfig: bssms.BaseConfig{Ctx: ctx},
 		UnsafeTls:  true,
-		ListenAddr: fmt.Sprintf(":%s", ProxyPort),
+		ListenAddr: fmt.Sprintf(":%s", proxyPort),
 		Host:       ProxyHost,
 	}
 	var bgErr error
@@ -41,10 +53,58 @@ func RunProxy(t *testing.T) (context.CancelFunc, error) {
 	return cancel, nil
 }
 
-func GetTestDataDir() string {
-	_, thisFile, _, ok := runtime.Caller(0)
-	if !ok {
-		panic("path discovery")
+func RunTestProvisioner(dataFile string, proxyPort string) (context.CancelFunc, error) {
+	ihs, err := GetIhs(dataFile)
+	if err != nil {
+		return nil, err
 	}
-	return filepath.Join(filepath.Dir(thisFile), "testdata")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	var bgErr error
+	go func() {
+		err := provisioner.RunIhs(&bssms.ProvisionerConfig{
+			BaseConfig:   bssms.BaseConfig{Ctx: ctx},
+			UnsafeTls:    true,
+			ProxyAddress: ProxyAddress(proxyPort),
+		}, ihs)
+		if err != nil {
+			bgErr = err
+		}
+	}()
+	time.Sleep(100 * time.Millisecond)
+	if bgErr != nil {
+		cancel()
+		return nil, bgErr
+	}
+	return cancel, nil
+}
+
+func RunTestInstaller(dataFile string, proxyPort string) (context.CancelFunc, error) {
+	ihs, err := GetIhs(dataFile)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	var bgErr error
+	go func() {
+		err := installer.Run(&bssms.InstallerConfig{
+			BaseConfig:   bssms.BaseConfig{Ctx: ctx},
+			UnsafeTls:    true,
+			ProxyAddress: ProxyAddress(proxyPort),
+			Installable: bssms.Installable{
+				ServerUuid: ihs[0].ServerUuid,
+				MacAddress: ihs[0].MacAddress,
+				IPAddress:  ihs[0].IPExtAddress,
+			},
+		})
+		if err != nil {
+			bgErr = err
+		}
+	}()
+	time.Sleep(100 * time.Millisecond)
+	if bgErr != nil {
+		cancel()
+		return nil, bgErr
+	}
+	return cancel, nil
 }

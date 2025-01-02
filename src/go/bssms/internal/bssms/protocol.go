@@ -5,6 +5,7 @@ const (
 	ProvisionerHello            = "PrHello\n"
 	ProvisionerInstallables     = "PrInstallables\n"
 	InstallerHello              = "InHello\n"
+	InstallerInstallable        = "InInstallable\n"
 	ProxyHello                  = "PxHello\n"
 	ProvisionerEventInstallerUp = "PrEvInstallerUp\n"
 	InstallerEventInstall       = "InEvInstall\n"

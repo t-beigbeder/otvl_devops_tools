@@ -2,9 +2,17 @@ package proxy
 
 import (
 	"bssms/internal/bssms"
-	"github.com/quic-go/quic-go"
+	"bssms/internal/common"
+	"bufio"
+	"fmt"
 )
 
-func handleInCmd(config *bssms.ProxyConfig, stream quic.Stream, cmd string) error {
+func handleInCmd(sbr *bufio.Reader, cmd string, in *bssms.Installable) error {
+	if cmd != bssms.InstallerInstallable {
+		return fmt.Errorf("unknown command %s", cmd)
+	}
+	if err := common.ReadJsonFromStream(sbr, in); err != nil {
+		return err
+	}
 	return nil
 }

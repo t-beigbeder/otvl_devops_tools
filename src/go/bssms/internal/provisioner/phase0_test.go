@@ -1,7 +1,7 @@
 package provisioner
 
 import (
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -11,7 +11,7 @@ func TestRunPhase0(t *testing.T) {
 		t.Fatal(err)
 	}
 	ihs, err := LoadInstallHosts(td)
-	assert.NoError(t, err)
-	assert.Equal(t, len(ihs), 4)
-	assert.NotNil(t, ihs[0].PrivateKey)
+	require.NoError(t, err)
+	require.Equal(t, len(ihs), 4)
+	require.NotNil(t, ihs[0].PrivateKey)
 }

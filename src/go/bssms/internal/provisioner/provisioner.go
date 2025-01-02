@@ -55,7 +55,7 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 	return nil
 }
 
-func run(config *bssms.ProvisionerConfig, ihs []InstallHost) error {
+func RunIhs(config *bssms.ProvisionerConfig, ihs []InstallHost) error {
 	conn, err := qutils.GetQuicConn(config.ProxyAddress, bssms.BssmsAlpn)
 	if err != nil {
 		return err
@@ -75,5 +75,5 @@ func Run(config *bssms.ProvisionerConfig, optConfigDir string, ss []string) erro
 	if err != nil {
 		return err
 	}
-	return run(config, ihs)
+	return RunIhs(config, ihs)
 }

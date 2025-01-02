@@ -24,6 +24,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 		closing bool
 		cmd     string
 		ins     []bssms.Installable
+		in      bssms.Installable
 	)
 	cStream, err = conn.AcceptStream(context.Background())
 	if err != nil {
@@ -65,10 +66,12 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 				getLogger().Debug("handlePrCmd", "ins", ins)
 			}
 			if isIn {
-				err = handleInCmd(config, cStream, cmd)
+				in = bssms.Installable{}
+				err = handleInCmd(sbr, cmd, &in)
 				if err != nil {
 					break
 				}
+				getLogger().Debug("handleInCmd", "in", in)
 			}
 			continue
 		}
@@ -111,10 +114,18 @@ func RunProxy(config *bssms.ProxyConfig) error {
 				}
 				getLogger().Info("application error", "err", err)
 			} else {
-				conn.CloseWithError(0, "")
+				getLogger().Info("close connection without error", "conn", conn.RemoteAddr())
+				if err = conn.CloseWithError(0, ""); err != nil {
+					getLogger().Error("CloseWithError 0", "err", err)
+				}
 			}
 		}(conn)
-		defer conn.CloseWithError(0, "")
+		defer func() {
+			getLogger().Info("deferred close connection without error", "conn", conn.RemoteAddr())
+			if err = conn.CloseWithError(0, ""); err != nil {
+				getLogger().Error("deferred CloseWithError 0", "err", err)
+			}
+		}()
 		getLogger().Info("Accept", "RemoteAddr", conn.RemoteAddr())
 	}
 }

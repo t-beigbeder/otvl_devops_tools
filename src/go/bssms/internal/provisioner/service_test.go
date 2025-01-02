@@ -2,7 +2,7 @@ package provisioner
 
 import (
 	"bssms/internal/bssms"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -32,20 +32,20 @@ func TestStoreAndLoadInstallHosts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, tihs, ihs2)
+	require.Equal(t, tihs, ihs2)
 	ihs3, err := LoadFilteredInstallHosts(td, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, tihs, ihs3)
+	require.Equal(t, tihs, ihs3)
 	ihs4, err := LoadFilteredInstallHosts(td, []string{"ih2", "ih1"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, tihs, ihs4)
+	require.Equal(t, tihs, ihs4)
 	ihs5, err := LoadFilteredInstallHosts(td, []string{"ih2"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, tihs[1:2], ihs5)
+	require.Equal(t, tihs[1:2], ihs5)
 }

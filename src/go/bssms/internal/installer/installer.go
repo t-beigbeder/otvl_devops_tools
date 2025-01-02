@@ -15,12 +15,15 @@ func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.S
 		prData []byte
 	)
 	sbr := bufio.NewReaderSize(cStream, common.CtrlDataMaxLn)
+	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerHello, nil, bssms.ProxyHello); err != nil {
+		return err
+	}
 	in := bssms.Installable{
 		ServerUuid: config.ServerUuid,
 		MacAddress: config.MacAddress,
 		IPAddress:  config.IPAddress,
 	}
-	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerHello, in, bssms.ProxyHello); err != nil {
+	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerInstallable, in, ""); err != nil {
 		return err
 	}
 	eStream, err := conn.AcceptStream(config.GetContext())
