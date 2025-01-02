@@ -35,7 +35,7 @@ func TestRunCollaboration(t *testing.T) {
 	require.NotNil(t, inCancel)
 	defer inCancel()
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	pxCancel()
 	time.Sleep(100 * time.Millisecond)
 

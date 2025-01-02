@@ -52,27 +52,20 @@ func ReadJsonFromStream(sbr *bufio.Reader, v any) error {
 	return nil
 }
 
-func WriteCommandToStream(sbr *bufio.Reader, sw io.Writer, cmd string, payload any, ans string) error {
+func WriteCmdBytesToStream(sbr *bufio.Reader, sw io.Writer, cmd string, payload []byte, ans string) error {
 	var (
-		bs  []byte
 		err error
 	)
-	if payload != nil {
-		bs, err = json.Marshal(payload)
-		if err != nil {
-			return err
-		}
-	}
 	_, err = sw.Write([]byte(cmd))
 	if err != nil {
 		return err
 	}
-	if bs != nil {
-		_, err = sw.Write([]byte(fmt.Sprintf("%d\n", len(bs))))
+	if payload != nil {
+		_, err = sw.Write([]byte(fmt.Sprintf("%d\n", len(payload))))
 		if err != nil {
 			return err
 		}
-		_, err = sw.Write(bs)
+		_, err = sw.Write(payload)
 		if err != nil {
 			return err
 		}
@@ -91,6 +84,20 @@ func WriteCommandToStream(sbr *bufio.Reader, sw io.Writer, cmd string, payload a
 		}
 	}
 	return nil
+}
+
+func WriteCommandToStream(sbr *bufio.Reader, sw io.Writer, cmd string, payload any, ans string) error {
+	var (
+		bs  []byte
+		err error
+	)
+	if payload != nil {
+		bs, err = json.Marshal(payload)
+		if err != nil {
+			return err
+		}
+	}
+	return WriteCmdBytesToStream(sbr, sw, cmd, bs, ans)
 }
 
 func WriteByeCommandToStream(sbr *bufio.Reader, sw io.Writer, cmd string, ans string) (string, error) {

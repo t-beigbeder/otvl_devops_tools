@@ -10,6 +10,7 @@ import (
 )
 
 func install(cStream quic.Stream, in bssms.Installable) error {
+	//common.WriteCmdBytesToStream()
 	return nil
 }
 
@@ -42,7 +43,9 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 		if err = common.ReadJsonFromStream(esr, &in); err != nil {
 			return err
 		}
-		install(cStream, in)
+		if err = install(cStream, in); err != nil {
+			return err
+		}
 	}
 
 	rcmd, err = common.WriteByeCommandToStream(sbr, cStream, bssms.ApplicationBye, bssms.ProxyBye)

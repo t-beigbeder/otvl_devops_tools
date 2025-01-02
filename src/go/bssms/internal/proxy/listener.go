@@ -63,20 +63,37 @@ func (lner *listener) addConnection(cid string, conn quic.Connection, isPr, isIn
 	return nil
 }
 
-func (lner *listener) checkInstallerUp(pcd *connd) error {
+func (lner *listener) checkAndSendPrEvInUp(pcd *connd, pin, iin bssms.Installable) {
+	if pin.ServerUuid == iin.ServerUuid &&
+		pin.MacAddress == iin.MacAddress &&
+		(pin.IPIntAddress == iin.IPAddress || pin.IPExtAddress == iin.IPAddress) {
+		if err := common.WriteCommandToStream(pcd.sbr, pcd.stream, bssms.ProvisionerEventInstallerUp, pin, ""); err != nil {
+			getLogger().Error("fail to send "+bssms.ProvisionerEventInstallerUp, "pin", pin, "err", err)
+			return
+		}
+		getLogger().Info("sent "+bssms.ProvisionerEventInstallerUp, "pin", pin)
+		return
+	}
+}
+
+func (lner *listener) checkInstallerUp(pcd *connd) {
 	for _, icd := range lner.connds {
 		if icd.isPr {
 			continue
 		}
 		for _, pin := range pcd.ins {
-			if pin.ServerUuid == icd.in.ServerUuid &&
-				pin.MacAddress == icd.in.MacAddress &&
-				pin.IPAddress == icd.in.IPAddress {
-
-			}
+			lner.checkAndSendPrEvInUp(pcd, pin, icd.in)
 		}
 	}
-	return nil
+}
+
+func (lner *listener) checkProvisionerUp(icd *connd) {
+	for _, pcd := range lner.connds {
+		if pcd.isIn {
+			continue
+		}
+		lner.checkAndSendPrEvInUp(pcd, pcd.in, icd.in)
+	}
 }
 
 func (lner *listener) provisionerReadyEvent(cid string, ins []bssms.Installable) error {
@@ -94,11 +111,12 @@ func (lner *listener) provisionerReadyEvent(cid string, ins []bssms.Installable)
 func (lner *listener) installerReadyEvent(cid string, in bssms.Installable) error {
 	lner.mux.Lock()
 	defer lner.mux.Unlock()
-	cd, ok := lner.connds[cid]
+	icd, ok := lner.connds[cid]
 	if !ok {
 		return fmt.Errorf("no connection found for cid: %s", cid)
 	}
-	cd.in = in
+	icd.in = in
+	lner.checkProvisionerUp(icd)
 	return nil
 }
 
