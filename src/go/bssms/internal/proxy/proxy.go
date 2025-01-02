@@ -64,6 +64,10 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 					break
 				}
 				getLogger().Debug("handlePrCmd", "ins", ins)
+				err = lner.provisionerReadyEvent(cid, ins)
+				if err != nil {
+					break
+				}
 			}
 			if isIn {
 				in = bssms.Installable{}
@@ -72,6 +76,10 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 					break
 				}
 				getLogger().Debug("handleInCmd", "in", in)
+				err = lner.installerReadyEvent(cid, in)
+				if err != nil {
+					break
+				}
 			}
 			continue
 		}

@@ -8,6 +8,7 @@ const (
 	InstallerInstallable        = "InInstallable\n"
 	ProxyHello                  = "PxHello\n"
 	ProvisionerEventInstallerUp = "PrEvInstallerUp\n"
+	ProvisionerInstall          = "PrInstall\n"
 	InstallerEventInstall       = "InEvInstall\n"
 	ApplicationBye              = "AppBye\n"
 	ProxyBye                    = "PxBye\n"

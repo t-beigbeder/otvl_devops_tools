@@ -1,9 +1,11 @@
 package proxy
 
 import (
+	"bssms/internal/bssms"
 	"bssms/internal/common"
 	"bufio"
 	"context"
+	"fmt"
 	"github.com/quic-go/quic-go"
 	"sync"
 )
@@ -13,14 +15,16 @@ type connd struct {
 	stream quic.Stream
 	sbr    *bufio.Reader
 	isPr   bool
+	ins    []bssms.Installable
 	isIn   bool
+	in     bssms.Installable
 }
 
 type listener struct {
-	ctx   context.Context
-	done  chan struct{}
-	mux   sync.Mutex
-	conns map[string]connd
+	ctx    context.Context
+	done   chan struct{}
+	mux    sync.Mutex
+	connds map[string]*connd
 }
 
 func (lner *listener) listen() {
@@ -47,9 +51,9 @@ func (lner *listener) addConnection(cid string, conn quic.Connection, isPr, isIn
 	if err != nil {
 		return err
 	}
-	getLogger().Info("listener.OpenStreamSync", "cid", cid, "sid", stream.StreamID())
+	getLogger().Info("listener.OpenStreamSync", "cid", cid, "sid", stream.StreamID(), "isPr", isPr, "isIn", isIn)
 	sbr := bufio.NewReaderSize(stream, common.CtrlDataMaxLn)
-	lner.conns[cid] = connd{
+	lner.connds[cid] = &connd{
 		conn:   conn,
 		stream: stream,
 		sbr:    sbr,
@@ -59,11 +63,50 @@ func (lner *listener) addConnection(cid string, conn quic.Connection, isPr, isIn
 	return nil
 }
 
+func (lner *listener) checkInstallerUp(pcd *connd) error {
+	for _, icd := range lner.connds {
+		if icd.isPr {
+			continue
+		}
+		for _, pin := range pcd.ins {
+			if pin.ServerUuid == icd.in.ServerUuid &&
+				pin.MacAddress == icd.in.MacAddress &&
+				pin.IPAddress == icd.in.IPAddress {
+
+			}
+		}
+	}
+	return nil
+}
+
+func (lner *listener) provisionerReadyEvent(cid string, ins []bssms.Installable) error {
+	lner.mux.Lock()
+	defer lner.mux.Unlock()
+	pcd, ok := lner.connds[cid]
+	if !ok {
+		return fmt.Errorf("no connection found for cid: %s", cid)
+	}
+	pcd.ins = ins
+	lner.checkInstallerUp(pcd)
+	return nil
+}
+
+func (lner *listener) installerReadyEvent(cid string, in bssms.Installable) error {
+	lner.mux.Lock()
+	defer lner.mux.Unlock()
+	cd, ok := lner.connds[cid]
+	if !ok {
+		return fmt.Errorf("no connection found for cid: %s", cid)
+	}
+	cd.in = in
+	return nil
+}
+
 func makeListener(ctx context.Context) (*listener, error) {
 	lner := &listener{
-		ctx:   ctx,
-		done:  make(chan struct{}),
-		conns: make(map[string]connd),
+		ctx:    ctx,
+		done:   make(chan struct{}),
+		connds: make(map[string]*connd),
 	}
 	go lner.listen()
 	return lner, nil
