@@ -7,8 +7,18 @@ import (
 	"fmt"
 )
 
-func handleInCmd(sbr *bufio.Reader, cmd string, in *bssms.Installable) error {
+func handleInInstallableCmd(sbr *bufio.Reader, cmd string, in *bssms.Installable) error {
 	if cmd != bssms.InstallerInstallable {
+		return fmt.Errorf("unknown command %s", cmd)
+	}
+	if err := common.ReadJsonFromStream(sbr, in); err != nil {
+		return err
+	}
+	return nil
+}
+
+func handleInInstalledCmd(sbr *bufio.Reader, cmd string, in *bssms.Installable) error {
+	if cmd != bssms.InstallerInstalled {
 		return fmt.Errorf("unknown command %s", cmd)
 	}
 	if err := common.ReadJsonFromStream(sbr, in); err != nil {

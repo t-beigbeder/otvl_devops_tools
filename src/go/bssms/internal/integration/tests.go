@@ -91,6 +91,7 @@ func RunTestInstaller(dataFile string, proxyPort string) (context.CancelFunc, er
 			BaseConfig:   bssms.BaseConfig{Ctx: ctx},
 			UnsafeTls:    true,
 			ProxyAddress: ProxyAddress(proxyPort),
+			PrivateKey:   ihs[0].PrivateKey,
 			Installable: bssms.Installable{
 				ServerUuid: ihs[0].ServerUuid,
 				MacAddress: ihs[0].MacAddress,

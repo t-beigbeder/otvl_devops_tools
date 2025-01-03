@@ -5,14 +5,18 @@ import (
 	"bssms/internal/common"
 	"bssms/internal/qutils"
 	"bufio"
+	"encoding/json"
+	"fmt"
 	"github.com/quic-go/quic-go"
 )
 
 func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.Stream) error {
 	var (
-		err    error
-		rcmd   string
-		prData []byte
+		err        error
+		rcmd       string
+		encSecrets []byte
+		jsSecrets  string
+		secrets    map[string]string
 	)
 	sbr := bufio.NewReaderSize(cStream, common.CtrlDataMaxLn)
 	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerHello, nil, bssms.ProxyHello); err != nil {
@@ -26,6 +30,7 @@ func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.S
 	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerInstallable, in, ""); err != nil {
 		return err
 	}
+
 	eStream, err := conn.AcceptStream(config.GetContext())
 	if err != nil {
 		return err
@@ -33,10 +38,28 @@ func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.S
 	defer eStream.Close()
 	getLogger().Info("AcceptStream", "eSid", cStream.StreamID())
 	esr := bufio.NewReaderSize(eStream, common.CtrlDataMaxLn)
-	if prData, err = common.ReadBytesFromStream(esr); err != nil {
+	rcmd, err = esr.ReadString('\n')
+	if err != nil {
 		return err
 	}
-	getLogger().Debug("install", "prDataLen", len(prData))
+	if rcmd != bssms.InstallerEventInstall {
+		return fmt.Errorf("unexpected rcmd: %s", rcmd)
+	}
+	if encSecrets, err = common.ReadBytesFromStream(esr); err != nil {
+		return err
+	}
+	getLogger().Debug("install", "encSecrets", encSecrets)
+	if jsSecrets, err = common.DecryptMsg(encSecrets, config.PrivateKey); err != nil {
+		return err
+	}
+	if err = json.Unmarshal([]byte(jsSecrets), &secrets); err != nil {
+		return err
+	}
+	getLogger().Debug("install", "secrets", secrets)
+	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerInstalled, in, ""); err != nil {
+		return err
+	}
+
 	rcmd, err = common.WriteByeCommandToStream(sbr, cStream, bssms.ApplicationBye, bssms.ProxyBye)
 	if err != nil {
 		return err

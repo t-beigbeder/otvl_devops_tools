@@ -105,7 +105,7 @@ func (lner *listener) checkAndSendInEvInstall(pcd *connd, in bssms.Installable) 
 		if !icd.in.Matches(in) {
 			continue
 		}
-		if err := common.WriteCommandToStream(icd.sbr, icd.stream, bssms.InstallerEventInstall, in.EncSecrets, ""); err != nil {
+		if err := common.WriteCmdBytesToStream(icd.sbr, icd.stream, bssms.InstallerEventInstall, []byte(in.EncSecrets), ""); err != nil {
 			getLogger().Error("fail to send "+bssms.InstallerEventInstall, "in", in, "err", err)
 			return
 		}
@@ -153,6 +153,18 @@ func (lner *listener) provisionerInstallEvent(cid string, in bssms.Installable) 
 		return fmt.Errorf("no connection found for cid: %s", cid)
 	}
 	lner.checkAndSendInEvInstall(pcd, in)
+	return nil
+}
+
+func (lner *listener) installerInstalledEvent(cid string, in bssms.Installable) error {
+	lner.mux.Lock()
+	defer lner.mux.Unlock()
+	pcd, ok := lner.connds[cid]
+	if !ok {
+		return fmt.Errorf("no connection found for cid: %s", cid)
+	}
+	// TODO
+	_ = pcd
 	return nil
 }
 

@@ -27,6 +27,7 @@ type InstallerConfig struct {
 	BaseConfig
 	UnsafeTls    bool
 	ProxyAddress string
+	PrivateKey   string
 	Installable
 }
 

@@ -7,6 +7,7 @@ const (
 	ProvisionerInstall          = "PrInstall\n"
 	InstallerHello              = "InHello\n"
 	InstallerInstallable        = "InInstallable\n"
+	InstallerInstalled          = "InInstalled\n"
 	ProxyHello                  = "PxHello\n"
 	ProxyHostInstalled          = "PxHostInstalled\n"
 	ProvisionerEventInstallerUp = "PrEvInstallerUp\n"

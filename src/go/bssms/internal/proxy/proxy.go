@@ -83,15 +83,28 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 				}
 			}
 			if isIn {
-				in = bssms.Installable{}
-				err = handleInCmd(sbr, cmd, &in)
-				if err != nil {
-					break
-				}
-				getLogger().Debug("handleInCmd", "in", in)
-				err = lner.installerReadyEvent(cid, in)
-				if err != nil {
-					break
+				if !established {
+					in = bssms.Installable{}
+					err = handleInInstallableCmd(sbr, cmd, &in)
+					if err != nil {
+						break
+					}
+					getLogger().Debug("handleInInstallableCmd", "in", in)
+					err = lner.installerReadyEvent(cid, in)
+					if err != nil {
+						break
+					}
+				} else {
+					in = bssms.Installable{}
+					err = handleInInstalledCmd(sbr, cmd, &in)
+					if err != nil {
+						break
+					}
+					getLogger().Debug("handleInInstalledCmd", "in", in)
+					err = lner.installerInstalledEvent(cid, in)
+					if err != nil {
+						break
+					}
 				}
 			}
 			established = true

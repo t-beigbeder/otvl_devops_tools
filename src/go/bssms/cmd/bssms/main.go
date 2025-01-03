@@ -168,6 +168,15 @@ func getInCmd() *cli.Command {
 					return nil
 				},
 			},
+			&cli.StringFlag{
+				Name:     "prik",
+				Required: true,
+				Usage:    "host private key",
+				Action: func(cc *cli.Context, s string) error {
+					getInstallerConfig(cc).PrivateKey = s
+					return nil
+				},
+			},
 			&cli.BoolFlag{
 				Name:  "ut",
 				Usage: "UnsafeTls",
