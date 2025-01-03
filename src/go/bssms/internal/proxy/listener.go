@@ -64,16 +64,15 @@ func (lner *listener) addConnection(cid string, conn quic.Connection, isPr, isIn
 }
 
 func (lner *listener) checkAndSendPrEvInUp(pcd *connd, pin, iin bssms.Installable) {
-	if pin.ServerUuid == iin.ServerUuid &&
-		pin.MacAddress == iin.MacAddress &&
-		(pin.IPIntAddress == iin.IPAddress || pin.IPExtAddress == iin.IPAddress) {
-		if err := common.WriteCommandToStream(pcd.sbr, pcd.stream, bssms.ProvisionerEventInstallerUp, pin, ""); err != nil {
-			getLogger().Error("fail to send "+bssms.ProvisionerEventInstallerUp, "pin", pin, "err", err)
+	if iin.Matches(pin) {
+		if err := common.WriteCommandToStream(pcd.sbr, pcd.stream, bssms.ProvisionerEventInstallerUp, iin, ""); err != nil {
+			getLogger().Error("fail to send "+bssms.ProvisionerEventInstallerUp, "iin", iin, "err", err)
 			return
 		}
-		getLogger().Info("sent "+bssms.ProvisionerEventInstallerUp, "pin", pin)
+		getLogger().Info("sent "+bssms.ProvisionerEventInstallerUp, "iin", iin)
 		return
 	}
+	getLogger().Debug("no match", "iin", iin, "pin", pin)
 }
 
 func (lner *listener) checkInstallerUp(pcd *connd) {
@@ -92,7 +91,9 @@ func (lner *listener) checkProvisionerUp(icd *connd) {
 		if pcd.isIn {
 			continue
 		}
-		lner.checkAndSendPrEvInUp(pcd, pcd.in, icd.in)
+		for _, pin := range pcd.ins {
+			lner.checkAndSendPrEvInUp(pcd, pin, icd.in)
+		}
 	}
 }
 

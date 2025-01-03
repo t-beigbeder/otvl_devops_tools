@@ -12,8 +12,18 @@ type ProvisionerHost struct {
 
 type InstallHost struct {
 	bssms.Installable `yaml:",inline"`
-	PrivateKey        string `yaml:"privateKey,omitempty"`
-	PubKey            string `yaml:"pubKey,omitempty"`
+	PrivateKey        string            `yaml:"privateKey,omitempty"`
+	PubKey            string            `yaml:"pubKey,omitempty"`
+	Secrets           map[string]string `yaml:"secrets,omitempty"`
+}
+
+func matchFrom(iin bssms.Installable, ihs []InstallHost) (bool, *InstallHost) {
+	for _, ih := range ihs {
+		if iin.Matches(ih.Installable) {
+			return true, &ih
+		}
+	}
+	return false, nil
 }
 
 func ihfPath(optConfigDir string) (string, error) {

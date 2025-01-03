@@ -14,6 +14,7 @@ func TestStoreAndLoadInstallHosts(t *testing.T) {
 			},
 			PrivateKey: "prik1",
 			PubKey:     "pubk1",
+			Secrets:    map[string]string{"key1": "val1", "key2": "val2"},
 		},
 		{
 			Installable: bssms.Installable{

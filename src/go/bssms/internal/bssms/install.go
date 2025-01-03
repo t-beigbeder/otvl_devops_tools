@@ -8,3 +8,14 @@ type Installable struct {
 	IPIntAddress string `json:"IPIntAddress,omitempty" yaml:"IPIntAddress,omitempty"`
 	IPAddress    string `json:"IPAddress,omitempty" yaml:"IPAddress,omitempty"`
 }
+
+func (iin Installable) Matches(pin Installable) bool {
+	if pin.ServerUuid == iin.ServerUuid &&
+		pin.MacAddress == iin.MacAddress &&
+		(pin.IPIntAddress == iin.IPAddress || pin.IPExtAddress == iin.IPAddress) {
+		return true
+	}
+	return false
+}
+
+type Secrets map[string]string

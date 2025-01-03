@@ -5,3 +5,6 @@
   IPIntAddress: 172.24.0.4
   privateKey: AGE-SECRET-KEY-1NC5FYKDYK4HX2YPLPSA7MPKP75PSX6QR239XYZ3JNFR9UMX362HQNZFQJ0
   pubKey: age1fcqnw6nshl5pt89mltsmqdykymjrlu4a3x4m8xtn5qqhj8kwgalssdt53c
+  secrets:
+    key1: value1
+    key2: value2

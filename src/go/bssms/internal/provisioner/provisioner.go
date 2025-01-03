@@ -6,12 +6,33 @@ import (
 	"bssms/internal/qutils"
 	"bufio"
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/quic-go/quic-go"
 )
 
-func install(cStream quic.Stream, in bssms.Installable) error {
-	//common.WriteCmdBytesToStream()
-	return nil
+func install(sbr *bufio.Reader, cStream quic.Stream, iin bssms.Installable, ihs []InstallHost) {
+	ok, ih := matchFrom(iin, ihs)
+	if !ok {
+		getLogger().Error("installable does not match configured ones", "iin", iin)
+		return
+	}
+	js, err := json.Marshal(ih.Secrets)
+	if err != nil {
+		getLogger().Error("json encoding failed", "err", err, "iin", iin)
+		return
+	}
+	ebs, err := common.EncryptMsg(string(js), ih.PubKey)
+	if err != nil {
+		getLogger().Error("encryption failed", "err", err, "iin", iin)
+		return
+	}
+	if err := common.WriteCmdBytesToStream(sbr, cStream, bssms.ProvisionerInstall, ebs, bssms.ProxyHostInstalled); err != nil {
+		getLogger().Error("remote install failed", "err", err, "iin", iin)
+		return
+	}
+	getLogger().Info("remote install succeeded", "iin", iin)
+	return
 }
 
 func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, ihs []InstallHost) error {
@@ -40,12 +61,18 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 	esr := bufio.NewReaderSize(eStream, common.CtrlDataMaxLn)
 	for i := 0; i < len(ins); i++ {
 		in := bssms.Installable{}
+		rcmd, err = esr.ReadString('\n')
+		if err != nil {
+			return err
+		}
+		if rcmd != bssms.ProvisionerEventInstallerUp {
+			return fmt.Errorf("unexpected rcmd: %s", rcmd)
+		}
 		if err = common.ReadJsonFromStream(esr, &in); err != nil {
-			return err
+			getLogger().Error("ReadJsonFromStream", "err", err, "in", ins[i])
+			continue
 		}
-		if err = install(cStream, in); err != nil {
-			return err
-		}
+		install(sbr, cStream, in, ihs)
 	}
 
 	rcmd, err = common.WriteByeCommandToStream(sbr, cStream, bssms.ApplicationBye, bssms.ProxyBye)
