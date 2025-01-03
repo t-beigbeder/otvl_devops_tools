@@ -72,7 +72,7 @@ func (lner *listener) checkAndSendPrEvInUp(pcd *connd, pin, iin bssms.Installabl
 		getLogger().Info("sent "+bssms.ProvisionerEventInstallerUp, "iin", iin)
 		return
 	}
-	getLogger().Debug("no match", "iin", iin, "pin", pin)
+	getLogger().Debug("checkAndSendPrEvInUp: no match", "iin", iin, "pin", pin)
 }
 
 func (lner *listener) checkInstallerUp(pcd *connd) {
@@ -97,6 +97,30 @@ func (lner *listener) checkProvisionerUp(icd *connd) {
 	}
 }
 
+func (lner *listener) checkAndSendInEvInstall(pcd *connd, in bssms.Installable) {
+	for _, icd := range lner.connds {
+		if icd.isPr {
+			continue
+		}
+		if !icd.in.Matches(in) {
+			continue
+		}
+		if err := common.WriteCommandToStream(icd.sbr, icd.stream, bssms.InstallerEventInstall, in.EncSecrets, ""); err != nil {
+			getLogger().Error("fail to send "+bssms.InstallerEventInstall, "in", in, "err", err)
+			return
+		}
+		getLogger().Info("sent "+bssms.InstallerEventInstall, "in", in)
+		for _, pin := range pcd.ins {
+			if !in.Matches(pin) {
+				continue
+			}
+			pin.Installing = true
+		}
+		return
+	}
+	getLogger().Debug("checkAndSendInEvInstall: no match", "in", in)
+}
+
 func (lner *listener) provisionerReadyEvent(cid string, ins []bssms.Installable) error {
 	lner.mux.Lock()
 	defer lner.mux.Unlock()
@@ -118,6 +142,17 @@ func (lner *listener) installerReadyEvent(cid string, in bssms.Installable) erro
 	}
 	icd.in = in
 	lner.checkProvisionerUp(icd)
+	return nil
+}
+
+func (lner *listener) provisionerInstallEvent(cid string, in bssms.Installable) error {
+	lner.mux.Lock()
+	defer lner.mux.Unlock()
+	pcd, ok := lner.connds[cid]
+	if !ok {
+		return fmt.Errorf("no connection found for cid: %s", cid)
+	}
+	lner.checkAndSendInEvInstall(pcd, in)
 	return nil
 }
 

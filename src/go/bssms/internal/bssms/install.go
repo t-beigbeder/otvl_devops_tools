@@ -7,12 +7,15 @@ type Installable struct {
 	IPExtAddress string `json:"IPExtAddress,omitempty" yaml:"IPExtAddress,omitempty"`
 	IPIntAddress string `json:"IPIntAddress,omitempty" yaml:"IPIntAddress,omitempty"`
 	IPAddress    string `json:"IPAddress,omitempty" yaml:"IPAddress,omitempty"`
+	EncSecrets   string `json:"encSecrets,omitempty" yaml:"encSecrets,omitempty"`
+	Installing   bool
+	Installed    bool
 }
 
 func (iin Installable) Matches(pin Installable) bool {
 	if pin.ServerUuid == iin.ServerUuid &&
 		pin.MacAddress == iin.MacAddress &&
-		(pin.IPIntAddress == iin.IPAddress || pin.IPExtAddress == iin.IPAddress) {
+		(pin.IPIntAddress == iin.IPAddress || pin.IPExtAddress == iin.IPAddress || pin.IPAddress == iin.IPAddress) {
 		return true
 	}
 	return false

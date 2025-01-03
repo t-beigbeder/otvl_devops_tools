@@ -16,15 +16,16 @@ import (
 func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) error {
 	cid := uuid.New().String()
 	var (
-		cStream quic.Stream
-		err     error
-		opened  bool
-		isPr    bool
-		isIn    bool
-		closing bool
-		cmd     string
-		ins     []bssms.Installable
-		in      bssms.Installable
+		cStream     quic.Stream
+		err         error
+		opened      bool
+		established bool
+		isPr        bool
+		isIn        bool
+		closing     bool
+		cmd         string
+		ins         []bssms.Installable
+		in          bssms.Installable
 	)
 	cStream, err = conn.AcceptStream(context.Background())
 	if err != nil {
@@ -59,14 +60,26 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 		}
 		if opened {
 			if isPr {
-				err = handlePrCmd(sbr, cmd, &ins)
-				if err != nil {
-					break
-				}
-				getLogger().Debug("handlePrCmd", "ins", ins)
-				err = lner.provisionerReadyEvent(cid, ins)
-				if err != nil {
-					break
+				if !established {
+					err = handlePrInitCmd(sbr, cmd, &ins)
+					if err != nil {
+						break
+					}
+					getLogger().Debug("handlePrInitCmd", "ins", ins)
+					err = lner.provisionerReadyEvent(cid, ins)
+					if err != nil {
+						break
+					}
+				} else {
+					err = handlePrInstallCmd(sbr, cmd, &in)
+					if err != nil {
+						break
+					}
+					getLogger().Debug("handlePrInstallCmd", "in", in)
+					err = lner.provisionerInstallEvent(cid, in)
+					if err != nil {
+						break
+					}
 				}
 			}
 			if isIn {
@@ -81,6 +94,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 					break
 				}
 			}
+			established = true
 			continue
 		}
 		err = fmt.Errorf("invalid protocol command %s", cmd)

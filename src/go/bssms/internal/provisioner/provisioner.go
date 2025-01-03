@@ -27,7 +27,9 @@ func install(sbr *bufio.Reader, cStream quic.Stream, iin bssms.Installable, ihs 
 		getLogger().Error("encryption failed", "err", err, "iin", iin)
 		return
 	}
-	if err := common.WriteCmdBytesToStream(sbr, cStream, bssms.ProvisionerInstall, ebs, bssms.ProxyHostInstalled); err != nil {
+	pin := iin
+	pin.EncSecrets = string(ebs)
+	if err := common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerInstall, pin, bssms.ProxyHostInstalled); err != nil {
 		getLogger().Error("remote install failed", "err", err, "iin", iin)
 		return
 	}
