@@ -197,6 +197,22 @@ func getInCmd() *cli.Command {
 					return nil
 				},
 			},
+			&cli.StringFlag{
+				Name:  "ys",
+				Usage: "yaml secret file",
+				Action: func(cc *cli.Context, s string) error {
+					getInstallerConfig(cc).YamlSecf = s
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:  "js",
+				Usage: "json secret file",
+				Action: func(cc *cli.Context, s string) error {
+					getInstallerConfig(cc).JsonSecf = s
+					return nil
+				},
+			},
 			&cli.BoolFlag{
 				Name:  "ut",
 				Usage: "UnsafeTls",

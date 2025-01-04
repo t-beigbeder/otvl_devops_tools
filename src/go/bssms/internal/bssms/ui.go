@@ -28,6 +28,8 @@ type InstallerConfig struct {
 	UnsafeTls    bool
 	ProxyAddress string
 	PrivateKey   string
+	JsonSecf     string
+	YamlSecf     string
 	Installable
 }
 

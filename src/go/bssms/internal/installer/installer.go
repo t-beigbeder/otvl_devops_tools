@@ -46,6 +46,19 @@ func handleEvents(config *bssms.InstallerConfig, conn quic.Connection) (map[stri
 	return secrets, nil
 }
 
+func output(config *bssms.InstallerConfig, secrets map[string]string) error {
+	if config.JsonSecf != "" {
+		return common.JsonStore(config.JsonSecf, secrets)
+	} else if config.YamlSecf != "" {
+		return common.YamlStore(config.YamlSecf, secrets)
+	} else {
+		for k, v := range secrets {
+			fmt.Println(k, v)
+		}
+	}
+	return nil
+}
+
 func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.Stream) error {
 	var (
 		err     error
@@ -70,6 +83,9 @@ func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.S
 		return err
 	}
 	getLogger().Debug("install", "secrets", secrets)
+	if err = output(config, secrets); err != nil {
+		return err
+	}
 
 	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerInstalled, in, ""); err != nil {
 		return err

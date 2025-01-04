@@ -30,7 +30,7 @@ func TestRunCollaboration1(t *testing.T) {
 	require.NotNil(t, prCancel)
 	defer prCancel()
 
-	inCancel, err := RunTestInstaller(dataFile, 0, proxyPort)
+	inCancel, err := RunTestInstaller(t, dataFile, 0, proxyPort)
 	require.NoError(t, err)
 	require.NotNil(t, inCancel)
 	defer inCancel()
@@ -51,7 +51,7 @@ func TestRunCollaboration2(t *testing.T) {
 	require.NotNil(t, pxCancel)
 	defer pxCancel()
 
-	inCancel0, err := RunTestInstaller(dataFile, 0, proxyPort)
+	inCancel0, err := RunTestInstaller(t, dataFile, 0, proxyPort)
 	require.NoError(t, err)
 	require.NotNil(t, inCancel0)
 	defer inCancel0()
@@ -61,7 +61,7 @@ func TestRunCollaboration2(t *testing.T) {
 	require.NotNil(t, prCancel)
 	defer prCancel()
 
-	inCancel1, err := RunTestInstaller(dataFile, 1, proxyPort)
+	inCancel1, err := RunTestInstaller(t, dataFile, 1, proxyPort)
 	require.NoError(t, err)
 	require.NotNil(t, inCancel1)
 	defer inCancel1()

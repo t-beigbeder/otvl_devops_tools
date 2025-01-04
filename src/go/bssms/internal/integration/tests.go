@@ -7,8 +7,10 @@ import (
 	"bssms/internal/proxy"
 	"context"
 	"fmt"
+	"path"
 	"path/filepath"
 	"runtime"
+	"testing"
 	"time"
 )
 
@@ -78,7 +80,7 @@ func RunTestProvisioner(dataFile string, proxyPort string) (context.CancelFunc, 
 	return cancel, nil
 }
 
-func RunTestInstaller(dataFile string, index int, proxyPort string) (context.CancelFunc, error) {
+func RunTestInstaller(t *testing.T, dataFile string, index int, proxyPort string) (context.CancelFunc, error) {
 	ihs, err := GetIhs(dataFile)
 	if err != nil {
 		return nil, err
@@ -92,6 +94,7 @@ func RunTestInstaller(dataFile string, index int, proxyPort string) (context.Can
 			UnsafeTls:    true,
 			ProxyAddress: ProxyAddress(proxyPort),
 			PrivateKey:   ihs[index].PrivateKey,
+			JsonSecf:     path.Join(t.TempDir(), fmt.Sprintf("secrets-%s.json", ihs[index].Name)),
 			Installable: bssms.Installable{
 				ServerUuid: ihs[index].ServerUuid,
 				MacAddress: ihs[index].MacAddress,
