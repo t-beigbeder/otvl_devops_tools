@@ -94,6 +94,7 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 			allProvisioned = true
 			for _, ih := range ihs {
 				if !ih.Installed {
+					getLogger().Debug("not all provisioned", "ih", ih)
 					allProvisioned = false
 				}
 			}

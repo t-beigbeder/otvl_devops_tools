@@ -61,6 +61,17 @@ func (lner *listener) addConnection(cid string, conn quic.Connection, isPr bool)
 	return nil
 }
 
+func (lner *listener) removeConnection(cid string) error {
+	lner.mux.Lock()
+	defer lner.mux.Unlock()
+	_, ok := lner.connds[cid]
+	if !ok {
+		return fmt.Errorf("no connection found for cid: %s", cid)
+	}
+	delete(lner.connds, cid)
+	return nil
+}
+
 func (lner *listener) checkAndSendPrEvInUp(pcd *connd, pin, iin bssms.Installable) {
 	if iin.Matches(pin) {
 		if err := common.WriteCommandToStream(pcd.sbr, pcd.stream, bssms.ProvisionerEventInstallerUp, iin, ""); err != nil {

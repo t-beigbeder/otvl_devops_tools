@@ -18,9 +18,9 @@ type InstallHost struct {
 }
 
 func matchFrom(iin bssms.Installable, ihs []InstallHost) (bool, *InstallHost) {
-	for _, ih := range ihs {
+	for i, ih := range ihs {
 		if iin.Matches(ih.Installable) {
-			return true, &ih
+			return true, &ihs[i]
 		}
 	}
 	return false, nil

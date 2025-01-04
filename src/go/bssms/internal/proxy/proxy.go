@@ -76,6 +76,7 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 			if err != nil {
 				break
 			}
+			defer lner.removeConnection(cid)
 			continue
 		}
 		if opened && cmd == bssms.ApplicationBye {
