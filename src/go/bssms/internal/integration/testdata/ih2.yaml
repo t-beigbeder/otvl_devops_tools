@@ -1,0 +1,19 @@
+- name: tbst6
+  serverUuid: 5728d637-0de2-4e73-bf61-fd836269b786
+  macAddress: fa:16:3e:4a:1a:b3
+  IPExtAddress: 141.94.106.185
+  IPIntAddress: 172.24.0.6
+  privateKey: AGE-SECRET-KEY-1NC5FYKDYK4HX2YPLPSA7MPKP75PSX6QR239XYZ3JNFR9UMX362HQNZFQJ0
+  pubKey: age1fcqnw6nshl5pt89mltsmqdykymjrlu4a3x4m8xtn5qqhj8kwgalssdt53c
+  secrets:
+    key1: value1
+    key2: value2
+- name: tbst7
+  serverUuid: 5728d637-0de2-4e73-bf61-fd836269b787
+  macAddress: fa:17:3e:4a:1a:b3
+  IPExtAddress: 141.94.107.185
+  IPIntAddress: 172.24.0.7
+  privateKey: AGE-SECRET-KEY-1R8S6SQZKHR3F7DHTKNMQJ470NTXXA0ARDP5D7XY9VH0T45H0WMSQLJEVZ0
+  pubKey: age19gnxn2s6zzy85zulmqvpfvrj64q43c8zakrfsqlu0uz2v7tuwuvs6lx3ty
+  secrets:
+    key3: value3

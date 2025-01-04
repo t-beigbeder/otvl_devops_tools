@@ -4,7 +4,7 @@ import (
 	"bssms/internal/bssms"
 )
 
-func RunPhase2(optConfigDir string, ss []string) error {
+func RunPhase2(optConfigDir string, ss []string, secf map[string]map[string]string) error {
 	var ihs0, ihs1, ihs2 []InstallHost
 	var err error
 	if ihs0, err = LoadFilteredInstallHosts(optConfigDir, ss); err != nil {
@@ -26,6 +26,9 @@ func RunPhase2(optConfigDir string, ss []string) error {
 					},
 					PrivateKey: ih0.PrivateKey,
 					PubKey:     ih0.PubKey,
+				}
+				if secs, ok := secf[ih0.Name]; ok {
+					ih2.Secrets = secs
 				}
 				ihs2 = append(ihs2, ih2)
 				break

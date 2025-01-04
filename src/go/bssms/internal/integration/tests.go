@@ -78,7 +78,7 @@ func RunTestProvisioner(dataFile string, proxyPort string) (context.CancelFunc, 
 	return cancel, nil
 }
 
-func RunTestInstaller(dataFile string, proxyPort string) (context.CancelFunc, error) {
+func RunTestInstaller(dataFile string, index int, proxyPort string) (context.CancelFunc, error) {
 	ihs, err := GetIhs(dataFile)
 	if err != nil {
 		return nil, err
@@ -91,11 +91,11 @@ func RunTestInstaller(dataFile string, proxyPort string) (context.CancelFunc, er
 			BaseConfig:   bssms.BaseConfig{Ctx: ctx},
 			UnsafeTls:    true,
 			ProxyAddress: ProxyAddress(proxyPort),
-			PrivateKey:   ihs[0].PrivateKey,
+			PrivateKey:   ihs[index].PrivateKey,
 			Installable: bssms.Installable{
-				ServerUuid: ihs[0].ServerUuid,
-				MacAddress: ihs[0].MacAddress,
-				IPAddress:  ihs[0].IPExtAddress,
+				ServerUuid: ihs[index].ServerUuid,
+				MacAddress: ihs[index].MacAddress,
+				IPAddress:  ihs[index].IPExtAddress,
 			},
 		})
 		if err != nil {

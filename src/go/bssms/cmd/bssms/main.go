@@ -2,6 +2,7 @@ package main
 
 import (
 	"bssms/internal/bssms"
+	"bssms/internal/common"
 	"bssms/internal/installer"
 	"bssms/internal/provisioner"
 	"bssms/internal/proxy"
@@ -62,17 +63,36 @@ func getPr0Cmd() *cli.Command {
 }
 
 func getPr2Cmd() *cli.Command {
+	prf := getPrFlags()
+	prf = append(prf,
+		&cli.StringFlag{
+			Name:     "secf",
+			Required: true,
+			Usage:    "yaml secret file",
+			Action: func(cc *cli.Context, secf string) error {
+				secs := make(map[string]map[string]string)
+				if err := common.YamlLoad(secf, &secs); err != nil {
+					return err
+				}
+				cc.App.Metadata["secf"] = secs
+				return nil
+			},
+		})
 	return &cli.Command{
 		Name:        "pr2",
 		Description: "provisioner, phase #2",
 		Before: func(cc *cli.Context) error {
 			cc.App.Metadata["hns"] = []string{}
 			cc.App.Metadata["cd"] = ""
+			cc.App.Metadata["secf"] = map[string]map[string]string{}
 			return nil
 		},
-		Flags: getPrFlags(),
+		Flags: prf,
 		Action: func(cc *cli.Context) error {
-			err := provisioner.RunPhase2(cc.App.Metadata["cd"].(string), cc.App.Metadata["hns"].([]string))
+			err := provisioner.RunPhase2(
+				cc.App.Metadata["cd"].(string),
+				cc.App.Metadata["hns"].([]string),
+				cc.App.Metadata["secf"].(map[string]map[string]string))
 			return err
 		},
 	}
