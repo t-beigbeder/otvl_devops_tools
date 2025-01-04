@@ -13,19 +13,33 @@ import (
 	"github.com/quic-go/quic-go"
 )
 
+type clCtxBaseType struct {
+	cid         string
+	lner        *listener
+	established bool
+	sbr         *bufio.Reader
+}
+type prCtxType struct {
+	clCtxBaseType
+	ins []bssms.Installable
+	in  bssms.Installable
+}
+
+type inCtxType struct {
+	clCtxBaseType
+	in bssms.Installable
+}
+
 func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) error {
 	cid := uuid.New().String()
 	var (
-		cStream     quic.Stream
-		err         error
-		opened      bool
-		established bool
-		isPr        bool
-		isIn        bool
-		closing     bool
-		cmd         string
-		ins         []bssms.Installable
-		in          bssms.Installable
+		cStream quic.Stream
+		prCtx   *prCtxType
+		inCtx   *inCtxType
+		err     error
+		opened  bool
+		closing bool
+		cmd     string
 	)
 	cStream, err = conn.AcceptStream(context.Background())
 	if err != nil {
@@ -42,13 +56,23 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 		getLogger().Info("handle", "cmd", cmd)
 		if !opened && (cmd == bssms.ProvisionerHello || cmd == bssms.InstallerHello) {
 			opened = true
-			isPr = cmd == bssms.ProvisionerHello
-			isIn = cmd == bssms.InstallerHello
+			if cmd == bssms.ProvisionerHello {
+				prCtx = &prCtxType{
+					clCtxBaseType: clCtxBaseType{cid: cid, lner: lner, sbr: sbr},
+					ins:           nil,
+					in:            bssms.Installable{},
+				}
+			} else {
+				inCtx = &inCtxType{
+					clCtxBaseType: clCtxBaseType{cid: cid, lner: lner, sbr: sbr},
+					in:            bssms.Installable{},
+				}
+			}
 			_, err = cStream.Write([]byte(bssms.ProxyHello))
 			if err != nil {
 				break
 			}
-			err = lner.addConnection(cid, conn, isPr, isIn)
+			err = lner.addConnection(cid, conn, prCtx != nil)
 			if err != nil {
 				break
 			}
@@ -59,55 +83,15 @@ func handle(config *bssms.ProxyConfig, conn quic.Connection, lner *listener) err
 			continue
 		}
 		if opened {
-			if isPr {
-				if !established {
-					err = handlePrInitCmd(sbr, cmd, &ins)
-					if err != nil {
-						break
-					}
-					getLogger().Debug("handlePrInitCmd", "ins", ins)
-					err = lner.provisionerReadyEvent(cid, ins)
-					if err != nil {
-						break
-					}
-				} else {
-					err = handlePrInstallCmd(sbr, cmd, &in)
-					if err != nil {
-						break
-					}
-					getLogger().Debug("handlePrInstallCmd", "in", in)
-					err = lner.provisionerInstallEvent(cid, in)
-					if err != nil {
-						break
-					}
+			if prCtx != nil {
+				if err = handlePrCmds(prCtx, cmd); err != nil {
+					break
+				}
+			} else {
+				if err = handleInCmds(inCtx, cmd); err != nil {
+					break
 				}
 			}
-			if isIn {
-				if !established {
-					in = bssms.Installable{}
-					err = handleInInstallableCmd(sbr, cmd, &in)
-					if err != nil {
-						break
-					}
-					getLogger().Debug("handleInInstallableCmd", "in", in)
-					err = lner.installerReadyEvent(cid, in)
-					if err != nil {
-						break
-					}
-				} else {
-					in = bssms.Installable{}
-					err = handleInInstalledCmd(sbr, cmd, &in)
-					if err != nil {
-						break
-					}
-					getLogger().Debug("handleInInstalledCmd", "in", in)
-					err = lner.installerInstalledEvent(cid, in)
-					if err != nil {
-						break
-					}
-				}
-			}
-			established = true
 			continue
 		}
 		err = fmt.Errorf("invalid protocol command %s", cmd)

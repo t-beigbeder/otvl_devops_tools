@@ -16,7 +16,6 @@ type connd struct {
 	sbr    *bufio.Reader
 	isPr   bool
 	ins    []bssms.Installable
-	isIn   bool
 	in     bssms.Installable
 }
 
@@ -44,21 +43,20 @@ func (lner *listener) close() {
 	lner.done <- struct{}{}
 }
 
-func (lner *listener) addConnection(cid string, conn quic.Connection, isPr, isIn bool) error {
+func (lner *listener) addConnection(cid string, conn quic.Connection, isPr bool) error {
 	lner.mux.Lock()
 	defer lner.mux.Unlock()
 	stream, err := conn.OpenStreamSync(lner.ctx)
 	if err != nil {
 		return err
 	}
-	getLogger().Info("listener.OpenStreamSync", "cid", cid, "sid", stream.StreamID(), "isPr", isPr, "isIn", isIn)
+	getLogger().Info("listener.OpenStreamSync", "cid", cid, "sid", stream.StreamID(), "isPr", isPr)
 	sbr := bufio.NewReaderSize(stream, common.CtrlDataMaxLn)
 	lner.connds[cid] = &connd{
 		conn:   conn,
 		stream: stream,
 		sbr:    sbr,
 		isPr:   isPr,
-		isIn:   isIn,
 	}
 	return nil
 }
@@ -88,7 +86,7 @@ func (lner *listener) checkInstallerUp(pcd *connd) {
 
 func (lner *listener) checkProvisionerUp(icd *connd) {
 	for _, pcd := range lner.connds {
-		if pcd.isIn {
+		if !pcd.isPr {
 			continue
 		}
 		for _, pin := range pcd.ins {
@@ -119,6 +117,25 @@ func (lner *listener) checkAndSendInEvInstall(pcd *connd, in bssms.Installable) 
 		return
 	}
 	getLogger().Debug("checkAndSendInEvInstall: no match", "in", in)
+}
+
+func (lner *listener) checkAndSendPrInstalledEvent(iin bssms.Installable) {
+	for _, pcd := range lner.connds {
+		if !pcd.isPr {
+			continue
+		}
+		for _, pin := range pcd.ins {
+			if iin.Matches(pin) {
+				if err := common.WriteCommandToStream(pcd.sbr, pcd.stream, bssms.ProvisionerEventInstalled, iin, ""); err != nil {
+					getLogger().Error("fail to send "+bssms.ProvisionerEventInstalled, "iin", iin, "err", err)
+					return
+				}
+				getLogger().Info("sent "+bssms.ProvisionerEventInstalled, "iin", iin)
+				return
+			}
+		}
+	}
+	getLogger().Error("checkAndSendPrInstalledEvent: no match", "iin", iin)
 }
 
 func (lner *listener) provisionerReadyEvent(cid string, ins []bssms.Installable) error {
@@ -159,12 +176,11 @@ func (lner *listener) provisionerInstallEvent(cid string, in bssms.Installable) 
 func (lner *listener) installerInstalledEvent(cid string, in bssms.Installable) error {
 	lner.mux.Lock()
 	defer lner.mux.Unlock()
-	pcd, ok := lner.connds[cid]
+	_, ok := lner.connds[cid]
 	if !ok {
 		return fmt.Errorf("no connection found for cid: %s", cid)
 	}
-	// TODO
-	_ = pcd
+	lner.checkAndSendPrInstalledEvent(in)
 	return nil
 }
 

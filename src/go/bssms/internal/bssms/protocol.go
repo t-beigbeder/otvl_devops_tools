@@ -11,6 +11,7 @@ const (
 	ProxyHello                  = "PxHello\n"
 	ProxyHostInstalled          = "PxHostInstalled\n"
 	ProvisionerEventInstallerUp = "PrEvInstallerUp\n"
+	ProvisionerEventInstalled   = "PrEvInstalled\n"
 	InstallerEventInstall       = "InEvInstall\n"
 	ProxyBye                    = "PxBye\n"
 	ApplicationBye              = "AppBye\n"

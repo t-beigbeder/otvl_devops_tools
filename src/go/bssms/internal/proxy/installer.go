@@ -26,3 +26,26 @@ func handleInInstalledCmd(sbr *bufio.Reader, cmd string, in *bssms.Installable) 
 	}
 	return nil
 }
+
+func handleInCmds(ic *inCtxType, cmd string) error {
+	var err error
+	if !ic.established {
+		if err = handleInInstallableCmd(ic.sbr, cmd, &ic.in); err != nil {
+			return err
+		}
+		getLogger().Debug("handleInInstallableCmd", "in", ic.in)
+		if err = ic.lner.installerReadyEvent(ic.cid, ic.in); err != nil {
+			return err
+		}
+	} else {
+		if err = handleInInstalledCmd(ic.sbr, cmd, &ic.in); err != nil {
+			return err
+		}
+		getLogger().Debug("handleInInstalledCmd", "in", ic.in)
+		if err = ic.lner.installerInstalledEvent(ic.cid, ic.in); err != nil {
+			return err
+		}
+	}
+	ic.established = true
+	return nil
+}

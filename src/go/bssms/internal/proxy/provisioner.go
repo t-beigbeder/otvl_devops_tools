@@ -29,3 +29,26 @@ func handlePrInstallCmd(sbr *bufio.Reader, cmd string, in *bssms.Installable) er
 	}
 	return nil
 }
+
+func handlePrCmds(pc *prCtxType, cmd string) error {
+	var err error
+	if !pc.established {
+		if err = handlePrInitCmd(pc.sbr, cmd, &pc.ins); err != nil {
+			return err
+		}
+		getLogger().Debug("handlePrInitCmd", "ins", pc.ins)
+		if err = pc.lner.provisionerReadyEvent(pc.cid, pc.ins); err != nil {
+			return err
+		}
+	} else {
+		if err = handlePrInstallCmd(pc.sbr, cmd, &pc.in); err != nil {
+			return err
+		}
+		getLogger().Debug("handlePrInstallCmd", "in", pc.in)
+		if err = pc.lner.provisionerInstallEvent(pc.cid, pc.in); err != nil {
+			return err
+		}
+	}
+	pc.established = true
+	return nil
+}

@@ -10,13 +10,47 @@ import (
 	"github.com/quic-go/quic-go"
 )
 
-func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.Stream) error {
+func handleEvents(config *bssms.InstallerConfig, conn quic.Connection) (map[string]string, error) {
 	var (
 		err        error
 		rcmd       string
 		encSecrets []byte
 		jsSecrets  string
 		secrets    map[string]string
+	)
+
+	eStream, err := conn.AcceptStream(config.GetContext())
+	if err != nil {
+		return nil, err
+	}
+	defer eStream.Close()
+	getLogger().Info("AcceptStream", "eSid", eStream.StreamID())
+	esr := bufio.NewReaderSize(eStream, common.CtrlDataMaxLn)
+	rcmd, err = esr.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+	if rcmd != bssms.InstallerEventInstall {
+		return nil, fmt.Errorf("unexpected rcmd: %s", rcmd)
+	}
+	if encSecrets, err = common.ReadBytesFromStream(esr); err != nil {
+		return nil, err
+	}
+	getLogger().Debug("install", "encSecrets", encSecrets)
+	if jsSecrets, err = common.DecryptMsg(encSecrets, config.PrivateKey); err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal([]byte(jsSecrets), &secrets); err != nil {
+		return nil, err
+	}
+	return secrets, nil
+}
+
+func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.Stream) error {
+	var (
+		err     error
+		rcmd    string
+		secrets map[string]string
 	)
 	sbr := bufio.NewReaderSize(cStream, common.CtrlDataMaxLn)
 	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerHello, nil, bssms.ProxyHello); err != nil {
@@ -31,31 +65,12 @@ func install(config *bssms.InstallerConfig, conn quic.Connection, cStream quic.S
 		return err
 	}
 
-	eStream, err := conn.AcceptStream(config.GetContext())
+	secrets, err = handleEvents(config, conn)
 	if err != nil {
-		return err
-	}
-	defer eStream.Close()
-	getLogger().Info("AcceptStream", "eSid", cStream.StreamID())
-	esr := bufio.NewReaderSize(eStream, common.CtrlDataMaxLn)
-	rcmd, err = esr.ReadString('\n')
-	if err != nil {
-		return err
-	}
-	if rcmd != bssms.InstallerEventInstall {
-		return fmt.Errorf("unexpected rcmd: %s", rcmd)
-	}
-	if encSecrets, err = common.ReadBytesFromStream(esr); err != nil {
-		return err
-	}
-	getLogger().Debug("install", "encSecrets", encSecrets)
-	if jsSecrets, err = common.DecryptMsg(encSecrets, config.PrivateKey); err != nil {
-		return err
-	}
-	if err = json.Unmarshal([]byte(jsSecrets), &secrets); err != nil {
 		return err
 	}
 	getLogger().Debug("install", "secrets", secrets)
+
 	if err = common.WriteCommandToStream(sbr, cStream, bssms.InstallerInstalled, in, ""); err != nil {
 		return err
 	}

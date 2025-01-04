@@ -11,7 +11,7 @@ import (
 	"github.com/quic-go/quic-go"
 )
 
-func install(sbr *bufio.Reader, cStream quic.Stream, iin bssms.Installable, ihs []InstallHost) {
+func installing(sbr *bufio.Reader, cStream quic.Stream, iin bssms.Installable, ihs []InstallHost) {
 	ok, ih := matchFrom(iin, ihs)
 	if !ok {
 		getLogger().Error("installable does not match configured ones", "iin", iin)
@@ -29,18 +29,29 @@ func install(sbr *bufio.Reader, cStream quic.Stream, iin bssms.Installable, ihs 
 	}
 	pin := iin
 	pin.EncSecrets = string(ebs)
-	if err := common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerInstall, pin, bssms.ProxyHostInstalled); err != nil {
+	if err := common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerInstall, pin, ""); err != nil {
 		getLogger().Error("remote install failed", "err", err, "iin", iin)
 		return
 	}
-	getLogger().Info("remote install succeeded", "iin", iin)
+	getLogger().Info("remote install started", "iin", iin)
 	return
+}
+
+func installed(iin bssms.Installable, ihs []InstallHost) {
+	ok, ih := matchFrom(iin, ihs)
+	if !ok {
+		getLogger().Error("installed does not match configured ones", "iin", iin)
+		return
+	}
+	ih.Installed = true
+	getLogger().Info("remote install achieved", "iin", iin)
 }
 
 func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, ihs []InstallHost) error {
 	var (
-		err  error
-		rcmd string
+		err            error
+		rcmd           string
+		allProvisioned bool
 	)
 	sbr := bufio.NewReaderSize(cStream, common.CtrlDataMaxLn)
 	if err = common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerHello, nil, bssms.ProxyHello); err != nil {
@@ -61,20 +72,32 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 	defer eStream.Close()
 	getLogger().Info("AcceptStream", "eSid", cStream.StreamID())
 	esr := bufio.NewReaderSize(eStream, common.CtrlDataMaxLn)
-	for i := 0; i < len(ins); i++ {
+	for !allProvisioned {
 		in := bssms.Installable{}
 		rcmd, err = esr.ReadString('\n')
 		if err != nil {
 			return err
 		}
-		if rcmd != bssms.ProvisionerEventInstallerUp {
+		getLogger().Debug("reading proxy event", "rcmd", rcmd)
+		if rcmd != bssms.ProvisionerEventInstallerUp && rcmd != bssms.ProvisionerEventInstalled {
 			return fmt.Errorf("unexpected rcmd: %s", rcmd)
 		}
 		if err = common.ReadJsonFromStream(esr, &in); err != nil {
-			getLogger().Error("ReadJsonFromStream", "err", err, "in", ins[i])
+			getLogger().Error("ReadJsonFromStream", "err", err, "in", in)
 			continue
 		}
-		install(sbr, cStream, in, ihs)
+		getLogger().Debug("reading proxy event", "rcmd", rcmd, "in", in)
+		if rcmd == bssms.ProvisionerEventInstallerUp {
+			installing(sbr, cStream, in, ihs)
+		} else {
+			installed(in, ihs)
+			allProvisioned = true
+			for _, ih := range ihs {
+				if !ih.Installed {
+					allProvisioned = false
+				}
+			}
+		}
 	}
 
 	rcmd, err = common.WriteByeCommandToStream(sbr, cStream, bssms.ApplicationBye, bssms.ProxyBye)
