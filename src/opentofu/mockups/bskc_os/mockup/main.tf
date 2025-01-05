@@ -47,6 +47,7 @@ module "instances" {
     tf_dot_repo   = var.tf_dot_repo
     tf_dot_branch = var.tf_dot_branch
     tf_yihs       = local.yihs
+    tf_prik       = "fixme"
   }))
   bastion_sg_id = module.networking.bastion_sg_id
   ext_sg_id     = module.networking.ext_sg_id
