@@ -22,6 +22,10 @@ terraform {
 
 }
 
+locals {
+  yihs = yamldecode(file(pathexpand("~/.config/.bssms/installHosts.yaml")))
+}
+
 module "networking" {
   source          = "../modules/networking"
   ext_net_name    = var.ext_net_name
@@ -32,14 +36,18 @@ module "networking" {
 }
 
 module "instances" {
-  source             = "../modules/instances"
-  ext_net_id         = module.networking.ext_net_id
-  loc_net_id         = module.networking.loc_net_id
-  loc_subnet_id      = module.networking.loc_subnet_id
-  ssh_key_name       = var.ssh_key_name
-  ssh_pub            = var.ssh_pub
-  instances_attrs    = var.instances_attrs
-  instance_user_data = var.instance_user_data
-  bastion_sg_id      = module.networking.bastion_sg_id
-  ext_sg_id          = module.networking.ext_sg_id
+  source          = "../modules/instances"
+  ext_net_id      = module.networking.ext_net_id
+  loc_net_id      = module.networking.loc_net_id
+  loc_subnet_id   = module.networking.loc_subnet_id
+  ssh_key_name    = var.ssh_key_name
+  ssh_pub         = var.ssh_pub
+  instances_attrs = var.instances_attrs
+  instance_user_data = base64encode(templatefile("${path.module}/cloud-config.yaml", {
+    tf_dot_repo   = var.tf_dot_repo
+    tf_dot_branch = var.tf_dot_branch
+    tf_yihs       = local.yihs
+  }))
+  bastion_sg_id = module.networking.bastion_sg_id
+  ext_sg_id     = module.networking.ext_sg_id
 }

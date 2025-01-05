@@ -1,0 +1,37 @@
+#cloud-config
+write_files:
+  - content: |
+      #!/bin/sh
+      tf_dot_repo=https://github.com/t-beigbeder/otvl_devops_tools
+      tf_dot_branch=bdev9
+      tf_prik=AGE-SECRET-KEY-1PPT96DMZV4NGNFXTV0UCZ36HMSZKAAWAZUX3FJDLH47DP200PNAQQ882AW
+
+      export CI_DOT_REPO=${tf_dot_repo}
+      export CI_DOT_BRANCH=${tf_dot_branch}
+      export CI_PRIK=${tf_prik}
+      echo `date`: command $0 is starting
+      apt-get update && \
+        apt-get install -y --no-install-recommends git jq curl fail2ban && \
+        ip ad && \
+        curl http://169.254.169.254/openstack/latest/meta_data.json | jq .uuid && \
+        mkdir -p /root/clinit && cd /root/clinit && \
+        curl -L https://go.dev/dl/go1.23.4.linux-amd64.tar.gz -o go.tgz && \
+        rm -rf /usr/local/go && tar -C /usr/local -xzf go.tgz && rm go.tgz && \
+        git clone --single-branch --branch $CI_DOT_BRANCH $CI_DOT_REPO && \
+        cd otvl_devops_tools/src/go/bssms/ && /usr/local/go/bin/go build -o ../../../.. ./... && \
+        cd  ../../../.. && rm -rf otvl_devops_tools && rm -rf /usr/local/go && \
+        true || exit 1
+        export CI_UUID=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid`
+        export CI_MAC=`ip -j ad | jq -r .[1].address`
+        export CI_ADDR=`ip -4 -j ad|jq -r .[1].addr_info[0].local`
+        cmd=""./bssms in -pxa bssms-proxy:9443 -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
+        echo Running $cmd
+        $cmd
+        echo `date`: command $0 is exiting
+      exit 0
+
+    path: /root/bin/otvl_cloud_init.sh
+    owner: root:root
+    permissions: '0750'
+runcmd:
+  - [ /root/bin/otvl_cloud_init.sh ]

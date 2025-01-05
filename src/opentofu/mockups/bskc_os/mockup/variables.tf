@@ -32,7 +32,7 @@ variable "ext_sg_name" {
 }
 variable "instances_attrs" {
   description = "Attributes for instances to create"
-  type        = list(object({
+  type = list(object({
     name        = string
     groups      = string
     otvl_meta   = string
@@ -41,13 +41,18 @@ variable "instances_attrs" {
     flavor_name = string
   }))
 }
-
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
-variable "instance_user_data" {
-  description = "User data (cloud-init) passed at instance creation"
+variable "tf_dot_repo" {
+  description = "Git repo devopstools"
   type        = string
-  default     = null
+  default     = "https://github.com/t-beigbeder/otvl_devops_tools"
+}
+
+variable "tf_dot_branch" {
+  description = "Git branch devopstools"
+  type        = string
+  default     = "bdev9"
 }
