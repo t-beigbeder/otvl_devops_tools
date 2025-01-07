@@ -25,8 +25,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		// TODO: Update this string with the published name of your provider.
-		Address: "registry.terraform.io/hashicorp/scaffolding",
+		Address: "tofu.otvl.org/otvl/bssms",
 		Debug:   debug,
 	}
 
