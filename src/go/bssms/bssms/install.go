@@ -8,8 +8,8 @@ type Installable struct {
 	IPIntAddress string `json:"IPIntAddress,omitempty" yaml:"IPIntAddress,omitempty"`
 	IPAddress    string `json:"IPAddress,omitempty" yaml:"IPAddress,omitempty"`
 	EncSecrets   string `json:"encSecrets,omitempty" yaml:"encSecrets,omitempty"`
-	Installing   bool
-	Installed    bool
+	Installing   bool   `json:"-" yaml:"-"`
+	Installed    bool   `json:"-" yaml:"-"`
 }
 
 func (iin Installable) Matches(pin Installable) bool {
