@@ -1,7 +1,7 @@
 package provisioner
 
 import (
-	"bssms/internal/bssms"
+	"bssms/bssms"
 	"context"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"

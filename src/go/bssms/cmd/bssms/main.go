@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bssms/internal/bssms"
+	"bssms/bssms"
 	"bssms/internal/common"
 	"bssms/internal/installer"
-	"bssms/internal/provisioner"
 	"bssms/internal/proxy"
+	provisioner "bssms/provisioner"
 	"github.com/urfave/cli/v2"
 	"log"
 	"net"

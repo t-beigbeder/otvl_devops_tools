@@ -1,6 +1,8 @@
 package installer
 
-import "bssms/internal/bssms"
+import (
+	"bssms/bssms"
+)
 
 type InstallHost struct {
 	bssms.Installable

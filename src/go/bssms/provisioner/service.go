@@ -1,7 +1,7 @@
 package provisioner
 
 import (
-	"bssms/internal/bssms"
+	bssms "bssms/bssms"
 	"bssms/internal/common"
 	"path/filepath"
 )

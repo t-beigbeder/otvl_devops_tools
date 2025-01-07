@@ -1,7 +1,7 @@
 package installer
 
 import (
-	"bssms/internal/bssms"
+	"bssms/bssms"
 	"bssms/internal/common"
 	"bssms/internal/qutils"
 	"bufio"

@@ -1,7 +1,7 @@
 package proxy
 
 import (
-	"bssms/internal/bssms"
+	"bssms/bssms"
 	"bssms/internal/common"
 	"bufio"
 	"fmt"

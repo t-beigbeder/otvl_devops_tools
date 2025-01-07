@@ -1,7 +1,7 @@
 package provisioner
 
 import (
-	"bssms/internal/bssms"
+	"bssms/bssms"
 )
 
 func RunPhase2(optConfigDir string, ss []string, secf map[string]map[string]string) error {

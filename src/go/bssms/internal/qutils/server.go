@@ -1,7 +1,7 @@
 package qutils
 
 import (
-	"bssms/internal/bssms"
+	"bssms/bssms"
 	"crypto/tls"
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/qlog"

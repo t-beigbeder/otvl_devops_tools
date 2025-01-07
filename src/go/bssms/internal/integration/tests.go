@@ -1,10 +1,10 @@
 package integration
 
 import (
-	"bssms/internal/bssms"
+	bssms "bssms/bssms"
 	"bssms/internal/installer"
-	"bssms/internal/provisioner"
 	"bssms/internal/proxy"
+	provisioner "bssms/provisioner"
 	"context"
 	"fmt"
 	"path"
