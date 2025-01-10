@@ -17,7 +17,16 @@ go install
 
 ## Using the provider
 
-TODO: write the user documentation.
+TODO: complete the user documentation.
+
+Installable resource: has to be provisioned before OpenStack instances,
+will generate a dedicated key-pair for each instance,
+with a secret key to be provided to the instance user_data.
+
+Secrets resource: has to be provisioned after OpenStack instances,
+configured with instance specific secrets as key-value pairs,
+will activate a `bssms` _provisioner_ that will transfer public-key encrypted secrets
+to each instance when it becomes ready.
 
 ## Developing the Provider
 

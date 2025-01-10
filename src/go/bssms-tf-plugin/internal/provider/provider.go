@@ -2,13 +2,14 @@ package provider
 
 import (
 	"context"
-	"net/http"
-
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/function"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure BssmsProvider satisfies various provider interfaces.
@@ -23,8 +24,10 @@ type BssmsProvider struct {
 	version string
 }
 
-// BssmsProviderModel describes the provider data model.
-type BssmsProviderModel struct{}
+// bssmsProviderModel describes the provider data model.
+type bssmsProviderModel struct {
+	ConfigDir types.String `tfschema:"config_dir"`
+}
 
 func (p *BssmsProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "bssms"
@@ -33,40 +36,51 @@ func (p *BssmsProvider) Metadata(_ context.Context, _ provider.MetadataRequest, 
 
 func (p *BssmsProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{},
+		Attributes: map[string]schema.Attribute{
+			"config_dir": schema.StringAttribute{
+				Optional: true,
+			},
+		},
 	}
 }
 
 func (p *BssmsProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data BssmsProviderModel
+	tflog.Info(ctx, "Configuring Bssms ConfigDir")
 
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
+	var config bssmsProviderModel
+	diags := req.Config.Get(ctx, &config)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
+	if config.ConfigDir.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("config_dir"),
+			"Unknown Bssms ConfigDir",
+			"set the value statically in the configuration",
+		)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	// Example client configuration for data sources and resources
-	client := http.DefaultClient
-	resp.DataSourceData = client
-	resp.ResourceData = client
+	resp.ResourceData = config.ConfigDir
+	tflog.Info(ctx, "Configured Bssms ConfigDir", map[string]interface{}{"config_dir": config.ConfigDir})
 }
 
-func (p *BssmsProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *BssmsProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewInstallableResource,
 		NewSecretsResource,
 	}
 }
 
-func (p *BssmsProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *BssmsProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return nil
 }
 
-func (p *BssmsProvider) Functions(ctx context.Context) []func() function.Function {
+func (p *BssmsProvider) Functions(_ context.Context) []func() function.Function {
 	return nil
 }
 
