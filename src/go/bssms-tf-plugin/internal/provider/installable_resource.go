@@ -89,7 +89,7 @@ func (r *installableResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	err := provisioner.RunPhase0(r.configDir, []string{plan.Name.ValueString()})
+	err := provisioner.MergePhase0(r.configDir, plan.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Installable",
@@ -144,7 +144,7 @@ func (r *installableResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	err := provisioner.RunPhase0(r.configDir, []string{plan.Name.ValueString()})
+	err := provisioner.MergePhase0(r.configDir, plan.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Installable",
@@ -168,9 +168,19 @@ func (r *installableResource) Update(ctx context.Context, req resource.UpdateReq
 
 }
 
-func (r *installableResource) Delete(ctx context.Context, request resource.DeleteRequest, response *resource.DeleteResponse) {
-	//TODO implement me
-	panic("implement me")
+func (r *installableResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// Retrieve values from state
+	var state installableResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ih := r.getInstallHost(state.Name.ValueString(), resp.Diagnostics)
+	if ih == nil {
+		return
+	}
+	// nothing to remove, key-pairs are unique to one cloud-init run
 }
 
 // orderResourceModel maps the resource schema data.
