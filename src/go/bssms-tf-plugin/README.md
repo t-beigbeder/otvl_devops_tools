@@ -28,6 +28,21 @@ configured with instance specific secrets as key-value pairs,
 will activate a `bssms` _provisioner_ that will transfer public-key encrypted secrets
 to each instance when it becomes ready.
 
+    terraform {
+      required_providers {
+        bssms = {
+          source  = "tofu.otvl.org/otvl/bssms"
+        }
+      }
+      required_version = ">= 1.1.0"
+    }
+    
+    provider "bssms" {}
+    
+    resource "bssms_installable" "a" {
+      name = "aname"
+    }
+
 ## Developing the Provider
 
 To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.

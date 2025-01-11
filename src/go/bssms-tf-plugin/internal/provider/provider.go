@@ -26,7 +26,7 @@ type BssmsProvider struct {
 
 // bssmsProviderModel describes the provider data model.
 type bssmsProviderModel struct {
-	ConfigDir types.String `tfschema:"config_dir"`
+	ConfigDir types.String `tfsdk:"config_dir"`
 }
 
 func (p *BssmsProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -65,7 +65,7 @@ func (p *BssmsProvider) Configure(ctx context.Context, req provider.ConfigureReq
 		return
 	}
 
-	resp.ResourceData = config.ConfigDir
+	resp.ResourceData = config.ConfigDir.String()
 	tflog.Info(ctx, "Configured Bssms ConfigDir", map[string]interface{}{"config_dir": config.ConfigDir})
 }
 

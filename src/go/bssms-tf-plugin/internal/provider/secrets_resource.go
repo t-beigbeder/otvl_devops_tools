@@ -21,7 +21,7 @@ type secretsResource struct{}
 
 // Metadata returns the resource type name.
 func (r *secretsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_installable"
+	resp.TypeName = req.ProviderTypeName + "_secrets"
 }
 
 // Schema defines the schema for the resource.

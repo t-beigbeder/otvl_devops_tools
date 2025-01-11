@@ -1,10 +1,14 @@
 package provider
 
 import (
+	"bssms/provisioner"
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -32,9 +36,9 @@ func (r *installableResource) Metadata(_ context.Context, req resource.MetadataR
 func (r *installableResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"name":   schema.StringAttribute{Required: true},
-			"priKey": schema.StringAttribute{Computed: true, Sensitive: true},
-			"pubKey": schema.StringAttribute{Computed: true, Sensitive: true},
+			"name":    schema.StringAttribute{Required: true},
+			"pri_key": schema.StringAttribute{Computed: true, Sensitive: true},
+			"pub_key": schema.StringAttribute{Computed: true, Sensitive: true},
 		},
 	}
 }
@@ -55,22 +59,123 @@ func (r *installableResource) Configure(_ context.Context, req resource.Configur
 	r.configDir = configDir
 }
 
-func (r *installableResource) Create(ctx context.Context, request resource.CreateRequest, response *resource.CreateResponse) {
-	//TODO implement me
-	panic("implement me")
+func (r *installableResource) getInstallHost(name string, diags diag.Diagnostics) *provisioner.InstallHost {
+	ihs, err := provisioner.LoadInstallHosts(r.configDir)
+	if err != nil {
+		diags.AddError(
+			"Error retrieving Installables",
+			fmt.Sprintf("LoadInstallHosts: %s", err),
+		)
+		return nil
+	}
+	for _, ih := range ihs {
+		if ih.Name == name {
+			return &ih
+		}
+	}
+	diags.AddError(
+		"Error retrieving Installable",
+		fmt.Sprintf("Fetch %s in %s", name, r.configDir),
+	)
+	return nil
 }
 
-func (r *installableResource) Read(ctx context.Context, request resource.ReadRequest, response *resource.ReadResponse) {
-	//TODO implement me
-	panic("implement me")
+func (r *installableResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan installableResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err := provisioner.RunPhase0(r.configDir, []string{plan.Name.String()})
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error creating Installable",
+			fmt.Sprintf("RunPhase0: %s", err),
+		)
+		return
+	}
+	ih := r.getInstallHost(plan.Name.String(), resp.Diagnostics)
+	if ih == nil {
+		return
+	}
+	plan.PriKey = types.StringValue(ih.PrivateKey)
+	plan.PubKey = types.StringValue(ih.PubKey)
+
+	// Set state to fully populated data
+	diags = resp.State.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
-func (r *installableResource) Update(ctx context.Context, request resource.UpdateRequest, response *resource.UpdateResponse) {
-	//TODO implement me
-	panic("implement me")
+func (r *installableResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state installableResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	ih := r.getInstallHost(state.Name.String(), resp.Diagnostics)
+	if ih == nil {
+		return
+	}
+	state.PriKey = types.StringValue(ih.PrivateKey)
+	state.PubKey = types.StringValue(ih.PubKey)
+	tflog.Info(ctx, "Reading Installable", map[string]interface{}{"ih": ih})
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *installableResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan installableResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err := provisioner.RunPhase0(r.configDir, []string{plan.Name.String()})
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error creating Installable",
+			fmt.Sprintf("RunPhase0: %s", err),
+		)
+		return
+	}
+	ih := r.getInstallHost(plan.Name.String(), resp.Diagnostics)
+	if ih == nil {
+		return
+	}
+	plan.PriKey = types.StringValue(ih.PrivateKey)
+	plan.PubKey = types.StringValue(ih.PubKey)
+
+	// Set state to fully populated data
+	diags = resp.State.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 }
 
 func (r *installableResource) Delete(ctx context.Context, request resource.DeleteRequest, response *resource.DeleteResponse) {
 	//TODO implement me
 	panic("implement me")
+}
+
+// orderResourceModel maps the resource schema data.
+type installableResourceModel struct {
+	Name   types.String `tfsdk:"name"`
+	PriKey types.String `tfsdk:"pri_key"`
+	PubKey types.String `tfsdk:"pub_key"`
 }

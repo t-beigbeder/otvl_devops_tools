@@ -5,8 +5,8 @@ import (
 	"flag"
 	"log"
 
-	"bssms-tf-plugin/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"terraform-provider-bssms/internal/provider"
 )
 
 var (
