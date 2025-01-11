@@ -89,7 +89,7 @@ func (r *installableResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	err := provisioner.RunPhase0(r.configDir, []string{plan.Name.String()})
+	err := provisioner.RunPhase0(r.configDir, []string{plan.Name.ValueString()})
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Installable",
@@ -97,7 +97,7 @@ func (r *installableResource) Create(ctx context.Context, req resource.CreateReq
 		)
 		return
 	}
-	ih := r.getInstallHost(plan.Name.String(), resp.Diagnostics)
+	ih := r.getInstallHost(plan.Name.ValueString(), resp.Diagnostics)
 	if ih == nil {
 		return
 	}
@@ -120,7 +120,7 @@ func (r *installableResource) Read(ctx context.Context, req resource.ReadRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	ih := r.getInstallHost(state.Name.String(), resp.Diagnostics)
+	ih := r.getInstallHost(state.Name.ValueString(), resp.Diagnostics)
 	if ih == nil {
 		return
 	}
@@ -144,7 +144,7 @@ func (r *installableResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	err := provisioner.RunPhase0(r.configDir, []string{plan.Name.String()})
+	err := provisioner.RunPhase0(r.configDir, []string{plan.Name.ValueString()})
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Installable",
@@ -152,7 +152,7 @@ func (r *installableResource) Update(ctx context.Context, req resource.UpdateReq
 		)
 		return
 	}
-	ih := r.getInstallHost(plan.Name.String(), resp.Diagnostics)
+	ih := r.getInstallHost(plan.Name.ValueString(), resp.Diagnostics)
 	if ih == nil {
 		return
 	}

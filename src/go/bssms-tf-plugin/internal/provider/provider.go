@@ -65,7 +65,7 @@ func (p *BssmsProvider) Configure(ctx context.Context, req provider.ConfigureReq
 		return
 	}
 
-	resp.ResourceData = config.ConfigDir.String()
+	resp.ResourceData = config.ConfigDir.ValueString()
 	tflog.Info(ctx, "Configured Bssms ConfigDir", map[string]interface{}{"config_dir": config.ConfigDir})
 }
 
