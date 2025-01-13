@@ -2,10 +2,6 @@
 write_files:
   - content: |
       #!/bin/sh
-      tf_dot_repo=https://github.com/t-beigbeder/otvl_devops_tools
-      tf_dot_branch=bdev9
-      tf_prik=AGE-SECRET-KEY-1PPT96DMZV4NGNFXTV0UCZ36HMSZKAAWAZUX3FJDLH47DP200PNAQQ882AW
-
       export CI_DOT_REPO=${tf_dot_repo}
       export CI_DOT_BRANCH=${tf_dot_branch}
       export CI_PRIK=${tf_prik}

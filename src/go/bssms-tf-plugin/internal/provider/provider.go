@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"bssms/bssms"
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/function"
@@ -26,7 +27,14 @@ type BssmsProvider struct {
 
 // bssmsProviderModel describes the provider data model.
 type bssmsProviderModel struct {
-	ConfigDir types.String `tfsdk:"config_dir"`
+	ConfigDir    types.String `tfsdk:"config_dir"`
+	UnsafeTls    types.Bool   `tfsdk:"unsafe_tls"`
+	ProxyAddress types.String `tfsdk:"proxy_address"`
+}
+
+type provisionerConfig struct {
+	configDir string
+	pc        bssms.ProvisionerConfig
 }
 
 func (p *BssmsProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -39,6 +47,12 @@ func (p *BssmsProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp
 		Attributes: map[string]schema.Attribute{
 			"config_dir": schema.StringAttribute{
 				Optional: true,
+			},
+			"unsafe_tls": schema.BoolAttribute{
+				Optional: true,
+			},
+			"proxy_address": schema.StringAttribute{
+				Required: true,
 			},
 		},
 	}
@@ -61,12 +75,32 @@ func (p *BssmsProvider) Configure(ctx context.Context, req provider.ConfigureReq
 			"set the value statically in the configuration",
 		)
 	}
+	if config.UnsafeTls.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("unsafe_tls"),
+			"Unknown Bssms UnsafeTls",
+			"set the value statically in the configuration",
+		)
+	}
+	if config.ProxyAddress.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("unsafe_tls"),
+			"Unknown Bssms UnsafeTls",
+			"set the value statically in the configuration",
+		)
+	}
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	resp.ResourceData = config.ConfigDir.ValueString()
-	tflog.Info(ctx, "Configured Bssms ConfigDir", map[string]interface{}{"config_dir": config.ConfigDir})
+	resp.ResourceData = provisionerConfig{
+		configDir: config.ConfigDir.ValueString(),
+		pc: bssms.ProvisionerConfig{
+			BaseConfig:   bssms.BaseConfig{},
+			UnsafeTls:    config.UnsafeTls.ValueBool(),
+			ProxyAddress: config.ProxyAddress.ValueString(),
+		},
+	}
+	tflog.Info(ctx, "Configured Bssms", map[string]interface{}{"resource_data": resp.ResourceData})
 }
 
 func (p *BssmsProvider) Resources(_ context.Context) []func() resource.Resource {

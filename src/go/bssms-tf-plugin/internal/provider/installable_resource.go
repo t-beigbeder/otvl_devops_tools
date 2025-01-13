@@ -47,16 +47,16 @@ func (r *installableResource) Configure(_ context.Context, req resource.Configur
 	if req.ProviderData == nil {
 		return
 	}
-	configDir, ok := req.ProviderData.(string)
+	pc, ok := req.ProviderData.(provisionerConfig)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected string, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected provisionerConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
 	}
-	r.configDir = configDir
+	r.configDir = pc.configDir
 }
 
 func (r *installableResource) getInstallHost(name string, diags diag.Diagnostics) *provisioner.InstallHost {
@@ -183,7 +183,7 @@ func (r *installableResource) Delete(ctx context.Context, req resource.DeleteReq
 	// nothing to remove, key-pairs are unique to one cloud-init run
 }
 
-// orderResourceModel maps the resource schema data.
+// installableResourceModel maps the resource schema data.
 type installableResourceModel struct {
 	Name   types.String `tfsdk:"name"`
 	PriKey types.String `tfsdk:"pri_key"`

@@ -45,13 +45,13 @@ variable "instances_attrs" {
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
-variable "tf_dot_repo" {
+variable "dot_repo" {
   description = "Git repo devopstools"
   type        = string
   default     = "https://github.com/t-beigbeder/otvl_devops_tools"
 }
 
-variable "tf_dot_branch" {
+variable "dot_branch" {
   description = "Git branch devopstools"
   type        = string
   default     = "bdev9"

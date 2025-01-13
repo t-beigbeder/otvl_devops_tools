@@ -24,7 +24,7 @@ variable "ssh_pub" {
 }
 variable "instances_attrs" {
   description = "Attributes for instances to create"
-  type        = list(object({
+  type = list(object({
     name        = string
     groups      = string
     otvl_meta   = string
@@ -33,15 +33,20 @@ variable "instances_attrs" {
     flavor_name = string
   }))
 }
-variable "instance_user_data" {
-  description = "User data (cloud-init) passed at instance creation"
-  type        = string
-}
 variable "bastion_sg_id" {
   description = "bastion sg id"
   type        = string
 }
 variable "ext_sg_id" {
   description = "ext sg id"
+  type        = string
+}
+variable "dot_repo" {
+  description = "Git repo devopstools"
+  type        = string
+}
+
+variable "dot_branch" {
+  description = "Git branch devopstools"
   type        = string
 }

@@ -10,6 +10,9 @@ terraform {
       source  = "terraform-provider-openstack/openstack"
       version = "~> 1.42.0"
     }
+    bssms = {
+      source = "tofu.otvl.org/otvl/bssms"
+    }
   }
 
   /*
@@ -22,8 +25,8 @@ terraform {
 
 }
 
-locals {
-  yihs = yamldecode(file(pathexpand("~/.config/.bssms/installHosts.yaml")))
+provider "bssms" {
+  proxy_address = "localhost:9443"
 }
 
 module "networking" {
@@ -43,12 +46,8 @@ module "instances" {
   ssh_key_name    = var.ssh_key_name
   ssh_pub         = var.ssh_pub
   instances_attrs = var.instances_attrs
-  instance_user_data = base64encode(templatefile("${path.module}/cloud-config.yaml", {
-    tf_dot_repo   = var.tf_dot_repo
-    tf_dot_branch = var.tf_dot_branch
-    tf_yihs       = local.yihs
-    tf_prik       = "fixme"
-  }))
-  bastion_sg_id = module.networking.bastion_sg_id
-  ext_sg_id     = module.networking.ext_sg_id
+  bastion_sg_id   = module.networking.bastion_sg_id
+  ext_sg_id       = module.networking.ext_sg_id
+  dot_repo        = var.dot_repo
+  dot_branch      = var.dot_branch
 }
