@@ -33,8 +33,19 @@ func (r *secretsResource) Metadata(_ context.Context, req resource.MetadataReque
 func (r *secretsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"name":    schema.StringAttribute{Required: true},
-			"pub_key": schema.StringAttribute{Computed: true, Sensitive: true},
+			"name":        schema.StringAttribute{Required: true},
+			"pub_key":     schema.StringAttribute{Required: true, Sensitive: true},
+			"server_uuid": schema.StringAttribute{Required: true},
+			"ip_ext_addresses": schema.ListAttribute{
+				ElementType: types.StringType,
+				Required:    true,
+			},
+			"mac_ext_address": schema.StringAttribute{Optional: true},
+			"ip_int_addresses": schema.ListAttribute{
+				ElementType: types.StringType,
+				Required:    true,
+			},
+			"mac_int_address": schema.StringAttribute{Optional: true},
 			"secrets": schema.MapAttribute{
 				ElementType: types.StringType,
 				Required:    true,
@@ -42,7 +53,6 @@ func (r *secretsResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 		},
 	}
-
 }
 
 func (r *secretsResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -79,17 +89,15 @@ func (r *secretsResource) Create(ctx context.Context, req resource.CreateRequest
 		[]provisioner.InstallHost{
 			{
 				Installable: bssms.Installable{
-					Name:         plan.Name.ValueString(),
-					ServerUuid:   "",
-					MacAddress:   "",
-					IPExtAddress: "",
-					IPIntAddress: "",
-					IPAddress:    "",
-					EncSecrets:   "",
+					Name:          plan.Name.ValueString(),
+					ServerUuid:    plan.ServerUuid.ValueString(),
+					MacExtAddress: plan.MacExtAddress.ValueString(),
+					MacIntAddress: plan.MacIntAddress.ValueString(),
+					IPExtAddress:  "",
+					IPIntAddress:  "",
 				},
-				PrivateKey: "",
-				PubKey:     "",
-				Secrets:    nil,
+				PubKey:  plan.PubKey.ValueString(),
+				Secrets: map[string]string{},
 			},
 		})
 	if err != nil {
@@ -118,7 +126,12 @@ func (r *secretsResource) Delete(ctx context.Context, request resource.DeleteReq
 
 // secretsResourceModel maps the resource schema data.
 type secretsResourceModel struct {
-	Name    types.String `tfsdk:"name"`
-	PubKey  types.String `tfsdk:"pub_key"`
-	Secrets types.Map    `tfsdk:"secrets"`
+	Name           types.String   `tfsdk:"name"`
+	PubKey         types.String   `tfsdk:"pub_key"`
+	ServerUuid     types.String   `tfsdk:"server_uuid"`
+	IPExtAddresses []types.String `tfsdk:"ip_ext_addresses"`
+	MacExtAddress  types.String   `tfsdk:"mac_ext_address"`
+	IPIntAddress   []types.String `tfsdk:"ip_int_address"`
+	MacIntAddress  types.String   `tfsdk:"mac_int_address"`
+	Secrets        types.Map      `tfsdk:"secrets"`
 }

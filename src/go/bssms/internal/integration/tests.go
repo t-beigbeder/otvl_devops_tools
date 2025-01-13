@@ -97,7 +97,7 @@ func RunTestInstaller(t *testing.T, dataFile string, index int, proxyPort string
 			JsonSecf:     path.Join(t.TempDir(), fmt.Sprintf("secrets-%s.json", ihs[index].Name)),
 			Installable: bssms.Installable{
 				ServerUuid: ihs[index].ServerUuid,
-				MacAddress: ihs[index].MacAddress,
+				MacAddress: ihs[index].MacExtAddress,
 				IPAddress:  ihs[index].IPExtAddress,
 			},
 		})

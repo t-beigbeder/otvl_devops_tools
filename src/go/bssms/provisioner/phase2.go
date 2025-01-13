@@ -18,11 +18,12 @@ func RunPhase2(optConfigDir string, ss []string, secf map[string]map[string]stri
 			if ih1.Name == ih0.Name {
 				ih2 := InstallHost{
 					Installable: bssms.Installable{
-						Name:         ih0.Name,
-						ServerUuid:   ih1.ServerUuid,
-						MacAddress:   ih1.MacAddress,
-						IPExtAddress: ih1.IPExtAddress,
-						IPIntAddress: ih1.IPIntAddress,
+						Name:          ih0.Name,
+						ServerUuid:    ih1.ServerUuid,
+						MacExtAddress: ih1.MacExtAddress,
+						MacIntAddress: ih1.MacIntAddress,
+						IPExtAddress:  ih1.IPExtAddress,
+						IPIntAddress:  ih1.IPIntAddress,
 					},
 					PrivateKey: ih0.PrivateKey,
 					PubKey:     ih0.PubKey,

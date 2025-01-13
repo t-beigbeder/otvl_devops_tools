@@ -31,6 +31,7 @@ variable "instances_attrs" {
     ip_v4       = string
     image_name  = string
     flavor_name = string
+    secrets     = any
   }))
 }
 variable "bastion_sg_id" {
@@ -45,8 +46,19 @@ variable "dot_repo" {
   description = "Git repo devopstools"
   type        = string
 }
-
 variable "dot_branch" {
   description = "Git branch devopstools"
+  type        = string
+}
+variable "go_version" {
+  description = "Golang version to download for building bssms"
+  type        = string
+}
+variable "bssms_proxy_hostname" {
+  description = "Hostname of the bssms-proxy"
+  type        = string
+}
+variable "bssms_proxy_port" {
+  description = "QUIC port of the bssms-proxy"
   type        = string
 }

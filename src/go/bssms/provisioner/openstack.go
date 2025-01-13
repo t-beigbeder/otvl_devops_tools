@@ -81,10 +81,11 @@ func GetOSServers() ([]InstallHost, error) {
 				addr := ad.(map[string]interface{})
 				matched, internal, ip, mac := matchInterface(addr)
 				if matched {
-					ih.MacAddress = mac
 					if internal {
+						ih.MacIntAddress = mac
 						ih.IPIntAddress = ip
 					} else {
+						ih.MacExtAddress = mac
 						ih.IPExtAddress = ip
 					}
 				}

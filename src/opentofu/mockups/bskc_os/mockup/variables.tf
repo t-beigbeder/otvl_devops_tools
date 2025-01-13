@@ -39,8 +39,14 @@ variable "instances_attrs" {
     ip_v4       = string
     image_name  = string
     flavor_name = string
+    secrets     = any
   }))
 }
+variable "bssms_proxy_hostname" {
+  description = "Hostname of the bssms-proxy"
+  type        = string
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
@@ -55,4 +61,15 @@ variable "dot_branch" {
   description = "Git branch devopstools"
   type        = string
   default     = "bdev9"
+}
+
+variable "go_version" {
+  description = "Golang version to download for building bssms"
+  type        = string
+  default     = "1.23.4"
+}
+variable "bssms_proxy_port" {
+  description = "QUIC port of the bssms-proxy"
+  type        = string
+  default = "9443"
 }
