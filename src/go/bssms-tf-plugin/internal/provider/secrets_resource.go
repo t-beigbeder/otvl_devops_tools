@@ -72,6 +72,22 @@ func (r *secretsResource) Configure(_ context.Context, req resource.ConfigureReq
 	r.pc = pc.pc
 }
 
+func makeInstallHost(model secretsResourceModel) (provisioner.InstallHost, error) {
+	ih := provisioner.InstallHost{
+		Installable: bssms.Installable{
+			Name:          model.Name.ValueString(),
+			ServerUuid:    model.ServerUuid.ValueString(),
+			MacExtAddress: model.MacExtAddress.ValueString(),
+			MacIntAddress: model.MacIntAddress.ValueString(),
+			IPExtAddress:  "",
+			IPIntAddress:  "",
+		},
+		PubKey:  model.PubKey.ValueString(),
+		Secrets: map[string]string{},
+	}
+	return ih, nil
+}
+
 func (r *secretsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
 	var plan secretsResourceModel
@@ -80,26 +96,18 @@ func (r *secretsResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	err := provisioner.RunIhs(
+	ih, err := makeInstallHost(plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Error creating InstallHost", err.Error())
+		return
+	}
+	err = provisioner.RunIhs(
 		&bssms.ProvisionerConfig{
 			BaseConfig:   bssms.BaseConfig{ctx},
 			UnsafeTls:    r.pc.UnsafeTls,
 			ProxyAddress: r.pc.ProxyAddress,
 		},
-		[]provisioner.InstallHost{
-			{
-				Installable: bssms.Installable{
-					Name:          plan.Name.ValueString(),
-					ServerUuid:    plan.ServerUuid.ValueString(),
-					MacExtAddress: plan.MacExtAddress.ValueString(),
-					MacIntAddress: plan.MacIntAddress.ValueString(),
-					IPExtAddress:  "",
-					IPIntAddress:  "",
-				},
-				PubKey:  plan.PubKey.ValueString(),
-				Secrets: map[string]string{},
-			},
-		})
+		[]provisioner.InstallHost{ih})
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Secrets",

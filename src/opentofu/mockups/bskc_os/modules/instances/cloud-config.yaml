@@ -5,13 +5,17 @@ write_files:
       export CI_DOT_REPO=${tf_dot_repo}
       export CI_DOT_BRANCH=${tf_dot_branch}
       export CI_PRIK=${tf_prik}
+      export CI_GOV=${go_version}
+      export CI_PXHN=${bssms_proxy_hostname}
+      export CI_PXPT=${bssms_proxy_port}
+      export HOME=/root
       echo `date`: command $0 is starting
       apt-get update && \
         apt-get install -y --no-install-recommends git jq curl fail2ban && \
         ip ad && \
         curl http://169.254.169.254/openstack/latest/meta_data.json | jq .uuid && \
         mkdir -p /root/clinit && cd /root/clinit && \
-        curl -L https://go.dev/dl/go${go_version}.linux-amd64.tar.gz -o go.tgz && \
+        curl -L https://go.dev/dl/go$CI_GOV.linux-amd64.tar.gz -o go.tgz && \
         rm -rf /usr/local/go && tar -C /usr/local -xzf go.tgz && rm go.tgz && \
         git clone --single-branch --branch $CI_DOT_BRANCH $CI_DOT_REPO && \
         cd otvl_devops_tools/src/go/bssms/ && /usr/local/go/bin/go build -o ../../../.. ./... && \
@@ -20,7 +24,7 @@ write_files:
         export CI_UUID=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid`
         export CI_MAC=`ip -j ad | jq -r .[1].address`
         export CI_ADDR=`ip -4 -j ad|jq -r .[1].addr_info[0].local`
-        cmd="./bssms in -pxa ${bssms_proxy_hostname}:${bssms_proxy_port} -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
+        cmd="./bssms in -pxa $CI_PXHN:$CI_PXPT -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
         echo Running $cmd
         $cmd
         echo `date`: command $0 is exiting

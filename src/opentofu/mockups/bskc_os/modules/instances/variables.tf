@@ -31,7 +31,6 @@ variable "instances_attrs" {
     ip_v4       = string
     image_name  = string
     flavor_name = string
-    secrets     = any
   }))
 }
 variable "bastion_sg_id" {
