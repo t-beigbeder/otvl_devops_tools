@@ -86,5 +86,5 @@ resource "bssms_secrets" "this" {
   ip_int_addresses = data.openstack_networking_port_v2.loc[count.index].all_fixed_ips
   mac_ext_address = data.openstack_networking_port_v2.ext[count.index].mac_address
   mac_int_address = data.openstack_networking_port_v2.loc[count.index].mac_address
-  secrets = var.instances_attrs[count.index].secrets
+  secrets = var.secrets[var.instances_attrs[count.index].name]
 }

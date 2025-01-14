@@ -10,3 +10,6 @@ output "ports" {
   value = module.instances.ports
   description = "The ports"
 }
+output "secrets" {
+  value = nonsensitive(yamldecode(data.sops_file.bskc_os_secrets.raw))
+}
