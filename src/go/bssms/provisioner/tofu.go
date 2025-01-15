@@ -9,7 +9,7 @@ func TofuRun(config *bssms.ProvisionerConfig, optConfigDir string, ih InstallHos
 	if err != nil {
 		return err
 	}
-	err = RunIhs(config, []InstallHost{ih})
+	err = RunIhs(config, []*InstallHost{&ih})
 	if err != nil {
 		return err
 	}

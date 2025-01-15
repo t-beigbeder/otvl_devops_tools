@@ -63,11 +63,15 @@ func RunTestProvisioner(dataFile string, proxyPort string) (context.CancelFunc, 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	var bgErr error
 	go func() {
-		err := provisioner.RunIhs(&bssms.ProvisionerConfig{
-			BaseConfig:   bssms.BaseConfig{Ctx: ctx},
-			UnsafeTls:    true,
-			ProxyAddress: ProxyAddress(proxyPort),
-		}, ihs)
+		pihs := provisioner.PInstallHosts(ihs)
+		err := provisioner.RunIhs(
+			&bssms.ProvisionerConfig{
+				BaseConfig:   bssms.BaseConfig{Ctx: ctx},
+				UnsafeTls:    true,
+				ProxyAddress: ProxyAddress(proxyPort),
+			},
+			pihs,
+		)
 		if err != nil {
 			bgErr = err
 		}

@@ -18,10 +18,10 @@ type InstallHost struct {
 	Secrets           map[string]string `yaml:"secrets,omitempty"`
 }
 
-func matchFrom(iin bssms.Installable, ihs []InstallHost) (bool, *InstallHost) {
-	for i, ih := range ihs {
+func matchFrom(iin bssms.Installable, pihs []*InstallHost) (bool, *InstallHost) {
+	for i, ih := range pihs {
 		if iin.Matches(ih.Installable) {
-			return true, &ihs[i]
+			return true, pihs[i]
 		}
 	}
 	return false, nil
@@ -120,4 +120,11 @@ func SaveInstallHost(optConfigDir string, ih InstallHost) error {
 		ihs2 = append(ihs2, ih)
 	}
 	return common.YamlStore(p, ihs2)
+}
+
+func PInstallHosts(ihs []InstallHost) (pihs []*InstallHost) {
+	for _, ih := range ihs {
+		pihs = append(pihs, &ih)
+	}
+	return
 }

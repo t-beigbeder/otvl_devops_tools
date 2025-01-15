@@ -11,8 +11,8 @@ import (
 	"github.com/quic-go/quic-go"
 )
 
-func installing(sbr *bufio.Reader, cStream quic.Stream, iin bssms.Installable, ihs []InstallHost) {
-	ok, ih := matchFrom(iin, ihs)
+func installing(sbr *bufio.Reader, cStream quic.Stream, iin bssms.Installable, pihs []*InstallHost) {
+	ok, ih := matchFrom(iin, pihs)
 	if !ok {
 		getLogger().Error("installable does not match configured ones", "iin", iin)
 		return
@@ -37,8 +37,8 @@ func installing(sbr *bufio.Reader, cStream quic.Stream, iin bssms.Installable, i
 	return
 }
 
-func installed(iin bssms.Installable, ihs []InstallHost) {
-	ok, ih := matchFrom(iin, ihs)
+func installed(iin bssms.Installable, pihs []*InstallHost) {
+	ok, ih := matchFrom(iin, pihs)
 	if !ok {
 		getLogger().Error("installed does not match configured ones", "iin", iin)
 		return
@@ -47,7 +47,7 @@ func installed(iin bssms.Installable, ihs []InstallHost) {
 	getLogger().Info("remote install achieved", "iin", iin)
 }
 
-func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, ihs []InstallHost) error {
+func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, pihs []*InstallHost) error {
 	var (
 		err            error
 		rcmd           string
@@ -58,10 +58,10 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 		return err
 	}
 	ins := []bssms.Installable{}
-	for _, ih := range ihs {
+	for _, ih := range pihs {
 		ins = append(ins, ih.Installable)
 	}
-	err = common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerInstallables, ihs, "")
+	err = common.WriteCommandToStream(sbr, cStream, bssms.ProvisionerInstallables, pihs, "")
 	if err != nil {
 		return err
 	}
@@ -88,11 +88,11 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 		}
 		getLogger().Debug("reading proxy event", "rcmd", rcmd, "in", in)
 		if rcmd == bssms.ProvisionerEventInstallerUp {
-			installing(sbr, cStream, in, ihs)
+			installing(sbr, cStream, in, pihs)
 		} else {
-			installed(in, ihs)
+			installed(in, pihs)
 			allProvisioned = true
-			for _, ih := range ihs {
+			for _, ih := range pihs {
 				if !ih.Installed {
 					getLogger().Debug("not all provisioned", "ih", ih)
 					allProvisioned = false
@@ -111,7 +111,7 @@ func provision(ctx context.Context, conn quic.Connection, cStream quic.Stream, i
 	return nil
 }
 
-func RunIhs(config *bssms.ProvisionerConfig, ihs []InstallHost) error {
+func RunIhs(config *bssms.ProvisionerConfig, pihs []*InstallHost) error {
 	conn, err := qutils.GetQuicConn(config.ProxyAddress, bssms.BssmsAlpn)
 	if err != nil {
 		return err
@@ -123,7 +123,11 @@ func RunIhs(config *bssms.ProvisionerConfig, ihs []InstallHost) error {
 	}
 	getLogger().Info("OpenStreamSync", "cSid", cStream.StreamID())
 	defer cStream.Close()
-	return provision(config.GetContext(), conn, cStream, ihs)
+	err = provision(config.GetContext(), conn, cStream, pihs)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func Run(config *bssms.ProvisionerConfig, optConfigDir string, ss []string) error {
@@ -131,5 +135,5 @@ func Run(config *bssms.ProvisionerConfig, optConfigDir string, ss []string) erro
 	if err != nil {
 		return err
 	}
-	return RunIhs(config, ihs)
+	return RunIhs(config, PInstallHosts(ihs))
 }

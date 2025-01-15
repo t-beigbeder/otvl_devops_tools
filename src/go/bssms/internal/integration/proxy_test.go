@@ -2,6 +2,7 @@ package integration
 
 import (
 	"bssms/provisioner"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -112,5 +113,10 @@ func TestRunCollaborationTofu2(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 	pxCancel()
 	time.Sleep(100 * time.Millisecond)
-
+	sihs, err := provisioner.LoadInstallHosts(td)
+	require.NoError(t, err)
+	require.Len(t, sihs, 2)
+	for _, sih := range sihs {
+		assert.True(t, sih.Installed)
+	}
 }
