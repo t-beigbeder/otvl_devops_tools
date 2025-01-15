@@ -10,6 +10,7 @@ type Installable struct {
 	IPIntAddress  string `json:"IPIntAddress,omitempty" yaml:"IPIntAddress,omitempty"`
 	IPAddress     string `json:"IPAddress,omitempty" yaml:"IPAddress,omitempty"`
 	EncSecrets    string `json:"encSecrets,omitempty" yaml:"encSecrets,omitempty"`
+	TofuRunning   bool   `json:"-" yaml:"tofuRunning,omitempty"`
 	Installing    bool   `json:"-" yaml:"-"`
 	Installed     bool   `json:"-" yaml:"installed,omitempty"`
 }

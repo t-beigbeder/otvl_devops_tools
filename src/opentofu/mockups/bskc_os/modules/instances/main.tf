@@ -78,11 +78,15 @@ data "openstack_networking_port_v2" "loc" {
 }
 
 locals {
-  mac_ext_address = [
-    for v in data.openstack_networking_port_v2.ext : coalesce(v.mac_address, "00")
+  ip_v4_addresses = [
+    for i in resource.openstack_compute_instance_v2.this: [
+      for n in i.network: n.fixed_ip_v4
+    ]
   ]
-  mac_int_address = [
-    for v in data.openstack_networking_port_v2.loc : coalesce(v.mac_address, "00")
+  mac_addresses = [
+    for i in resource.openstack_compute_instance_v2.this: [
+      for n in i.network: n.mac
+    ]
   ]
 }
 
@@ -91,9 +95,7 @@ resource "bssms_secrets" "this" {
   name = var.instances_attrs[count.index].name
   pub_key = resource.bssms_installable.this[count.index].pub_key
   server_uuid = resource.openstack_compute_instance_v2.this[count.index].id
-  ip_ext_addresses = data.openstack_networking_port_v2.ext[count.index].all_fixed_ips
-  ip_int_addresses = data.openstack_networking_port_v2.loc[count.index].all_fixed_ips
-  mac_ext_address = local.mac_ext_address[count.index]
-  mac_int_address = local.mac_int_address[count.index]
+  ip_v4_addresses = local.ip_v4_addresses[count.index]
+  mac_addresses = local.mac_addresses[count.index]
   secrets = var.secrets[var.instances_attrs[count.index].name]
 }

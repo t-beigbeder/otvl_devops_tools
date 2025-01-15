@@ -4,12 +4,12 @@ import (
 	"bssms/bssms"
 	"bssms/provisioner"
 	"context"
-	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"net"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/lrstanley/go-bogon"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -38,22 +38,21 @@ func (r *secretsResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"name":        schema.StringAttribute{Required: true},
 			"pub_key":     schema.StringAttribute{Required: true, Sensitive: true},
 			"server_uuid": schema.StringAttribute{Required: true},
-			"ip_ext_addresses": schema.ListAttribute{
+			"ip_v4_addresses": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
 			},
-			"mac_ext_address": schema.StringAttribute{Required: true},
-			"ip_int_addresses": schema.ListAttribute{
+			"mac_addresses": schema.ListAttribute{
 				ElementType: types.StringType,
 				Required:    true,
 			},
-			"mac_int_address": schema.StringAttribute{Required: true},
 			"secrets": schema.MapAttribute{
 				ElementType: types.StringType,
 				Required:    true,
 				Sensitive:   true,
 			},
-			"installed": schema.BoolAttribute{Computed: true},
+			"tofu_running": schema.BoolAttribute{Computed: true},
+			"installed":    schema.BoolAttribute{Computed: true},
 		},
 	}
 }
@@ -75,32 +74,31 @@ func (r *secretsResource) Configure(_ context.Context, req resource.ConfigureReq
 	r.pc = pc.pc
 }
 
-func getIPV4(addresses []types.String) (string, error) {
-	for _, address := range addresses {
-		ip := net.ParseIP(address.ValueString())
-		if ip != nil && ip.To4() != nil {
-			return ip.String(), nil
-		}
-	}
-	return "", errors.New("no IPv4 address found")
+func ipIsExt(sip string) bool {
+	tbogon, _ := bogon.Is(sip)
+	return !tbogon
 }
 
 func makeInstallHost(model secretsResourceModel) (ih provisioner.InstallHost, err error) {
 	ih = provisioner.InstallHost{
 		Installable: bssms.Installable{
-			Name:          model.Name.ValueString(),
-			ServerUuid:    model.ServerUuid.ValueString(),
-			MacExtAddress: model.MacExtAddress.ValueString(),
-			MacIntAddress: model.MacIntAddress.ValueString(),
+			Name:       model.Name.ValueString(),
+			ServerUuid: model.ServerUuid.ValueString(),
 		},
 		PubKey:  model.PubKey.ValueString(),
 		Secrets: map[string]string{},
 	}
-	if ih.IPExtAddress, err = getIPV4(model.IPExtAddresses); err != nil {
-		return
+	if len(model.IPV4Addresses) != len(model.MacAddresses) {
+		return ih, fmt.Errorf("IPV4Addresses and MacAddresses are not the same length")
 	}
-	if ih.IPIntAddress, err = getIPV4(model.IPIntAddresses); err != nil {
-		return
+	for i, address := range model.IPV4Addresses {
+		if ipIsExt(address.ValueString()) {
+			ih.IPExtAddress = address.ValueString()
+			ih.MacExtAddress = model.MacAddresses[i].ValueString()
+		} else {
+			ih.IPIntAddress = address.ValueString()
+			ih.MacIntAddress = model.MacAddresses[i].ValueString()
+		}
 	}
 	for k, v := range model.Secrets.Elements() {
 		ih.Secrets[k] = v.String()
@@ -121,6 +119,7 @@ func (r *secretsResource) Create(ctx context.Context, req resource.CreateRequest
 		resp.Diagnostics.AddError("Error creating InstallHost", err.Error())
 		return
 	}
+	tflog.Info(ctx, "Create: Installing Host", map[string]interface{}{"ih": ih})
 	err = provisioner.TofuRun(
 		&bssms.ProvisionerConfig{
 			BaseConfig:   bssms.BaseConfig{ctx},
@@ -168,6 +167,17 @@ func (r *secretsResource) Read(ctx context.Context, req resource.ReadRequest, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	ih, err := provisioner.ReadInstallHost(r.configDir, state.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error reading Secrets",
+			fmt.Sprintf("ReadInstallHost: %s", err),
+		)
+		return
+	}
+	tflog.Info(ctx, "Read: Installing Host", map[string]interface{}{"ih": ih})
+	state.TofuRunning = types.BoolValue(ih.TofuRunning)
+	state.Installed = types.BoolValue(ih.Installed)
 
 	//Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -190,6 +200,7 @@ func (r *secretsResource) Update(ctx context.Context, req resource.UpdateRequest
 		resp.Diagnostics.AddError("Error creating InstallHost", err.Error())
 		return
 	}
+	tflog.Info(ctx, "Update: Installing Host", map[string]interface{}{"ih": ih})
 	err = provisioner.TofuRun(
 		&bssms.ProvisionerConfig{
 			BaseConfig:   bssms.BaseConfig{ctx},
@@ -241,13 +252,12 @@ func (r *secretsResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 // secretsResourceModel maps the resource schema data.
 type secretsResourceModel struct {
-	Name           types.String   `tfsdk:"name"`
-	PubKey         types.String   `tfsdk:"pub_key"`
-	ServerUuid     types.String   `tfsdk:"server_uuid"`
-	IPExtAddresses []types.String `tfsdk:"ip_ext_addresses"`
-	MacExtAddress  types.String   `tfsdk:"mac_ext_address"`
-	IPIntAddresses []types.String `tfsdk:"ip_int_addresses"`
-	MacIntAddress  types.String   `tfsdk:"mac_int_address"`
-	Secrets        types.Map      `tfsdk:"secrets"`
-	Installed      types.Bool     `tfsdk:"installed"`
+	Name          types.String   `tfsdk:"name"`
+	PubKey        types.String   `tfsdk:"pub_key"`
+	ServerUuid    types.String   `tfsdk:"server_uuid"`
+	IPV4Addresses []types.String `tfsdk:"ip_v4_addresses"`
+	MacAddresses  []types.String `tfsdk:"mac_addresses"`
+	Secrets       types.Map      `tfsdk:"secrets"`
+	TofuRunning   types.Bool     `tfsdk:"tofu_running"`
+	Installed     types.Bool     `tfsdk:"installed"`
 }
