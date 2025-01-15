@@ -53,6 +53,7 @@ func (r *secretsResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Required:    true,
 				Sensitive:   true,
 			},
+			"installed": schema.BoolAttribute{Computed: true},
 		},
 	}
 }
@@ -120,21 +121,37 @@ func (r *secretsResource) Create(ctx context.Context, req resource.CreateRequest
 		resp.Diagnostics.AddError("Error creating InstallHost", err.Error())
 		return
 	}
-	err = provisioner.RunIhs(
+	err = provisioner.TofuRun(
 		&bssms.ProvisionerConfig{
 			BaseConfig:   bssms.BaseConfig{ctx},
 			UnsafeTls:    r.pc.UnsafeTls,
 			ProxyAddress: r.pc.ProxyAddress,
 		},
-		[]provisioner.InstallHost{ih})
+		r.configDir, ih)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Secrets",
-			fmt.Sprintf("RunIhs: %s", err),
+			fmt.Sprintf("TofuRun: %s", err),
+		)
+		return
+	}
+	sih, err := provisioner.ReadInstallHost(r.configDir, ih.Name)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error creating Secrets",
+			fmt.Sprintf("ReadInstallHost: %s", err),
+		)
+		return
+	}
+	if !sih.Installed {
+		resp.Diagnostics.AddError(
+			"Error creating Secrets",
+			fmt.Sprintf("ReadInstallHost: %s not installed", sih.Name),
 		)
 		return
 	}
 
+	plan.Installed = types.BoolValue(true)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -170,24 +187,40 @@ func (r *secretsResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 	ih, err := makeInstallHost(plan)
 	if err != nil {
-		resp.Diagnostics.AddError("Error updating InstallHost", err.Error())
+		resp.Diagnostics.AddError("Error creating InstallHost", err.Error())
 		return
 	}
-	err = provisioner.RunIhs(
+	err = provisioner.TofuRun(
 		&bssms.ProvisionerConfig{
 			BaseConfig:   bssms.BaseConfig{ctx},
 			UnsafeTls:    r.pc.UnsafeTls,
 			ProxyAddress: r.pc.ProxyAddress,
 		},
-		[]provisioner.InstallHost{ih})
+		r.configDir, ih)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error creating Secrets",
-			fmt.Sprintf("RunIhs: %s", err),
+			"Error updating Secrets",
+			fmt.Sprintf("TofuRun: %s", err),
+		)
+		return
+	}
+	sih, err := provisioner.ReadInstallHost(r.configDir, ih.Name)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error updating Secrets",
+			fmt.Sprintf("ReadInstallHost: %s", err),
+		)
+		return
+	}
+	if !sih.Installed {
+		resp.Diagnostics.AddError(
+			"Error updating Secrets",
+			fmt.Sprintf("ReadInstallHost: %s not installed", sih.Name),
 		)
 		return
 	}
 
+	plan.Installed = types.BoolValue(true)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -216,4 +249,5 @@ type secretsResourceModel struct {
 	IPIntAddresses []types.String `tfsdk:"ip_int_addresses"`
 	MacIntAddress  types.String   `tfsdk:"mac_int_address"`
 	Secrets        types.Map      `tfsdk:"secrets"`
+	Installed      types.Bool     `tfsdk:"installed"`
 }
