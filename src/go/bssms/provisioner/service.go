@@ -1,9 +1,10 @@
 package provisioner
 
 import (
-	bssms "bssms/bssms"
+	"bssms/bssms"
 	"bssms/internal/common"
 	"path/filepath"
+	"sync"
 )
 
 type ProvisionerHost struct {
@@ -76,4 +77,47 @@ func StoreInstallHosts(optConfigDir string, ihs []InstallHost) error {
 		return err
 	}
 	return common.YamlStore(p, ihs)
+}
+
+func ReadInstallHost(optConfigDir string, name string) (InstallHost, error) {
+	ih := InstallHost{}
+	p, err := ihfPath(optConfigDir)
+	if err != nil {
+		return ih, err
+	}
+	ihs, err := LoadYamlInstallHosts(p)
+	if err != nil {
+		return ih, err
+	}
+	for _, lih := range ihs {
+		if lih.Name == name {
+			return lih, nil
+		}
+	}
+	return ih, nil
+}
+
+func SaveInstallHost(optConfigDir string, ih InstallHost) error {
+	p, err := ihfPath(optConfigDir)
+	if err != nil {
+		return err
+	}
+	lockfile := sync.Mutex{}
+	lockfile.Lock()
+	defer lockfile.Unlock()
+	ihs1, err := LoadYamlInstallHosts(p)
+	ihs2 := []InstallHost{}
+	found := false
+	for _, lih := range ihs1 {
+		if lih.Name == ih.Name {
+			ihs2 = append(ihs2, ih)
+			found = true
+			continue
+		}
+		ihs2 = append(ihs2, lih)
+	}
+	if !found {
+		ihs2 = append(ihs2, ih)
+	}
+	return common.YamlStore(p, ihs2)
 }

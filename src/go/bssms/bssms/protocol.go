@@ -9,7 +9,6 @@ const (
 	InstallerInstallable        = "InInstallable\n"
 	InstallerInstalled          = "InInstalled\n"
 	ProxyHello                  = "PxHello\n"
-	ProxyHostInstalled          = "PxHostInstalled\n"
 	ProvisionerEventInstallerUp = "PrEvInstallerUp\n"
 	ProvisionerEventInstalled   = "PrEvInstalled\n"
 	InstallerEventInstall       = "InEvInstall\n"

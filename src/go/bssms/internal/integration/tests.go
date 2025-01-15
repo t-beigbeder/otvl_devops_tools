@@ -80,6 +80,38 @@ func RunTestProvisioner(dataFile string, proxyPort string) (context.CancelFunc, 
 	return cancel, nil
 }
 
+func RunTestTofu(td string, index int, proxyPort string) (context.CancelFunc, error) {
+	ihs, err := provisioner.LoadInstallHosts(td)
+	if err != nil {
+		return nil, err
+	}
+	if index >= len(ihs) {
+		return nil, fmt.Errorf("index out of range")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	var bgErr error
+	go func() {
+		err := provisioner.TofuRun(
+			&bssms.ProvisionerConfig{
+				BaseConfig:   bssms.BaseConfig{Ctx: ctx},
+				UnsafeTls:    true,
+				ProxyAddress: ProxyAddress(proxyPort),
+			},
+			td,
+			ihs[index],
+		)
+		if err != nil {
+			bgErr = err
+		}
+	}()
+	time.Sleep(100 * time.Millisecond)
+	if bgErr != nil {
+		cancel()
+		return nil, bgErr
+	}
+	return cancel, nil
+}
+
 func RunTestInstaller(t *testing.T, dataFile string, index int, proxyPort string) (context.CancelFunc, error) {
 	ihs, err := GetIhs(dataFile)
 	if err != nil {
