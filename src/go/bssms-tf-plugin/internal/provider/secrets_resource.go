@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/lrstanley/go-bogon"
+	"gopkg.in/yaml.v2"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -36,6 +37,7 @@ func (r *secretsResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"name":        schema.StringAttribute{Required: true},
+			"pri_key":     schema.StringAttribute{Required: true, Sensitive: true},
 			"pub_key":     schema.StringAttribute{Required: true, Sensitive: true},
 			"server_uuid": schema.StringAttribute{Required: true},
 			"ip_v4_addresses": schema.ListAttribute{
@@ -46,11 +48,7 @@ func (r *secretsResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				ElementType: types.StringType,
 				Required:    true,
 			},
-			"secrets": schema.MapAttribute{
-				ElementType: types.StringType,
-				Required:    true,
-				Sensitive:   true,
-			},
+			"yaml_secrets": schema.StringAttribute{Required: true, Sensitive: true},
 			"tofu_running": schema.BoolAttribute{Computed: true},
 			"tofu_error":   schema.StringAttribute{Computed: true},
 			"installed":    schema.BoolAttribute{Computed: true},
@@ -86,8 +84,9 @@ func makeInstallHost(model secretsResourceModel) (ih provisioner.InstallHost, er
 			Name:       model.Name.ValueString(),
 			ServerUuid: model.ServerUuid.ValueString(),
 		},
-		PubKey:  model.PubKey.ValueString(),
-		Secrets: map[string]string{},
+		PubKey:     model.PubKey.ValueString(),
+		PrivateKey: model.PriKey.ValueString(),
+		Secrets:    map[string]string{},
 	}
 	if len(model.IPV4Addresses) != len(model.MacAddresses) {
 		return ih, fmt.Errorf("IPV4Addresses and MacAddresses are not the same length")
@@ -101,8 +100,29 @@ func makeInstallHost(model secretsResourceModel) (ih provisioner.InstallHost, er
 			ih.MacIntAddress = model.MacAddresses[i].ValueString()
 		}
 	}
-	for k, v := range model.Secrets.Elements() {
-		ih.Secrets[k] = v.String()
+	secrets := make(map[string]any)
+	err = yaml.Unmarshal([]byte(model.YamlSecrets.ValueString()), &secrets)
+	if err != nil {
+		return provisioner.InstallHost{}, err
+	}
+	dsa, ok := secrets[ih.Name]
+	if !ok {
+		return ih, nil
+	}
+	ds, ok := dsa.(map[any]any)
+	if !ok {
+		return provisioner.InstallHost{}, fmt.Errorf("incorrect yaml secret %v", ds)
+	}
+	for k, v := range ds {
+		sk, ok := k.(string)
+		if !ok {
+			return provisioner.InstallHost{}, fmt.Errorf("incorrect yaml secret %v key %s", k)
+		}
+		sv, ok := v.(string)
+		if !ok {
+			return provisioner.InstallHost{}, fmt.Errorf("incorrect yaml secret %v key %s", k)
+		}
+		ih.Secrets[sk] = sv
 	}
 	return
 }
@@ -152,6 +172,7 @@ func (r *secretsResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	plan.Installed = types.BoolValue(true)
+	plan.TofuRunning = types.BoolValue(sih.TofuRunning)
 	plan.TofuError = types.StringValue(sih.TofuError)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, &plan)
@@ -234,6 +255,8 @@ func (r *secretsResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	plan.Installed = types.BoolValue(true)
+	plan.TofuRunning = types.BoolValue(sih.TofuRunning)
+	plan.TofuError = types.StringValue(sih.TofuError)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -255,11 +278,12 @@ func (r *secretsResource) Delete(ctx context.Context, req resource.DeleteRequest
 // secretsResourceModel maps the resource schema data.
 type secretsResourceModel struct {
 	Name          types.String   `tfsdk:"name"`
+	PriKey        types.String   `tfsdk:"pri_key"`
 	PubKey        types.String   `tfsdk:"pub_key"`
 	ServerUuid    types.String   `tfsdk:"server_uuid"`
 	IPV4Addresses []types.String `tfsdk:"ip_v4_addresses"`
 	MacAddresses  []types.String `tfsdk:"mac_addresses"`
-	Secrets       types.Map      `tfsdk:"secrets"`
+	YamlSecrets   types.String   `tfsdk:"yaml_secrets"`
 	TofuRunning   types.Bool     `tfsdk:"tofu_running"`
 	TofuError     types.String   `tfsdk:"tofu_error"`
 	Installed     types.Bool     `tfsdk:"installed"`

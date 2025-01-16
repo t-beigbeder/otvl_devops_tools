@@ -7,6 +7,7 @@ require (
 	github.com/hashicorp/terraform-plugin-framework v1.13.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/lrstanley/go-bogon v1.0.0
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

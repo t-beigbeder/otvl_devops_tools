@@ -13,12 +13,18 @@ terraform {
     bssms = {
       source = "tofu.otvl.org/otvl/bssms"
     }
+    sops = {
+      source  = "carlpett/sops"
+      version = "1.1.1"
+    }
   }
 }
 
 provider "bssms" {
   proxy_address = "localhost:9443"
 }
+
+provider "sops" {}
 
 module "networking" {
   source          = "../modules/networking"
@@ -27,6 +33,10 @@ module "networking" {
   loc_net_cidr    = var.loc_net_cidr
   bastion_sg_name = var.bastion_sg_name
   ext_sg_name     = var.ext_sg_name
+}
+
+data "sops_file" "proxy_bskc_os_secrets" {
+  source_file = "proxy_bskc_os_secrets.enc.yaml"
 }
 
 module "instances" {
@@ -44,5 +54,5 @@ module "instances" {
   go_version           = var.go_version
   bssms_proxy_hostname = var.bssms_proxy_hostname
   bssms_proxy_port     = var.bssms_proxy_port
-  secrets              = var.secrets
+  yaml_secrets         = data.sops_file.proxy_bskc_os_secrets.raw
 }

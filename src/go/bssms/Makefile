@@ -6,5 +6,5 @@ help:	## show this help
 test:	## go test the application
 	go test ./...
 .PHONY: build
-build:	## go test the application
+build:	## go build the application
 	go build ./...

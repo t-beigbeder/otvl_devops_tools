@@ -47,6 +47,16 @@ resource "openstack_networking_secgroup_rule_v2" "bastion_https" {
   security_group_id = openstack_networking_secgroup_v2.bastion.id
 }
 
+resource "openstack_networking_secgroup_rule_v2" "bastion_http3" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "udp"
+  port_range_min    = 9443
+  port_range_max    = 9443
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = openstack_networking_secgroup_v2.bastion.id
+}
+
 resource "openstack_networking_secgroup_rule_v2" "bastion_ssh" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -74,20 +84,6 @@ resource "openstack_networking_secgroup_rule_v2" "bastion_icmp" {
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.bastion.id
 }
-#
-#resource "openstack_networking_secgroup_rule_v2" "bastion_out_ipv4" {
-#  direction         = "egress"
-#  ethertype         = "IPv4"
-#  remote_ip_prefix  = "0.0.0.0/0"
-#  security_group_id = openstack_networking_secgroup_v2.bastion.id
-#}
-#
-#resource "openstack_networking_secgroup_rule_v2" "bastion_out_ipv6" {
-#  direction         = "egress"
-#  ethertype         = "IPv6"
-#  remote_ip_prefix  = "::/0"
-#  security_group_id = openstack_networking_secgroup_v2.bastion.id
-#}
 
 resource "openstack_networking_secgroup_v2" "ext" {
   name = var.ext_sg_name
@@ -113,6 +109,16 @@ resource "openstack_networking_secgroup_rule_v2" "ext_https" {
   security_group_id = openstack_networking_secgroup_v2.ext.id
 }
 
+resource "openstack_networking_secgroup_rule_v2" "ext_http3" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "udp"
+  port_range_min    = 9443
+  port_range_max    = 9443
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = openstack_networking_secgroup_v2.ext.id
+}
+
 resource "openstack_networking_secgroup_rule_v2" "ext_icmp" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -120,17 +126,3 @@ resource "openstack_networking_secgroup_rule_v2" "ext_icmp" {
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.ext.id
 }
-#
-#resource "openstack_networking_secgroup_rule_v2" "ext_out_ipv4" {
-#  direction         = "egress"
-#  ethertype         = "IPv4"
-#  remote_ip_prefix  = "0.0.0.0/0"
-#  security_group_id = openstack_networking_secgroup_v2.ext.id
-#}
-#
-#resource "openstack_networking_secgroup_rule_v2" "ext_out_ipv6" {
-#  direction         = "egress"
-#  ethertype         = "IPv6"
-#  remote_ip_prefix  = "::/0"
-#  security_group_id = openstack_networking_secgroup_v2.ext.id
-#}

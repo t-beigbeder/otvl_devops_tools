@@ -8,7 +8,7 @@ write_files:
         export CI_GOV=${tf_go_version}
         export CI_PXHN=${tf_bssms_proxy_hostname}
         export CI_PXPT=${tf_bssms_proxy_port}
-        export CI_SECL=${tf_bssms_secrets_len}
+        export CI_HSC=${tf_bssms_has_secrets}
         export HOME=/root
         echo `date`: command $0 is starting
         apt-get update && \
@@ -22,7 +22,7 @@ write_files:
         cd otvl_devops_tools/src/go/bssms/ && /usr/local/go/bin/go build -o ../../../.. ./... && \
         cd  ../../../.. && rm -rf otvl_devops_tools && rm -rf /usr/local/go && \
         true || exit 1
-        if [ $CI_SECL -ne 0 ] ; then
+        if [ "$CI_HSC" ] ; then
             export CI_UUID=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid`
             export CI_MAC=`ip -j ad | jq -r .[1].address`
             export CI_ADDR=`ip -4 -j ad|jq -r .[1].addr_info[0].local`

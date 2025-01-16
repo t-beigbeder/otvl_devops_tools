@@ -50,7 +50,7 @@ resource "openstack_compute_instance_v2" "this" {
     tf_go_version           = var.go_version
     tf_bssms_proxy_hostname = var.bssms_proxy_hostname
     tf_bssms_proxy_port     = var.bssms_proxy_port
-    tf_bssms_secrets_len    = length(var.secrets[var.instances_attrs[count.index].name])
+    tf_bssms_has_secrets    = var.instances_attrs[count.index].has_secrets ? "1" : ""
   }))
 
   security_groups = []
@@ -94,9 +94,10 @@ locals {
 resource "bssms_secrets" "this" {
   count = length(var.instances_attrs)
   name            = var.instances_attrs[count.index].name
+  pri_key         = resource.bssms_installable.this[count.index].pri_key
   pub_key         = resource.bssms_installable.this[count.index].pub_key
   server_uuid     = resource.openstack_compute_instance_v2.this[count.index].id
   ip_v4_addresses = local.ip_v4_addresses[count.index]
   mac_addresses   = local.mac_addresses[count.index]
-  secrets         = var.secrets[var.instances_attrs[count.index].name]
+  yaml_secrets    = var.yaml_secrets
 }

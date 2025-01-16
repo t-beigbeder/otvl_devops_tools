@@ -3,7 +3,6 @@ package provisioner
 import (
 	"bssms/bssms"
 	"bssms/internal/common"
-	"sync"
 )
 
 func newIh(name string) (ih InstallHost, err error) {
@@ -33,32 +32,10 @@ func RunPhase0(optConfigDir string, names []string) error {
 	return StoreInstallHosts(optConfigDir, ihs)
 }
 
-var fileLock sync.Mutex
-
 func MergePhase0(optConfigDir string, name string) error {
-	fileLock.Lock()
-	defer fileLock.Unlock()
-	ihs, err := LoadInstallHosts(optConfigDir)
+	ih, err := newIh(name)
 	if err != nil {
 		return err
 	}
-	var ihs2 []InstallHost
-	found := false
-	for _, ih := range ihs {
-		if ih.Name == name {
-			if ih, err = newIh(name); err != nil {
-				return err
-			}
-			found = true
-		}
-		ihs2 = append(ihs2, ih)
-	}
-	if !found {
-		var ih InstallHost
-		if ih, err = newIh(name); err != nil {
-			return err
-		}
-		ihs2 = append(ihs2, ih)
-	}
-	return StoreInstallHosts(optConfigDir, ihs2)
+	return SaveInstallHost(optConfigDir, ih)
 }

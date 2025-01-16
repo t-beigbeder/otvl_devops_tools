@@ -39,6 +39,7 @@ variable "instances_attrs" {
     ip_v4       = string
     image_name  = string
     flavor_name = string
+    has_secrets = bool
   }))
 }
 
@@ -73,4 +74,3 @@ variable "bssms_proxy_port" {
   type        = string
   default     = "9443"
 }
-variable "secrets" { type = any }

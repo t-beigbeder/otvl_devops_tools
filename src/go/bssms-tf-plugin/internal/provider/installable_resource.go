@@ -4,7 +4,6 @@ import (
 	"bssms/provisioner"
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -59,27 +58,6 @@ func (r *installableResource) Configure(_ context.Context, req resource.Configur
 	r.configDir = pc.configDir
 }
 
-func (r *installableResource) getInstallHost(name string, diags diag.Diagnostics) *provisioner.InstallHost {
-	ihs, err := provisioner.LoadInstallHosts(r.configDir)
-	if err != nil {
-		diags.AddError(
-			"Error retrieving Installables",
-			fmt.Sprintf("LoadInstallHosts: %s", err),
-		)
-		return nil
-	}
-	for _, ih := range ihs {
-		if ih.Name == name {
-			return &ih
-		}
-	}
-	diags.AddError(
-		"Error retrieving Installable",
-		fmt.Sprintf("Fetch %s in %s", name, r.configDir),
-	)
-	return nil
-}
-
 func (r *installableResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
 	var plan installableResourceModel
@@ -97,8 +75,12 @@ func (r *installableResource) Create(ctx context.Context, req resource.CreateReq
 		)
 		return
 	}
-	ih := r.getInstallHost(plan.Name.ValueString(), resp.Diagnostics)
-	if ih == nil {
+	ih, err := provisioner.ReadInstallHost(r.configDir, plan.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error creating Installable",
+			fmt.Sprintf("ReadInstallHost: %s", err),
+		)
 		return
 	}
 	plan.PriKey = types.StringValue(ih.PrivateKey)
@@ -120,8 +102,12 @@ func (r *installableResource) Read(ctx context.Context, req resource.ReadRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	ih := r.getInstallHost(state.Name.ValueString(), resp.Diagnostics)
-	if ih == nil {
+	ih, err := provisioner.ReadInstallHost(r.configDir, state.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error reading Installable",
+			fmt.Sprintf("ReadInstallHost: %s", err),
+		)
 		return
 	}
 	state.PriKey = types.StringValue(ih.PrivateKey)
@@ -147,13 +133,17 @@ func (r *installableResource) Update(ctx context.Context, req resource.UpdateReq
 	err := provisioner.MergePhase0(r.configDir, plan.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error creating Installable",
+			"Error updating Installable",
 			fmt.Sprintf("RunPhase0: %s", err),
 		)
 		return
 	}
-	ih := r.getInstallHost(plan.Name.ValueString(), resp.Diagnostics)
-	if ih == nil {
+	ih, err := provisioner.ReadInstallHost(r.configDir, plan.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error updating Installable",
+			fmt.Sprintf("ReadInstallHost: %s", err),
+		)
 		return
 	}
 	plan.PriKey = types.StringValue(ih.PrivateKey)
@@ -176,8 +166,12 @@ func (r *installableResource) Delete(ctx context.Context, req resource.DeleteReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	ih := r.getInstallHost(state.Name.ValueString(), resp.Diagnostics)
-	if ih == nil {
+	_, err := provisioner.ReadInstallHost(r.configDir, state.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error deleting Installable",
+			fmt.Sprintf("ReadInstallHost: %s", err),
+		)
 		return
 	}
 	// nothing to remove, key-pairs are unique to one cloud-init run

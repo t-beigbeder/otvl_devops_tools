@@ -31,6 +31,7 @@ variable "instances_attrs" {
     ip_v4       = string
     image_name  = string
     flavor_name = string
+    has_secrets = bool
   }))
 }
 variable "bastion_sg_id" {
@@ -61,7 +62,7 @@ variable "bssms_proxy_port" {
   description = "QUIC port of the bssms-proxy"
   type        = string
 }
-variable "secrets" {
-  description = "dictionary of key/value per instance name"
-  type        = any
+variable "yaml_secrets" {
+  description = "yaml of dictionary of key/value per instance name"
+  type        = string
 }

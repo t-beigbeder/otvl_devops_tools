@@ -21,7 +21,7 @@ terraform {
 }
 
 provider "bssms" {
-  proxy_address = "localhost:9443"
+  proxy_address = "193.70.74.217:9443"
 }
 
 provider "sops" {}
@@ -54,5 +54,5 @@ module "instances" {
   go_version           = var.go_version
   bssms_proxy_hostname = var.bssms_proxy_hostname
   bssms_proxy_port     = var.bssms_proxy_port
-  secrets              = yamldecode(data.sops_file.bskc_os_secrets.raw)
+  yaml_secrets         = data.sops_file.bskc_os_secrets.raw
 }
