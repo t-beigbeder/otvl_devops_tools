@@ -44,12 +44,13 @@ resource "openstack_compute_instance_v2" "this" {
   flavor_name = var.instances_attrs[count.index].flavor_name
   key_pair    = openstack_compute_keypair_v2.this.name
   user_data = base64encode(templatefile("${path.module}/cloud-config.yaml", {
-    tf_dot_repo          = var.dot_repo
-    tf_dot_branch        = var.dot_branch
-    tf_prik              = resource.bssms_installable.this[count.index].pri_key
-    go_version           = var.go_version
-    bssms_proxy_hostname = var.bssms_proxy_hostname
-    bssms_proxy_port     = var.bssms_proxy_port
+    tf_dot_repo             = var.dot_repo
+    tf_dot_branch           = var.dot_branch
+    tf_prik                 = resource.bssms_installable.this[count.index].pri_key
+    tf_go_version           = var.go_version
+    tf_bssms_proxy_hostname = var.bssms_proxy_hostname
+    tf_bssms_proxy_port     = var.bssms_proxy_port
+    tf_bssms_secrets_len    = length(var.secrets[var.instances_attrs[count.index].name])
   }))
 
   security_groups = []
@@ -79,23 +80,23 @@ data "openstack_networking_port_v2" "loc" {
 
 locals {
   ip_v4_addresses = [
-    for i in resource.openstack_compute_instance_v2.this: [
-      for n in i.network: n.fixed_ip_v4
+    for i in resource.openstack_compute_instance_v2.this : [
+      for n in i.network : n.fixed_ip_v4
     ]
   ]
   mac_addresses = [
-    for i in resource.openstack_compute_instance_v2.this: [
-      for n in i.network: n.mac
+    for i in resource.openstack_compute_instance_v2.this : [
+      for n in i.network : n.mac
     ]
   ]
 }
 
 resource "bssms_secrets" "this" {
   count = length(var.instances_attrs)
-  name = var.instances_attrs[count.index].name
-  pub_key = resource.bssms_installable.this[count.index].pub_key
-  server_uuid = resource.openstack_compute_instance_v2.this[count.index].id
+  name            = var.instances_attrs[count.index].name
+  pub_key         = resource.bssms_installable.this[count.index].pub_key
+  server_uuid     = resource.openstack_compute_instance_v2.this[count.index].id
   ip_v4_addresses = local.ip_v4_addresses[count.index]
-  mac_addresses = local.mac_addresses[count.index]
-  secrets = var.secrets[var.instances_attrs[count.index].name]
+  mac_addresses   = local.mac_addresses[count.index]
+  secrets         = var.secrets[var.instances_attrs[count.index].name]
 }

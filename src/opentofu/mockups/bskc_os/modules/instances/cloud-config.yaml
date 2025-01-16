@@ -1,16 +1,17 @@
 #cloud-config
 write_files:
   - content: |
-      #!/bin/sh
-      export CI_DOT_REPO=${tf_dot_repo}
-      export CI_DOT_BRANCH=${tf_dot_branch}
-      export CI_PRIK=${tf_prik}
-      export CI_GOV=${go_version}
-      export CI_PXHN=${bssms_proxy_hostname}
-      export CI_PXPT=${bssms_proxy_port}
-      export HOME=/root
-      echo `date`: command $0 is starting
-      apt-get update && \
+        #!/bin/sh
+        export CI_DOT_REPO=${tf_dot_repo}
+        export CI_DOT_BRANCH=${tf_dot_branch}
+        export CI_PRIK=${tf_prik}
+        export CI_GOV=${tf_go_version}
+        export CI_PXHN=${tf_bssms_proxy_hostname}
+        export CI_PXPT=${tf_bssms_proxy_port}
+        export CI_SECL=${tf_bssms_secrets_len}
+        export HOME=/root
+        echo `date`: command $0 is starting
+        apt-get update && \
         apt-get install -y --no-install-recommends git jq curl fail2ban && \
         ip ad && \
         curl http://169.254.169.254/openstack/latest/meta_data.json | jq .uuid && \
@@ -21,14 +22,18 @@ write_files:
         cd otvl_devops_tools/src/go/bssms/ && /usr/local/go/bin/go build -o ../../../.. ./... && \
         cd  ../../../.. && rm -rf otvl_devops_tools && rm -rf /usr/local/go && \
         true || exit 1
-        export CI_UUID=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid`
-        export CI_MAC=`ip -j ad | jq -r .[1].address`
-        export CI_ADDR=`ip -4 -j ad|jq -r .[1].addr_info[0].local`
-        cmd="./bssms in -pxa $CI_PXHN:$CI_PXPT -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
-        echo Running $cmd
-        $cmd
+        if [ $CI_SECL -ne 0 ] ; then
+            export CI_UUID=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid`
+            export CI_MAC=`ip -j ad | jq -r .[1].address`
+            export CI_ADDR=`ip -4 -j ad|jq -r .[1].addr_info[0].local`
+            cmd="./bssms in -pxa $CI_PXHN:$CI_PXPT -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
+            echo Running $cmd
+            $cmd
+        else
+            echo "no secrets, not running bssms installer"
+        fi
         echo `date`: command $0 is exiting
-      exit 0
+        exit 0
 
     path: /root/bin/otvl_cloud_init.sh
     owner: root:root

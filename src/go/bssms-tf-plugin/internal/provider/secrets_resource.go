@@ -52,6 +52,7 @@ func (r *secretsResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Sensitive:   true,
 			},
 			"tofu_running": schema.BoolAttribute{Computed: true},
+			"tofu_error":   schema.StringAttribute{Computed: true},
 			"installed":    schema.BoolAttribute{Computed: true},
 		},
 	}
@@ -151,6 +152,7 @@ func (r *secretsResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	plan.Installed = types.BoolValue(true)
+	plan.TofuError = types.StringValue(sih.TofuError)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -259,5 +261,6 @@ type secretsResourceModel struct {
 	MacAddresses  []types.String `tfsdk:"mac_addresses"`
 	Secrets       types.Map      `tfsdk:"secrets"`
 	TofuRunning   types.Bool     `tfsdk:"tofu_running"`
+	TofuError     types.String   `tfsdk:"tofu_error"`
 	Installed     types.Bool     `tfsdk:"installed"`
 }
