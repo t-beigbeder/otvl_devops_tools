@@ -9,8 +9,13 @@ for g in $gl ; do
     echo "$g: nothing to install"
     continue
   fi
+  echo "installing tools for group $g"
   for s in $g/* ; do
-    echo "$g: running $s"
+    echo "running $s"
     $s
+    if [ $? -ne 0 ] ; then
+      echo "$s failed, exiting"
+      exit 1
+    fi
   done
 done
