@@ -57,18 +57,6 @@ resource "openstack_compute_instance_v2" "this" {
   }
 }
 
-data "openstack_networking_port_v2" "ext" {
-  count = length(var.instances_attrs)
-  network_id = var.ext_net_id
-  device_id  = openstack_compute_instance_v2.this[count.index].id
-}
-
-data "openstack_networking_port_v2" "loc" {
-  count = length(var.instances_attrs)
-  network_id = var.loc_net_id
-  device_id  = openstack_compute_instance_v2.this[count.index].id
-}
-
 locals {
   ip_v4_addresses = [
     for i in resource.openstack_compute_instance_v2.this : [

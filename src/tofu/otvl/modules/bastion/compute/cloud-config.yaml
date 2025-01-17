@@ -4,12 +4,14 @@ write_files:
         #!/bin/sh
         export CI_DOT_REPO=${tf_dot_repo}
         export CI_DOT_BRANCH=${tf_dot_branch}
+        export HOME=/root
         echo `date`: command $0 is starting
         apt-get update && \
         apt-get install -y --no-install-recommends git jq curl fail2ban && \
-        mkdir -p /root/clinit && cd /root/clinit && \
-        curl -L https://go.dev/dl/go$CI_GOV.linux-amd64.tar.gz -o go.tgz && \
+        mkdir -p /root/clinit /root/locgit && cd /root/locgit && \
         git clone --single-branch --branch $CI_DOT_BRANCH $CI_DOT_REPO && \
+        cd `basename $CI_DOT_REPO`/src/shell/init_vm && \
+        ./cloud_init_install.sh && \
         true || exit 1
         echo `date`: command $0 is exiting
         exit 0
