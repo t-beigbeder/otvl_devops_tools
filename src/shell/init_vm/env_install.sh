@@ -36,6 +36,7 @@ is_root() {
   return 0
 }
 
+setvarif IV_OS_VM 1
 setvarif IV_GO_VERSION 1.23.4
 setvarif IV_GO_UPDATE 1
 setvarif IV_AGE_VERSION v1.2.1
