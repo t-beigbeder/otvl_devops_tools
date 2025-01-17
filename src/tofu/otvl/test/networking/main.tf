@@ -14,6 +14,6 @@ terraform {
 module "networking" {
   source = "../../modules/networking"
   ext_net_name = var.ext_net_name
-  loc_net_name = var.ext_net_name
+  loc_net_name = var.loc_net_name
   loc_net_cidr = var.loc_net_cidr
 }

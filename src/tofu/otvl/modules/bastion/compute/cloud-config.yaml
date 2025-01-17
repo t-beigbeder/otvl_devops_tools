@@ -1,0 +1,21 @@
+#cloud-config
+write_files:
+  - content: |
+        #!/bin/sh
+        export CI_DOT_REPO=${tf_dot_repo}
+        export CI_DOT_BRANCH=${tf_dot_branch}
+        echo `date`: command $0 is starting
+        apt-get update && \
+        apt-get install -y --no-install-recommends git jq curl fail2ban && \
+        mkdir -p /root/clinit && cd /root/clinit && \
+        curl -L https://go.dev/dl/go$CI_GOV.linux-amd64.tar.gz -o go.tgz && \
+        git clone --single-branch --branch $CI_DOT_BRANCH $CI_DOT_REPO && \
+        true || exit 1
+        echo `date`: command $0 is exiting
+        exit 0
+
+    path: /root/bin/otvl_cloud_init.sh
+    owner: root:root
+    permissions: '0750'
+runcmd:
+  - [ /root/bin/otvl_cloud_init.sh ]
