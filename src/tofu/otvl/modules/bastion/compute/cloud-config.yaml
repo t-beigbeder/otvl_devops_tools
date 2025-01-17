@@ -7,7 +7,7 @@ write_files:
         export HOME=/root
         echo `date`: command $0 is starting
         apt-get update && \
-        apt-get install -y --no-install-recommends git jq curl fail2ban && \
+        apt-get install -y --no-install-recommends git jq curl && \
         mkdir -p /root/clinit /root/locgit && cd /root/locgit && \
         git clone --single-branch --branch $CI_DOT_BRANCH $CI_DOT_REPO && \
         cd `basename $CI_DOT_REPO`/src/shell/init_vm && \

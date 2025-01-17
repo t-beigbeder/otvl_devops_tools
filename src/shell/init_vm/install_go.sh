@@ -1,11 +1,8 @@
 #!/bin/sh
 
 ## pre
-if [ `echo $0 | cut -c 1` = "/" ] ; then
-  sd=`dirname $0`
-else
-  sd="${PWD}/`dirname $0`"
-fi
+rp=`realpath $0`
+sd=`dirname $rp`
 . $sd/env_install.sh
 ## endpre
 
@@ -26,6 +23,7 @@ else
     log Go version mismatch "installed: `go version | cut -f3 -d' '`" "wanted: go${IV_GO_VERSION}"
     if [ "$IV_GO_UPDATE" ]; then
       log "Installing go from ${gourl}"
+      is_root && \
       cmd rm -r /usr/local/go && \
       installgo
     fi

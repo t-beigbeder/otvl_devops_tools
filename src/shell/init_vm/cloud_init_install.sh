@@ -11,10 +11,11 @@ for g in $gl ; do
   fi
   echo "installing tools for group $g"
   for s in $g/* ; do
-    echo "running $s"
-    $s
+    bs=`basename $s`
+    echo "$g: running $bs"
+    $g/$bs
     if [ $? -ne 0 ] ; then
-      echo "$s failed, exiting"
+      echo "$g: $bs failed, exiting"
       exit 1
     fi
   done
