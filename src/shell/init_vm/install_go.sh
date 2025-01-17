@@ -19,6 +19,7 @@ installgo() {
 if [ ! -d /usr/local/go ] ; then
   installgo
 else
+  PATH=/usr/local/go/bin:$PATH
   if [ "`go version | cut -f3 -d' '`" != "go${IV_GO_VERSION}" ] ; then
     log Go version mismatch "installed: `go version | cut -f3 -d' '`" "wanted: go${IV_GO_VERSION}"
     if [ "$IV_GO_UPDATE" ]; then

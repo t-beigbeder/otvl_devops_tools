@@ -2,7 +2,7 @@
 if [ "$IV_OS_VM" ] ; then
   gl=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .meta.groups | cut -d',' -f1- --output-delimiter=' '`
 else
-  gl=$IS_META_GROUPS
+  gl=$IV_META_GROUPS
 fi
 if [ -z "$gl" ] ; then
   echo "no group in .meta.groups, nothing to install"
