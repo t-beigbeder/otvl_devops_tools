@@ -26,6 +26,26 @@ variable "bastion_loc_ip_v4" {
   description = "The IPv4 local address of the bastion"
   type = string
 }
+variable "dot_repo" {
+  description = "Git repo devopstools"
+  type        = string
+}
+variable "dot_branch" {
+  description = "Git branch devopstools"
+  type        = string
+}
+variable "go_version" {
+  description = "Version of the go runtime"
+  type        = string
+}
+variable "bssms_proxy_ext_host" {
+  description = "The external hostname of bssms proxy"
+  type = string
+}
+variable "bssms_proxy_port" {
+  description = "The UDP port of bssms proxy"
+  type = string
+}
 variable "instances_attrs" {
   description = "Attributes for instances to create"
   type = list(object({
@@ -37,15 +57,13 @@ variable "instances_attrs" {
     flavor_name = string
   }))
 }
-variable "bssms_proxy_port" {
-  description = "The UDP port of bssms proxy"
+
+# ---------------------------------------------------------------------------------------------------------------------
+# OPTIONAL PARAMETERS
+# These parameters have reasonable defaults.
+# ---------------------------------------------------------------------------------------------------------------------
+variable "hosting_secrets_sops" {
+  description = "sops enc.yaml containing dictionary of key/value per instance name"
   type = string
-}
-variable "dot_repo" {
-  description = "Git repo devopstools"
-  type        = string
-}
-variable "dot_branch" {
-  description = "Git branch devopstools"
-  type        = string
+  default = "instances_secrets.yaml"
 }

@@ -8,7 +8,18 @@ terraform {
       source  = "terraform-provider-openstack/openstack"
       version = "~> 3.0.0"
     }
+    sops = {
+      source  = "carlpett/sops"
+      version = "~> 1.1.1"
+    }
+    bssms = {
+      source = "tofu.otvl.org/otvl/bssms"
+    }
   }
+}
+
+provider "bssms" {
+  proxy_address = var.bssms_proxy_ext_host
 }
 
 module "network" {
@@ -30,5 +41,6 @@ module "compute" {
   dot_repo          = var.dot_repo
   bastion_loc_ip_v4 = var.bastion_loc_ip_v4
   bssms_proxy_port  = var.bssms_proxy_port
+  go_version        = var.go_version
   instances_attrs   = var.instances_attrs
 }

@@ -42,6 +42,10 @@ variable "bssms_proxy_port" {
   description = "The UDP port of bssms proxy"
   type = string
 }
+variable "go_version" {
+  description = "Version of the go runtime"
+  type        = string
+}
 variable "instances_attrs" {
   description = "Attributes for instances to create"
   type = list(object({

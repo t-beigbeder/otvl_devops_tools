@@ -3,7 +3,30 @@ terraform {
     openstack = {
       source = "terraform-provider-openstack/openstack"
     }
+    bssms = {
+      source = "tofu.otvl.org/otvl/bssms"
+    }
+    sops = {
+      source  = "carlpett/sops"
+    }
   }
+}
+
+resource "bssms_installable" "this" {
+  count = length(var.instances_attrs)
+  name = var.instances_attrs[count.index].name
+}
+
+locals {
+  instances_attrs = [
+    for index, ia in var.instances_attrs :
+    merge(
+      ia,
+      {
+        secrets_pri_key = bssms_installable.this[index].pri_key
+      }
+    )
+  ]
 }
 
 module "instances" {
@@ -11,22 +34,29 @@ module "instances" {
   ext_net_id           = var.ext_net_id
   loc_net_id           = var.loc_net_id
   loc_subnet_id        = var.loc_subnet_id
-  external_sg_id       = var.ext_net_id
+  external_sg_id       = var.hosting_sg_id
   ssh_key_name         = var.ssh_key_name
   ssh_pub              = var.ssh_pub
   dot_repo             = var.dot_repo
   dot_branch           = var.dot_branch
   bssms_proxy_hostname = var.bastion_loc_ip_v4
   bssms_proxy_port     = var.bssms_proxy_port
-  instances_attrs = [
-    merge(
-      var.instances_attrs,
-      {
-        secrets_pri_key = ""
-      }
-    )
-  ]
-  go_version         = ""
-  user_data_template = "${path.module}/cloud-config.yaml"
-  yaml_secrets       = ""
+  instances_attrs      = local.instances_attrs
+  go_version           = var.go_version
+  user_data_template   = "${path.module}/cloud-config.yaml"
+}
+
+data "sops_file" "hosting_secret" {
+  source_file = var.hosting_secrets_sops
+}
+
+resource "bssms_secrets" "this" {
+  count = length(var.instances_attrs)
+  name            = var.instances_attrs[count.index].name
+  pri_key         = resource.bssms_installable.this[count.index].pri_key
+  pub_key         = resource.bssms_installable.this[count.index].pub_key
+  server_uuid     = resource.openstack_compute_instance_v2.this[count.index].id
+  ip_v4_addresses = local.ip_v4_addresses[count.index]
+  mac_addresses   = local.mac_addresses[count.index]
+  yaml_secrets    = data.sops_file.hosting_secret.raw
 }

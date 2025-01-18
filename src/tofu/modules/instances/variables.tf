@@ -50,10 +50,6 @@ variable "bssms_proxy_port" {
   description = "QUIC port of the bssms-proxy"
   type        = string
 }
-variable "yaml_secrets" {
-  description = "yaml of dictionary of key/value per instance name"
-  type        = string
-}
 variable "instances_attrs" {
   description = "Attributes for instances to create"
   type = list(object({
