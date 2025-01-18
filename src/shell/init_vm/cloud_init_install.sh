@@ -1,4 +1,11 @@
 #!/bin/sh
+
+## pre
+rp=`realpath $0`
+sd=`dirname $rp`
+. $sd/env_install.sh
+## endpre
+
 if [ "$IV_OS_VM" ] ; then
   gl=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .meta.groups | cut -d',' -f1- --output-delimiter=' '`
 else
