@@ -12,10 +12,11 @@ terraform {
 }
 
 module "network" {
-  source          = "../../modules/bastion/network"
-  ext_net_name    = var.ext_net_name
-  loc_net_name    = var.loc_net_name
-  bastion_sg_name = var.bastion_sg_name
+  source           = "../../modules/bastion/network"
+  ext_net_name     = var.ext_net_name
+  loc_net_name     = var.loc_net_name
+  bastion_sg_name  = var.bastion_sg_name
+  bssms_proxy_port = var.bssms_proxy_port
 }
 
 module "compute" {
@@ -28,5 +29,11 @@ module "compute" {
   ssh_pub       = var.ssh_pub
   dot_branch    = var.dot_branch
   dot_repo      = var.dot_repo
-  instance_attr = var.instance_attr
+  instance_attr = merge(
+    var.instance_attr,
+    {
+      ip_v4 = var.bastion_loc_ip_v4
+    }
+  )
+
 }

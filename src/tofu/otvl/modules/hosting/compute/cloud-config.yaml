@@ -8,25 +8,22 @@ write_files:
         export CI_GOV=${tf_go_version}
         export CI_PXHN=${tf_bssms_proxy_hostname}
         export CI_PXPT=${tf_bssms_proxy_port}
-        export CI_HSC=${tf_bssms_has_secrets}
         export HOME=/root
         echo `date`: command $0 is starting
         apt-get update && \
-        apt-get install -y --no-install-recommends git jq curl fail2ban && \
-        ip ad && \
-        curl http://169.254.169.254/openstack/latest/meta_data.json | jq .uuid && \
-        mkdir -p /root/clinit && cd /root/clinit && \
+        apt-get install -y --no-install-recommends git jq curl && \
+        mkdir -p /root/clinit /root/locgit && cd /root/locgit && \
         curl -L https://go.dev/dl/go$CI_GOV.linux-amd64.tar.gz -o go.tgz && \
         rm -rf /usr/local/go && tar -C /usr/local -xzf go.tgz && rm go.tgz && \
         git clone --single-branch --branch $CI_DOT_BRANCH $CI_DOT_REPO && \
-        cd otvl_devops_tools/src/go/bssms/ && /usr/local/go/bin/go build -o ../../../.. ./... && \
-        cd  ../../../.. && rm -rf otvl_devops_tools && rm -rf /usr/local/go && \
+        cd otvl_devops_tools/src/go/bssms/ && /usr/local/go/bin/go build -o /usr/local/bin ./... && \
+        cd  /root/clinit && rm -rf otvl_devops_tools && rm -rf /usr/local/go && \
         true || exit 1
-        if [ "$CI_HSC" ] ; then
+        if [ "CI_PRIK" ] ; then
             export CI_UUID=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid`
             export CI_MAC=`ip -j ad | jq -r .[1].address`
             export CI_ADDR=`ip -4 -j ad|jq -r .[1].addr_info[0].local`
-            cmd="./bssms in -pxa $CI_PXHN:$CI_PXPT -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
+            cmd="/usr/local/bin/bssms in -pxa $CI_PXHN:$CI_PXPT -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
             echo Running $cmd
             $cmd
         else

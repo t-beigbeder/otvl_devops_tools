@@ -13,7 +13,7 @@ output "loc_subnet_id" {
   description = "The local subnet id"
 }
 
-output "ext_sg_id" {
+output "hosting_sg_id" {
   value       = openstack_networking_secgroup_v2.ext.id
-  description = "The ext sg id"
+  description = "The hosting sg id"
 }

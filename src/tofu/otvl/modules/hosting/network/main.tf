@@ -20,7 +20,7 @@ data "openstack_networking_subnet_v2" "loc_net_sn" {
 }
 
 resource "openstack_networking_secgroup_v2" "ext" {
-  name = var.ext_sg_name
+  name = var.hosting_sg_name
 }
 
 resource "openstack_networking_secgroup_rule_v2" "ext_http" {
@@ -39,16 +39,6 @@ resource "openstack_networking_secgroup_rule_v2" "ext_https" {
   protocol          = "tcp"
   port_range_min    = 443
   port_range_max    = 443
-  remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = openstack_networking_secgroup_v2.ext.id
-}
-
-resource "openstack_networking_secgroup_rule_v2" "ext_http3" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "udp"
-  port_range_min    = 9443
-  port_range_max    = 9443
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.ext.id
 }

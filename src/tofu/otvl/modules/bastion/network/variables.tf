@@ -14,3 +14,7 @@ variable "bastion_sg_name" {
   description = "The security group name for bastion access"
   type        = string
 }
+variable "bssms_proxy_port" {
+  description = "The UDP port of bssms proxy"
+  type = string
+}

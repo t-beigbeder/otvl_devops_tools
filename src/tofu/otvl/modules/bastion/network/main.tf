@@ -47,8 +47,8 @@ resource "openstack_networking_secgroup_rule_v2" "bastion_quic_bssms" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "udp"
-  port_range_min    = 9443
-  port_range_max    = 9443
+  port_range_min    = tonumber(var.bssms_proxy_port)
+  port_range_max    = tonumber(var.bssms_proxy_port)
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.bastion.id
 }

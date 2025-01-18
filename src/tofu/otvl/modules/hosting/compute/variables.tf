@@ -2,16 +2,20 @@
 # REQUIRED PARAMETERS
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
-variable "ext_net_name" {
-  description = "The name of the external network"
+variable "ext_net_id" {
+  description = "The external network id"
   type        = string
 }
-variable "loc_net_name" {
-  description = "The name of the local network"
+variable "loc_net_id" {
+  description = "The local network id"
   type        = string
 }
-variable "hosting_sg_name" {
-  description = "The security group name for external access"
+variable "loc_subnet_id" {
+  description = "The local subnet id"
+  type        = string
+}
+variable "hosting_sg_id" {
+  description = "hosting sg id"
   type        = string
 }
 variable "ssh_key_name" {
@@ -22,8 +26,20 @@ variable "ssh_pub" {
   description = "The SSH public key to authorize in created instances"
   type        = string
 }
+variable "dot_repo" {
+  description = "Git repo devopstools"
+  type        = string
+}
+variable "dot_branch" {
+  description = "Git branch devopstools"
+  type        = string
+}
 variable "bastion_loc_ip_v4" {
   description = "The IPv4 local address of the bastion"
+  type = string
+}
+variable "bssms_proxy_port" {
+  description = "The UDP port of bssms proxy"
   type = string
 }
 variable "instances_attrs" {
@@ -36,16 +52,4 @@ variable "instances_attrs" {
     image_name  = string
     flavor_name = string
   }))
-}
-variable "bssms_proxy_port" {
-  description = "The UDP port of bssms proxy"
-  type = string
-}
-variable "dot_repo" {
-  description = "Git repo devopstools"
-  type        = string
-}
-variable "dot_branch" {
-  description = "Git branch devopstools"
-  type        = string
 }

@@ -10,7 +10,7 @@ variable "loc_net_name" {
   description = "The name of the local network"
   type        = string
 }
-variable "ext_sg_name" {
+variable "hosting_sg_name" {
   description = "The security group name for external access"
   type        = string
 }
