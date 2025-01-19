@@ -29,7 +29,7 @@ resource "openstack_networking_port_v2" "loc" {
   admin_state_up = "true"
 }
 
-resource "openstack_compute_instance_v2" "this" {
+resource "openstack_compute_instance_v2" "instances" {
   count = length(var.instances_attrs)
   name        = var.instances_attrs[count.index].name
   image_name  = var.instances_attrs[count.index].image_name
@@ -55,17 +55,4 @@ resource "openstack_compute_instance_v2" "this" {
     "groups"    = var.instances_attrs[count.index].groups
     "otvl_meta" = var.instances_attrs[count.index].otvl_meta
   }
-}
-
-locals {
-  ip_v4_addresses = [
-    for i in resource.openstack_compute_instance_v2.this : [
-      for n in i.network : n.fixed_ip_v4
-    ]
-  ]
-  mac_addresses = [
-    for i in resource.openstack_compute_instance_v2.this : [
-      for n in i.network : n.mac
-    ]
-  ]
 }

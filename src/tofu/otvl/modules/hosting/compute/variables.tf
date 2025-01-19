@@ -46,6 +46,10 @@ variable "go_version" {
   description = "Version of the go runtime"
   type        = string
 }
+variable "yaml_secrets" {
+  description = "yaml of dictionary of key/value per instance name"
+  type        = string
+}
 variable "instances_attrs" {
   description = "Attributes for instances to create"
   type = list(object({

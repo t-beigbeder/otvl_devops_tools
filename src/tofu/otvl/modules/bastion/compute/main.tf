@@ -28,5 +28,4 @@ module "instances" {
   ]
   go_version         = ""
   user_data_template = "${path.module}/cloud-config.yaml"
-  yaml_secrets       = ""
 }

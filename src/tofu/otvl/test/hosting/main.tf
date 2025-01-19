@@ -19,7 +19,7 @@ terraform {
 }
 
 provider "bssms" {
-  proxy_address = var.bssms_proxy_ext_host
+  proxy_address = "${var.bssms_proxy_ext_host}:${var.bssms_proxy_port}"
 }
 
 module "network" {
@@ -29,18 +29,23 @@ module "network" {
   hosting_sg_name = var.hosting_sg_name
 }
 
+data "sops_file" "hosting_secret" {
+  source_file = var.hosting_secrets_sops
+}
+
 module "compute" {
-  source            = "../../modules/hosting/compute"
-  ext_net_id        = module.network.ext_net_id
-  loc_net_id        = module.network.loc_net_id
-  loc_subnet_id     = module.network.loc_subnet_id
-  hosting_sg_id     = module.network.hosting_sg_id
-  ssh_key_name      = var.ssh_key_name
-  ssh_pub           = var.ssh_pub
-  dot_branch        = var.dot_branch
-  dot_repo          = var.dot_repo
-  bastion_loc_ip_v4 = var.bastion_loc_ip_v4
-  bssms_proxy_port  = var.bssms_proxy_port
-  go_version        = var.go_version
-  instances_attrs   = var.instances_attrs
+  source               = "../../modules/hosting/compute"
+  ext_net_id           = module.network.ext_net_id
+  loc_net_id           = module.network.loc_net_id
+  loc_subnet_id        = module.network.loc_subnet_id
+  hosting_sg_id        = module.network.hosting_sg_id
+  ssh_key_name         = var.ssh_key_name
+  ssh_pub              = var.ssh_pub
+  dot_branch           = var.dot_branch
+  dot_repo             = var.dot_repo
+  bastion_loc_ip_v4    = var.bastion_loc_ip_v4
+  bssms_proxy_port     = var.bssms_proxy_port
+  go_version           = var.go_version
+  yaml_secrets         = data.sops_file.hosting_secret.raw
+  instances_attrs      = var.instances_attrs
 }

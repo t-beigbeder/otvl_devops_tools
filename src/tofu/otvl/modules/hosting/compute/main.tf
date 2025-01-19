@@ -6,9 +6,6 @@ terraform {
     bssms = {
       source = "tofu.otvl.org/otvl/bssms"
     }
-    sops = {
-      source  = "carlpett/sops"
-    }
   }
 }
 
@@ -46,17 +43,13 @@ module "instances" {
   user_data_template   = "${path.module}/cloud-config.yaml"
 }
 
-data "sops_file" "hosting_secret" {
-  source_file = var.hosting_secrets_sops
-}
-
 resource "bssms_secrets" "this" {
   count = length(var.instances_attrs)
   name            = var.instances_attrs[count.index].name
   pri_key         = resource.bssms_installable.this[count.index].pri_key
   pub_key         = resource.bssms_installable.this[count.index].pub_key
-  server_uuid     = resource.openstack_compute_instance_v2.this[count.index].id
-  ip_v4_addresses = local.ip_v4_addresses[count.index]
-  mac_addresses   = local.mac_addresses[count.index]
-  yaml_secrets    = data.sops_file.hosting_secret.raw
+  server_uuid     = module.instances.ids[count.index]
+  ip_v4_addresses = module.instances.ipv4s[count.index]
+  mac_addresses   = module.instances.macs[count.index]
+  yaml_secrets    = var.yaml_secrets
 }
