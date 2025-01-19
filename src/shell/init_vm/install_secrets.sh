@@ -13,7 +13,12 @@ json_secrets_file=/root/clinit/bssms.json
 
 install_from_spec() {
     cat $sd/install_secrets_spec.txt | while read line ; do
-        echo line $line
+        set `echo $line cut -d' ' -f1-3`
+        key=$1
+        file=$2
+        mod=$3
+        jq -r .$key < $json_secrets_file > $file
+        chmod $3 $file
     done
 }
 
