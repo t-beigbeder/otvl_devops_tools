@@ -65,5 +65,5 @@ variable "instances_attrs" {
 variable "hosting_secrets_sops" {
   description = "sops enc.yaml containing dictionary of key/value per instance name"
   type = string
-  default = "instances_secrets.yaml"
+  default = "instances_secrets.enc.yaml"
 }
