@@ -1,5 +1,11 @@
 #!/bin/sh
 
+## pre
+rp=`realpath $0`
+sd=`dirname $rp`
+. $sd/env_install.sh
+## endpre
+
 if [ ! -f /usr/bin/docker ] ; then
   apt-get install -y --no-install-recommends ca-certificates && \
   install -m 0755 -d /etc/apt/keyrings && \

@@ -1,0 +1,1 @@
+../install_k3s_sn.sh

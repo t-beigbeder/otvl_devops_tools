@@ -1,11 +1,8 @@
 #!/bin/sh
 
 ## pre
-if [ `echo $0 | cut -c 1` = "/" ] ; then
-  sd=`dirname $0`
-else
-  sd="${PWD}/`dirname $0`"
-fi
+rp=`realpath $0`
+sd=`dirname $rp`
 . $sd/env_install.sh
 ## endpre
 
