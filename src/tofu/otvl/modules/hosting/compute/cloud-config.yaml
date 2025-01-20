@@ -29,6 +29,9 @@ write_files:
         else
             echo "no secrets, not running bssms installer"
         fi
+        cd `basename $CI_DOT_REPO`/src/shell/init_vm && \
+        ./cloud_init_install.sh && \
+        true || exit 1
         echo `date`: command $0 is exiting
         exit 0
 

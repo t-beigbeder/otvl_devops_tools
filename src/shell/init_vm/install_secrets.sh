@@ -1,11 +1,8 @@
 #!/bin/sh
 
 ## pre
-if [ `echo $0 | cut -c 1` = "/" ] ; then
-  sd=`dirname $0`
-else
-  sd="${PWD}/`dirname $0`"
-fi
+rp=`realpath $0`
+sd=`dirname $rp`
 . $sd/env_install.sh
 ## endpre
 
@@ -14,16 +11,26 @@ json_secrets_file=/root/clinit/bssms.json
 install_from_spec() {
   st=0
   cat $sd/install_secrets_spec.txt | while read line ; do
-      set `echo $line cut -d' ' -f1-3`
+      if [ -z "$line" ] ; then
+        continue
+      fi
+      set $line
+      if [ $# -ne 3 ] ; then
+        echo "bad line $line ($#)"
+        continue
+      fi
       key=$1
       file=$2
       mod=$3
       jq -r .$key < $json_secrets_file > $file 2> /dev/null
-      if [ -s $file ] ; then
+      ct=`cat $file`
+      if [ "$ct" = "null" ] ; then
+        echo key $key file $file is empty
         rm $file
-        st=1
+        return 1
+      else
+        chmod $3 $file
       fi
-      chmod $3 $file
   done
   return $st
 }
