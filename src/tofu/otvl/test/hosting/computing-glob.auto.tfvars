@@ -1,0 +1,1 @@
+local_operations/computing-glob.auto.tfvars

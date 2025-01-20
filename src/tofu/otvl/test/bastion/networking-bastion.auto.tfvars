@@ -1,0 +1,1 @@
+local_operations/networking-bastion.auto.tfvars

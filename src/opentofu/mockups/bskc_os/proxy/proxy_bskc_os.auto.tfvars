@@ -1,0 +1,1 @@
+/home/guest/locgit/otvl/otvl_lops/opentofu/mockups/bskc_os/proxy_bskc_os.auto.tfvars

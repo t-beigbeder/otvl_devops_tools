@@ -1,0 +1,1 @@
+../../../../../../otvl_lops/opentofu/mockups/bskc_os/bskc_os.auto.tfvars
