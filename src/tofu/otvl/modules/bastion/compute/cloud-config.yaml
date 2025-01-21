@@ -6,10 +6,12 @@ write_files:
         export CI_LIP4=${tf_loc_ipv4}
         export CI_DOT_REPO=${tf_dot_repo}
         export CI_DOT_BRANCH=${tf_dot_branch}
+        export CI_ROPS_REPO=${tf_rops_repo}
+        export CI_INSTALL_ENV=${tf_install_env}
         export HOME=/root
         echo `date`: command $0 is starting
         apt-get update && \
-        apt-get install -y --no-install-recommends git jq curl && \
+        apt-get install -y --no-install-recommends git jq yq curl && \
         mkdir -p /root/clinit /root/locgit && cd /root/locgit && \
         git clone --single-branch --branch $CI_DOT_BRANCH $CI_DOT_REPO && \
         cd `basename $CI_DOT_REPO`/src/shell/init_vm && \

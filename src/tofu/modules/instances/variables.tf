@@ -38,6 +38,14 @@ variable "dot_branch" {
   description = "Git branch devopstools"
   type        = string
 }
+variable "rops_repo" {
+  description = "Git repo remote operations"
+  type        = string
+}
+variable "install_env" {
+  description = "Environment to install"
+  type        = string
+}
 variable "go_version" {
   description = "Golang version to download for building bssms"
   type        = string

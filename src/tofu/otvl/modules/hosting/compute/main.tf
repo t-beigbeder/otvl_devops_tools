@@ -36,6 +36,8 @@ module "instances" {
   ssh_pub              = var.ssh_pub
   dot_repo             = var.dot_repo
   dot_branch           = var.dot_branch
+  rops_repo            = var.rops_repo
+  install_env          = var.install_env
   bssms_proxy_hostname = var.bastion_loc_ip_v4
   bssms_proxy_port     = var.bssms_proxy_port
   instances_attrs      = local.instances_attrs

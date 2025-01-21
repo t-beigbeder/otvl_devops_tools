@@ -6,6 +6,8 @@ write_files:
         export CI_LIP4=${tf_loc_ipv4}
         export CI_DOT_REPO=${tf_dot_repo}
         export CI_DOT_BRANCH=${tf_dot_branch}
+        export CI_ROPS_REPO=${tf_rops_repo}
+        export CI_INSTALL_ENV=${tf_install_env}
         export CI_PRIK=${tf_prik}
         export CI_GOV=${tf_go_version}
         export CI_PXHN=${tf_bssms_proxy_hostname}
@@ -13,7 +15,7 @@ write_files:
         export HOME=/root
         echo `date`: command $0 is starting
         apt-get update && \
-        apt-get install -y --no-install-recommends git jq curl && \
+        apt-get install -y --no-install-recommends git jq yq curl && \
         mkdir -p /root/clinit /root/locgit && cd /root/locgit && \
         curl -L https://go.dev/dl/go$CI_GOV.linux-amd64.tar.gz -o go.tgz && \
         rm -rf /usr/local/go && tar -C /usr/local -xzf go.tgz && rm go.tgz && \
@@ -24,7 +26,7 @@ write_files:
         if [ "CI_PRIK" ] ; then
             export CI_UUID=`curl http://169.254.169.254/openstack/latest/meta_data.json | jq -r .uuid`
             export CI_MAC=`ip -j ad | jq -r .[1].address`
-            export CI_ADDR=`ip -4 -j ad|jq -r .[1].addr_info[0].local`
+            export CI_ADDR=`ip -4 -j ad | jq -r .[1].addr_info[0].local`
             cmd="/usr/local/bin/bssms in -pxa $CI_PXHN:$CI_PXPT -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
             echo Running $cmd
             $cmd

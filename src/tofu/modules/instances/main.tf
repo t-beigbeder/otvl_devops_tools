@@ -40,6 +40,8 @@ resource "openstack_compute_instance_v2" "instances" {
     tf_loc_ip_v4            = var.instances_attrs[count.index].ip_v4,
     tf_dot_repo             = var.dot_repo
     tf_dot_branch           = var.dot_branch
+    tf_rops_repo            = var.rops_repo
+    tf_install_env          = var.install_env
     tf_prik                 = var.instances_attrs[count.index].secrets_pri_key
     tf_go_version           = var.go_version
     tf_bssms_proxy_hostname = var.bssms_proxy_hostname

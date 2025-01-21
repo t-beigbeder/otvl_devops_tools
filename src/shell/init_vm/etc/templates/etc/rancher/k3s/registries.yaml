@@ -1,11 +1,11 @@
 mirrors:
-  "{{ values.ctr.ingress_host }}":
+  "@1@":
     endpoint:
-      - "https://{{ values.ctr.ingress_host }}"
+      - "@1@"
 configs:
-  "{{ values.ctr.ingress_host }}":
+  "@1@":
     auth:
-      username: "{{ values.ctr.login }}"
-      password: "{{ values.ctr.password }}"
+      username: "@2@"
+      password: "@4@"
     tls:
-      insecure_skip_verify: {{ values.ctr.skip_verify | default(false) }}
+      insecure_skip_verify: "@3@"

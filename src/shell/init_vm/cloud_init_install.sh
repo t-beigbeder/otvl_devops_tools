@@ -14,6 +14,13 @@ fi
 echo "$CI_LIP4 ${CI_LHN}-loc" >> /etc/hosts
 cmd cat /etc/hosts
 
+export CI_ENV_DIR=/root/locgit/`basename $CI_ROPS_DIR .git`/$CI_INSTALL_ENV
+if [ ! -d $CI_ENV_DIR ] ; then
+  err "install environment $CI_INSTALL_ENV not found ($CI_ENV_DIR)"
+  exit 1
+fi
+
+# fetching features groups from meta
 if [ "$IV_OS_VM" ] ; then
   c="curl http://169.254.169.254/openstack/latest/meta_data.json"
   log running $c
@@ -21,6 +28,8 @@ if [ "$IV_OS_VM" ] ; then
 else
   gl=$IV_META_GROUPS
 fi
+
+# running install scripts for each feature group
 if [ -z "$gl" ] ; then
   log "no group in .meta.groups, nothing to install"
   exit 0
