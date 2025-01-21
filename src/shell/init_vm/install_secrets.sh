@@ -10,7 +10,7 @@ json_secrets_file=/root/clinit/bssms.json
 
 install_from_spec() {
   st=0
-  cat $sd/install_secrets_spec.txt | while read line ; do
+  cat $IV_SD/etc/install_secrets_spec.txt | while read line ; do
       if [ -z "$line" ] ; then
         continue
       fi
@@ -36,9 +36,10 @@ install_from_spec() {
 }
 
 install_secrets() {
+  ld="/root/.ssh /root/.config/sops/age /root/.config/.otvl/.secrets"
   is_root && \
-  mkdir -p /root/.ssh /root/.config/sops/age && \
-  chmod go-rwx /root/.ssh /root/.config/sops/age && \
+  mkdir -p $ld && \
+  chmod go-rwx $ld && \
   install_from_spec && \
   echo rm $json_secrets_file && \
   true

@@ -48,19 +48,21 @@ is_root() {
 install_template() {
   target=$1
   relpath=`echo $target | cut -c 2-`
-  template=$IV_SD/templates/$relpath
+  template=$IV_SD/etc/templates/$relpath
   if [ ! -f $template ] ; then
     err template $template not found
+    return 1
   fi
   mod=$2
   shift 2
-  cp $template $target
+  cmd cp $template $target || return 1
+  log instantiate $target
   c=0
   for v in "$@" ; do
     c=`expr $c + 1`
-    sed -i -e "s=@${c}@=${v}=" $target
+    sed -i -e "s=@${c}@=${v}=" $target || return 1
   done
-  chmod $mod $target
+  cmd chmod $mod $target
 }
 
 setvarif IV_OS_VM 1
