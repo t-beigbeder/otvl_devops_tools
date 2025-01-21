@@ -15,9 +15,18 @@ log() {
     disp "`date -Iseconds`" "$@"
 }
 
+err() {
+    disp "`date -Iseconds`" "ERROR:" "$@"
+}
+
 cmd() {
     log running "$@"
     "$@"
+    st=$?
+    if [ $st -ne 0 ] ; then
+      err "running" "$@" "failed"
+    fi
+    return $st
 }
 
 cmd_if() {
@@ -34,6 +43,24 @@ is_root() {
     return 1
   fi
   return 0
+}
+
+install_template() {
+  target=$1
+  relpath=`echo $target | cut -c 2-`
+  template=$IV_SD/templates/$relpath
+  if [ ! -f $template ] ; then
+    err template $template not found
+  fi
+  mod=$2
+  shift 2
+  cp $template $target
+  c=0
+  for v in "$@" ; do
+    c=`expr $c + 1`
+    sed -i -e "s=@${c}@=${v}=" $target
+  done
+  chmod $mod $target
 }
 
 setvarif IV_OS_VM 1

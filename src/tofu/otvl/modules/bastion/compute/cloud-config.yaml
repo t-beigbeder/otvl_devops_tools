@@ -2,6 +2,8 @@
 write_files:
   - content: |
         #!/bin/sh
+        export CI_LHN=${tf_loc_hostname}
+        export CI_LIP4=${tf_loc_ipv4}
         export CI_DOT_REPO=${tf_dot_repo}
         export CI_DOT_BRANCH=${tf_dot_branch}
         export HOME=/root
