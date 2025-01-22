@@ -8,7 +8,8 @@ sd=`dirname $rp`
 
 install_rops() {
   cd /root/locgit && \
-  cmd GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /root/.ssh/id_rsa_gh_ssh" git clone $CI_ROPS_REPO && \
+  log GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /root/.ssh/id_rsa_gh_ssh" git clone $CI_ROPS_REPO && \
+  GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i /root/.ssh/id_rsa_gh_ssh" git clone $CI_ROPS_REPO && \
   true
   return $?
 }

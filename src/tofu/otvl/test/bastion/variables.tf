@@ -22,6 +22,10 @@ variable "ssh_pub" {
   description = "The SSH public key to authorize in created instances"
   type        = string
 }
+variable "b64_id_rsa_rops" {
+  description = "Encrypted private key for remote operations, base64 encoded"
+  type = string
+}
 variable "bastion_loc_ip_v4" {
   description = "The IPv4 local address of the bastion"
   type = string

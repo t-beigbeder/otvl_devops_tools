@@ -20,15 +20,18 @@ module "network" {
 }
 
 module "compute" {
-  source        = "../../modules/bastion/compute"
-  ext_net_id    = module.network.ext_net_id
-  loc_net_id    = module.network.loc_net_id
-  loc_subnet_id = module.network.loc_subnet_id
-  bastion_sg_id = module.network.bastion_sg_id
-  ssh_key_name  = var.ssh_key_name
-  ssh_pub       = var.ssh_pub
-  dot_branch    = var.dot_branch
-  dot_repo      = var.dot_repo
+  source          = "../../modules/bastion/compute"
+  ext_net_id      = module.network.ext_net_id
+  loc_net_id      = module.network.loc_net_id
+  loc_subnet_id   = module.network.loc_subnet_id
+  bastion_sg_id   = module.network.bastion_sg_id
+  ssh_key_name    = var.ssh_key_name
+  ssh_pub         = var.ssh_pub
+  b64_id_rsa_rops = var.b64_id_rsa_rops
+  dot_repo        = var.dot_repo
+  dot_branch      = var.dot_branch
+  rops_repo       = var.rops_repo
+  install_env     = var.install_env
   instance_attr = merge(
     var.instance_attr,
     {

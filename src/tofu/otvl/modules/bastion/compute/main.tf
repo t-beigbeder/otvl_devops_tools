@@ -18,6 +18,7 @@ module "instances" {
   dot_branch           = var.dot_branch
   rops_repo            = var.rops_repo
   install_env          = var.install_env
+  b64_id_rsa_rops      = var.b64_id_rsa_rops
   bssms_proxy_hostname = ""
   bssms_proxy_port     = ""
   instances_attrs = [

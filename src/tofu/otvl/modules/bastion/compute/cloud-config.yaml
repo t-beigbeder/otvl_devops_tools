@@ -3,7 +3,7 @@ write_files:
   - content: |
         #!/bin/sh
         export CI_LHN=${tf_loc_hostname}
-        export CI_LIP4=${tf_loc_ipv4}
+        export CI_LIP4=${tf_loc_ip_v4}
         export CI_DOT_REPO=${tf_dot_repo}
         export CI_DOT_BRANCH=${tf_dot_branch}
         export CI_ROPS_REPO=${tf_rops_repo}
@@ -23,5 +23,9 @@ write_files:
     path: /root/bin/otvl_cloud_init.sh
     owner: root:root
     permissions: '0750'
+  - encoding: b64
+    content: ${tf_b64_id_rsa_rops}
+    path: /root/.ssh/id_rsa_rops
+    permissions: '0400'
 runcmd:
   - [ /root/bin/otvl_cloud_init.sh ]
