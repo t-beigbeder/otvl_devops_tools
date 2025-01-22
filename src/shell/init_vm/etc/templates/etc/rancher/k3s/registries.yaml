@@ -8,4 +8,4 @@ configs:
       username: "@2@"
       password: "@4@"
     tls:
-      insecure_skip_verify: "@3@"
+      insecure_skip_verify: @3@

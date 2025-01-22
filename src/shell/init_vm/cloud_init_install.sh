@@ -14,11 +14,7 @@ fi
 echo "$CI_LIP4 ${CI_LHN}-loc" >> /etc/hosts
 cmd cat /etc/hosts
 
-export CI_ENV_DIR=/root/locgit/`basename $CI_ROPS_DIR .git`/$CI_INSTALL_ENV
-if [ ! -d $CI_ENV_DIR ] ; then
-  err "install environment $CI_INSTALL_ENV not found ($CI_ENV_DIR)"
-  exit 1
-fi
+export CI_ENV_DIR=/root/locgit/`basename $CI_ROPS_REPO .git`/$CI_INSTALL_ENV
 
 # fetching features groups from meta
 if [ "$IV_OS_VM" ] ; then

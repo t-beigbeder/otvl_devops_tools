@@ -60,7 +60,7 @@ install_template() {
   c=0
   for v in "$@" ; do
     c=`expr $c + 1`
-    sed -i -e "s=@${c}@=${v}=" $target || return 1
+    cmd sed -i -e "s=@${c}@=${v}=" $target || return 1
   done
   cmd chmod $mod $target
 }

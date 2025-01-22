@@ -11,9 +11,9 @@ install_k3s() {
   chmod 755 /etc/rancher/k3s /var/lib/rancher/k3s/server/manifests && \
   install_template /etc/rancher/k3s/rancher-config.yaml 644 "${CI_LHN}-loc" && \
   install_template /var/lib/rancher/k3s/server/manifests/traefik-config.yaml 644 && \
-  ingress_host=`yq .ctr.ingress_host < $env_conf` && \
-  login=`yq .ctr.login < $env_conf` && \
-  skip_verify=`yq .ctr.skip_verify < $env_conf` && \
+  ingress_host=`yq -r .ctr.ingress_host < $env_conf` && \
+  login=`yq -r .ctr.login < $env_conf` && \
+  skip_verify=`yq -r .ctr.skip_verify < $env_conf` && \
   password=`cat /root/.config/.otvl/.secrets/ctr_password.txt` && \
   install_template /etc/rancher/k3s/registries.yaml 644 $ingress_host $login $skip_verify $password && \
   log "will run curl -sfL https://get.k3s.io | sh -s - --docker" && \
