@@ -42,5 +42,10 @@ write_files:
     path: /root/bin/otvl_cloud_init.sh
     owner: root:root
     permissions: '0750'
+
+  - encoding: b64
+    content: ${tf_b64_id_rsa_rops}
+    path: /root/.ssh/id_rsa_rops
+    permissions: '0400'
 runcmd:
   - [ /root/bin/otvl_cloud_init.sh ]
