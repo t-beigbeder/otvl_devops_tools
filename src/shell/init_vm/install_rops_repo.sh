@@ -15,9 +15,11 @@ install_rops() {
 }
 
 if [ ! -d /root/locgit/otvl_rops ] ; then
-  install_rops
+  install_rops || exit 1
 fi
 if [ ! -d $CI_ENV_DIR ] ; then
   err "install environment $CI_INSTALL_ENV not found ($CI_ENV_DIR)"
   exit 1
 fi
+
+install_template /usr/local/bin/env_rops.sh 755 "${CI_LHN}" "${CI_LIP4}" "${CI_DOT_REPO}" "${CI_DOT_BRANCH}" "${CI_ROPS_REPO}" "${CI_INSTALL_ENV}"

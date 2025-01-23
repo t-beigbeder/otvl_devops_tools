@@ -74,3 +74,5 @@ setvarif IV_SOPS_VERSION 3.9.3
 setvarif IV_SOPS_UPDATE 1
 setvarif IV_TOFU_VERSION 1.9.0
 setvarif IV_TOFU_UPDATE 1
+setvarif IV_KCTL_VERSION v1.32.1
+setvarif IV_KCTL_UPDATE 1
