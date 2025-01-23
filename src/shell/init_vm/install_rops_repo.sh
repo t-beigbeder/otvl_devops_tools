@@ -22,4 +22,7 @@ if [ ! -d $CI_ENV_DIR ] ; then
   exit 1
 fi
 
-install_template /usr/local/bin/env_rops.sh 755 "${CI_LHN}" "${CI_LIP4}" "${CI_DOT_REPO}" "${CI_DOT_BRANCH}" "${CI_ROPS_REPO}" "${CI_INSTALL_ENV}"
+install_template /usr/local/bin/env_rops.sh 755 "${CI_LHN}" "${CI_LIP4}" "${CI_DOT_REPO}" "${CI_DOT_BRANCH}" "${CI_ROPS_REPO}" "${CI_INSTALL_ENV}" && \
+install_template /usr/local/bin/git_clone_dot.sh 755 && \
+install_template /usr/local/bin/git_clone_rops.sh 755 && \
+true
