@@ -22,6 +22,12 @@ if [ ! -d $CI_ENV_DIR ] ; then
   exit 1
 fi
 
+env_conf=$CI_ENV_DIR/config.yaml
+if [ ! -f "$env_conf" ] ; then
+  err "$env_conf not found"
+  exit 1
+fi
+
 install_template /usr/local/bin/env_rops.sh 755 "${CI_LHN}" "${CI_LIP4}" "${CI_DOT_REPO}" "${CI_DOT_BRANCH}" "${CI_ROPS_REPO}" "${CI_INSTALL_ENV}" && \
 install_template /usr/local/bin/git_clone_dot.sh 755 && \
 install_template /usr/local/bin/git_clone_rops.sh 755 && \
@@ -29,7 +35,7 @@ ope_user=`yq -r .oper.user < $env_conf` && \
 ope_pub=`yq -r .oper.id_rsa_rops < $env_conf` && \
 cmd mkdir -p /home/$ope_user/.ssh && \
 cmd echo $ope_pub > /root/.ssh/id_rsa_rops.pub && \
-cmd chmod 0400 /root/.ssh/id_rsa_rops.pub && \
+cmd chmod 0400 /root/.ssh/id_rsa_rops* && \
 cmd cp -p /root/.ssh/id_rsa_rops* /home/$ope_user/.ssh && \
 cmd echo $ope_pub >> /home/$ope_user/.ssh/authorized_keys && \
 cmd chmod -R go-rwx /home/$ope_user/.ssh && \
