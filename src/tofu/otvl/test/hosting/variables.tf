@@ -26,8 +26,12 @@ variable "b64_id_rsa_rops" {
   description = "Encrypted private key for remote operations, base64 encoded"
   type = string
 }
-variable "bastion_loc_ip_v4" {
-  description = "The IPv4 local address of the bastion"
+variable "sproxy_address" {
+  description = "The address of the sproxy, hostname or IP"
+  type = string
+}
+variable "sproxy_port" {
+  description = "The UDP port of bssms proxy"
   type = string
 }
 variable "dot_repo" {
@@ -49,14 +53,6 @@ variable "install_env" {
 variable "go_version" {
   description = "Version of the go runtime"
   type        = string
-}
-variable "bssms_proxy_ext_host" {
-  description = "The external hostname of bssms proxy"
-  type = string
-}
-variable "bssms_proxy_port" {
-  description = "The UDP port of bssms proxy"
-  type = string
 }
 variable "instances_attrs" {
   description = "Attributes for instances to create"

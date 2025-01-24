@@ -26,16 +26,9 @@ variable "b64_id_rsa_rops" {
   description = "Encrypted private key for remote operations, base64 encoded"
   type = string
 }
-variable "instance_attr" {
-  description = "Attributes for instance to create"
-  type = object({
-    name        = string
-    groups      = string
-    otvl_meta   = string
-    ip_v4       = string
-    image_name  = string
-    flavor_name = string
-  })
+variable "bssms_proxy_address" {
+  description = "The address of the bssms proxy, hostname or IP"
+  type = string
 }
 variable "bssms_proxy_port" {
   description = "The UDP port of bssms proxy"
@@ -56,4 +49,29 @@ variable "rops_repo" {
 variable "install_env" {
   description = "Environment to install"
   type        = string
+}
+variable "go_version" {
+  description = "Version of the go runtime"
+  type        = string
+}
+variable "instance_attr" {
+  description = "Attributes for instance to create"
+  type = object({
+    name        = string
+    groups      = string
+    otvl_meta   = string
+    ip_v4       = string
+    image_name  = string
+    flavor_name = string
+  })
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# OPTIONAL PARAMETERS
+# These parameters have reasonable defaults.
+# ---------------------------------------------------------------------------------------------------------------------
+variable "hosting_secrets_sops" {
+  description = "sops enc.yaml containing dictionary of key/value per instance name"
+  type = string
+  default = "instances_secrets.enc.yaml"
 }

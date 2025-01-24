@@ -46,6 +46,22 @@ variable "install_env" {
   description = "Environment to install"
   type        = string
 }
+variable "bssms_proxy_address" {
+  description = "The address of the bssms proxy, hostname or IP"
+  type = string
+}
+variable "bssms_proxy_port" {
+  description = "The UDP port of bssms proxy"
+  type = string
+}
+variable "go_version" {
+  description = "Version of the go runtime"
+  type        = string
+}
+variable "yaml_secrets" {
+  description = "yaml of dictionary of key/value per instance name"
+  type        = string
+}
 variable "instance_attr" {
   description = "Attributes for instance to create"
   type = object({
