@@ -46,8 +46,8 @@ variable "install_env" {
   description = "Environment to install"
   type        = string
 }
-variable "bssms_proxy_address" {
-  description = "The address of the bssms proxy, hostname or IP"
+variable "sproxy_int_address" {
+  description = "The internal address of the bssms proxy, hostname or IP"
   type = string
 }
 variable "bssms_proxy_port" {

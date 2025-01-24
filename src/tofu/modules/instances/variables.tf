@@ -50,9 +50,9 @@ variable "go_version" {
   description = "Golang version to download for building bssms"
   type        = string
 }
-variable "bssms_proxy_hostname" {
-  description = "Hostname of the bssms-proxy"
-  type        = string
+variable "sproxy_int_address" {
+  description = "The internal address of the bssms proxy, hostname or IP"
+  type = string
 }
 variable "bssms_proxy_port" {
   description = "QUIC port of the bssms-proxy"
