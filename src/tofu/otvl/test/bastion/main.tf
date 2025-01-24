@@ -32,11 +32,5 @@ module "compute" {
   dot_branch      = var.dot_branch
   rops_repo       = var.rops_repo
   install_env     = var.install_env
-  instance_attr = merge(
-    var.instance_attr,
-    {
-      ip_v4 = var.bastion_loc_ip_v4
-    }
-  )
-
+  instance_attr   = var.instance_attr
 }
