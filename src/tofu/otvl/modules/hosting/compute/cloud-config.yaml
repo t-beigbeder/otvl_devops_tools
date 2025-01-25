@@ -29,7 +29,7 @@ write_files:
           export CI_ADDR=`ip -4 -j ad | jq -r .[1].addr_info[0].local`
           cmd="/usr/local/bin/bssms in -pxa $CI_PXHN:$CI_PXPT -uuid $CI_UUID -mac $CI_MAC -ip $CI_ADDR -prik $CI_PRIK --js bssms.json"
           echo Running $cmd
-          $cmd
+          $cmd || exit 1
       else
           echo "no secrets, not running bssms installer"
       fi

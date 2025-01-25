@@ -10,7 +10,7 @@ write_files:
       export HOME=/root
       echo `date`: command $0 is starting
       apt-get update && \
-      apt-get install -y --no-install-recommends git jq yq curl && \
+      apt-get install -y --no-install-recommends git jq yq curl fail2ban python3-systemd && \
       mkdir -p /root/clinit /root/locgit && cd /root/locgit && \
       curl -L https://go.dev/dl/go$CI_GOV.linux-amd64.tar.gz -o go.tgz && \
       rm -rf /usr/local/go && tar -C /usr/local -xzf go.tgz && rm go.tgz && \
@@ -23,24 +23,32 @@ write_files:
       true || exit 1
       echo `date`: command $0 is exiting
       exit 0
-
     path: /root/bin/otvl_cloud_init.sh
     owner: root:root
     permissions: '0750'
-
   - content: |
       [Unit]
       Description=Runs bssms proxy
-      
       [Service]
       ExecStart=/usr/local/bin/bssms px -la 0.0.0.0:${tf_bssms_proxy_port} --host `hostname` -ut
       WorkingDirectory=/root
-      
       [Install]
       WantedBy=multi-user.target
-
     path: /etc/systemd/system/bssms_proxy.service
     permissions: '0644'
-
+  - content: |
+      [DEFAULT]
+      # Debian 12 has no log files, just journalctl
+      backend = systemd
+      # "bantime" is the number of seconds that a host is banned.
+      bantime  = 1d
+      # "maxretry" is the number of failures before a host get banned.
+      maxretry = 5
+      # A host is banned if it has generated "maxretry" during the last "findtime"
+      findtime  = 1h
+      [sshd]
+      enabled = true
+    path: /etc/fail2ban/jail.local
+    permissions: '0644'
 runcmd:
   - [ /root/bin/otvl_cloud_init.sh ]
