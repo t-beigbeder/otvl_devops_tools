@@ -27,7 +27,6 @@ install_from_spec() {
       if [ "$ct" = "null" ] ; then
         echo key $key file $file is empty
         rm $file
-        return 1
       else
         chmod $3 $file
       fi

@@ -22,10 +22,6 @@ variable "ssh_pub" {
   description = "The SSH public key to authorize in created instances"
   type        = string
 }
-variable "b64_id_rsa_rops" {
-  description = "Encrypted private key for remote operations, base64 encoded"
-  type = string
-}
 variable "sproxy_ext_address" {
   description = "The external address of the bssms proxy, hostname or IP"
   type = string

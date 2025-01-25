@@ -25,7 +25,6 @@ module "instances" {
   dot_branch         = var.dot_branch
   rops_repo          = var.rops_repo
   install_env        = var.install_env
-  b64_id_rsa_rops    = var.b64_id_rsa_rops
   sproxy_int_address = var.sproxy_int_address
   bssms_proxy_port   = var.bssms_proxy_port
   instances_attrs = [

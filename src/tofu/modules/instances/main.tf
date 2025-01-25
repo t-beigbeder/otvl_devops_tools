@@ -38,7 +38,6 @@ resource "openstack_compute_instance_v2" "instances" {
   user_data = base64encode(templatefile(var.user_data_template, {
     tf_loc_hostname         = var.instances_attrs[count.index].name,
     tf_loc_ip_v4            = var.instances_attrs[count.index].ip_v4,
-    tf_b64_id_rsa_rops      = var.b64_id_rsa_rops
     tf_dot_repo             = var.dot_repo
     tf_dot_branch           = var.dot_branch
     tf_rops_repo            = var.rops_repo

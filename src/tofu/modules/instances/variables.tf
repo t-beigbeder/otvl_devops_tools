@@ -70,12 +70,3 @@ variable "instances_attrs" {
     secrets_pri_key = string
   }))
 }
-# ---------------------------------------------------------------------------------------------------------------------
-# OPTIONAL PARAMETERS
-# These parameters have reasonable defaults.
-# ---------------------------------------------------------------------------------------------------------------------
-variable "b64_id_rsa_rops" {
-  description = "Encrypted private key for remote operations, base64 encoded"
-  type = string
-  default = ""
-}
