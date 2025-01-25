@@ -32,7 +32,7 @@ module "instances" {
     merge(
       var.instance_attr,
       {
-        secrets_pri_key = ""
+        secrets_pri_key = bssms_installable.this.pri_key
       }
     )
   ]
