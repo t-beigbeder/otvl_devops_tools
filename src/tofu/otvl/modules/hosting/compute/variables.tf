@@ -46,8 +46,8 @@ variable "install_env" {
   description = "Environment to install"
   type        = string
 }
-variable "bastion_loc_ip_v4" {
-  description = "The IPv4 local address of the bastion"
+variable "sproxy_int_address" {
+  description = "The internal address of the bssms proxy, hostname or IP"
   type = string
 }
 variable "bssms_proxy_port" {

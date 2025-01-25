@@ -39,7 +39,7 @@ module "instances" {
   rops_repo          = var.rops_repo
   install_env        = var.install_env
   b64_id_rsa_rops    = var.b64_id_rsa_rops
-  sproxy_int_address = var.bastion_loc_ip_v4
+  sproxy_int_address = var.sproxy_int_address
   bssms_proxy_port   = var.bssms_proxy_port
   instances_attrs    = local.instances_attrs
   go_version         = var.go_version

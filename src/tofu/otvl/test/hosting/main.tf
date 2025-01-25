@@ -19,7 +19,7 @@ terraform {
 }
 
 provider "bssms" {
-  proxy_address = "${var.bssms_proxy_ext_host}:${var.bssms_proxy_port}"
+  proxy_address = "${var.sproxy_ext_address}:${var.bssms_proxy_port}"
 }
 
 module "network" {
@@ -34,21 +34,21 @@ data "sops_file" "hosting_secret" {
 }
 
 module "compute" {
-  source            = "../../modules/hosting/compute"
-  ext_net_id        = module.network.ext_net_id
-  loc_net_id        = module.network.loc_net_id
-  loc_subnet_id     = module.network.loc_subnet_id
-  hosting_sg_id     = module.network.hosting_sg_id
-  ssh_key_name      = var.ssh_key_name
-  ssh_pub           = var.ssh_pub
-  b64_id_rsa_rops   = var.b64_id_rsa_rops
-  dot_repo          = var.dot_repo
-  dot_branch        = var.dot_branch
-  rops_repo         = var.rops_repo
-  install_env       = var.install_env
-  bastion_loc_ip_v4 = var.bastion_loc_ip_v4
-  bssms_proxy_port  = var.bssms_proxy_port
-  go_version        = var.go_version
-  yaml_secrets      = data.sops_file.hosting_secret.raw
-  instances_attrs   = var.instances_attrs
+  source             = "../../modules/hosting/compute"
+  ext_net_id         = module.network.ext_net_id
+  loc_net_id         = module.network.loc_net_id
+  loc_subnet_id      = module.network.loc_subnet_id
+  hosting_sg_id      = module.network.hosting_sg_id
+  ssh_key_name       = var.ssh_key_name
+  ssh_pub            = var.ssh_pub
+  b64_id_rsa_rops    = var.b64_id_rsa_rops
+  dot_repo           = var.dot_repo
+  dot_branch         = var.dot_branch
+  rops_repo          = var.rops_repo
+  install_env        = var.install_env
+  sproxy_int_address = var.sproxy_int_address
+  bssms_proxy_port   = var.bssms_proxy_port
+  go_version         = var.go_version
+  yaml_secrets       = data.sops_file.hosting_secret.raw
+  instances_attrs    = var.instances_attrs
 }
