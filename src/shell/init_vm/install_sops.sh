@@ -17,10 +17,12 @@ installsops() {
 }
 
 if [ ! -f /usr/local/bin/sops ] ; then
+  log "Installing sops from ${sopsurl}"
   installsops
 else
-  if [ "`sops -version|cut -d' ' -f2`" != "${IV_SOPS_VERSION}" ] ; then
-    log sops version mismatch "installed: `sops  -version|cut -d' ' -f2`" "wanted: ${IV_SOPS_VERSION}"
+  sv=`sops -version | head -1 | cut -d' ' -f2`
+  if [ "$sv" != "${IV_SOPS_VERSION}" ] ; then
+    log sops version mismatch "installed: $sv" "wanted: ${IV_SOPS_VERSION}"
     if [ "$IV_SOPS_UPDATE" ]; then
       log "Installing sops from ${sopsurl}"
       cmd rm /usr/local/bin/sops && \
